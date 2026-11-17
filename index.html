@@ -1657,11 +1657,17 @@
       const dCount = nuevosFactores.filter(x => x.cuadrante === 'debilidad').length;
       const aCount = nuevosFactores.filter(x => x.cuadrante === 'amenaza').length;
 
-      const resumenTexto = `DIAGNÓSTICO SITUACIONAL CONSOLIDADO DEL INS:\n` +
-        `Se integraron ${aportes.length} aportes técnicos de las unidades organizativas, consolidándose en ${fCount} Fortalezas, ${oCount} Oportunidades, ${dCount} Debilidades y ${aCount} Amenazas.\n\n` +
-        `• Estrategia Ofensiva (FO): Capitalizar las capacidades técnicas del Laboratorio Nacional de Salud Pública, Investigación y Educación Continua (ECHO) para aprovechar alianzas internacionales y cooperación técnica.\n` +
-        `• Estrategia de Reorientación (DO): Programar actividades en el PAO orientadas a cerrar las brechas internas identificadas en tiempos de respuesta, articulación de procesos y disponibilidad de insumos.\n` +
-        `• Estrategia Defensiva (FA): Utilizar el rigor científico y los sistemas de gestión de calidad/antisoborno (ISO 37001) para mitigar brotes epidemiológicos y riesgos externos.\n` +
+      const resumenTexto = `DIAGNÓSTICO SITUACIONAL CONSOLIDADO DEL INS:
+` +
+        `Se integraron ${aportes.length} aportes técnicos de las unidades organizativas, consolidándose en ${fCount} Fortalezas, ${oCount} Oportunidades, ${dCount} Debilidades y ${aCount} Amenazas.
+
+` +
+        `• Estrategia Ofensiva (FO): Capitalizar las capacidades técnicas del Laboratorio Nacional de Salud Pública, Investigación y Educación Continua (ECHO) para aprovechar alianzas internacionales y cooperación técnica.
+` +
+        `• Estrategia de Reorientación (DO): Programar actividades en el PAO orientadas a cerrar las brechas internas identificadas en tiempos de respuesta, articulación de procesos y disponibilidad de insumos.
+` +
+        `• Estrategia Defensiva (FA): Utilizar el rigor científico y los sistemas de gestión de calidad/antisoborno (ISO 37001) para mitigar brotes epidemiológicos y riesgos externos.
+` +
         `• Estrategia de Supervivencia (DA): Incorporar controles preventivos en la Matriz de Valoración de Riesgos para evitar la materialización de vulnerabilidades críticas.`;
 
       await sb.from('foda_analisis_ejecutivo').upsert({
@@ -1696,37 +1702,57 @@
       const cumplidas = rows.filter(r => ['Finalizada', 'En curso'].includes(r.semaforo_calculado));
       const retrasadas = rows.filter(r => ['Con retraso', 'En atención'].includes(r.semaforo_calculado));
 
-      let texto = `INSTITUTO NACIONAL DE SALUD (INS)\n`;
-      texto += `EVALUACIÓN DEL PLAN ANUAL OPERATIVO ${anio} — TRIMESTRE ${trim}\n`;
-      texto += `Presenta: Ing. Roberto Iván Rodas (Coordinador Unidad de Planificación y Calidad)\n`;
-      texto += `Visto Bueno: Dirección del Instituto Nacional de Salud\n`;
-      texto += `========================================================================\n\n`;
-      texto += `1. INTRODUCCIÓN Y RESUMEN EJECUTIVO\n`;
-      texto += `Durante el Trimestre ${trim} de ${anio}, el Instituto Nacional de Salud (INS) dio seguimiento a ${rows.length} actividades estratégicas y operativas alineadas al PEI MINSAL 2026–2030. El índice de ejecución promedio acotado (evitando distorsiones por sobre-demanda epidemiológica) alcanzó el ${avgAcotado}%, con ${cumplidas.length} actividades en rango de cumplimiento satisfactorio y ${retrasadas.length} en seguimiento por ajuste o reprogramación.\n\n`;
+      let texto = `INSTITUTO NACIONAL DE SALUD (INS)
+`;
+      texto += `EVALUACIÓN DEL PLAN ANUAL OPERATIVO ${anio} — TRIMESTRE ${trim}
+`;
+      texto += `Presenta: Ing. Roberto Iván Rodas (Coordinador Unidad de Planificación y Calidad)
+`;
+      texto += `Visto Bueno: Dirección del Instituto Nacional de Salud
+`;
+      texto += `========================================================================
 
-      texto += `2. PRINCIPALES AVANCES POR UNIDAD ORGANIZATIVA\n`;
+`;
+      texto += `1. INTRODUCCIÓN Y RESUMEN EJECUTIVO
+`;
+      texto += `Durante el Trimestre ${trim} de ${anio}, el Instituto Nacional de Salud (INS) dio seguimiento a ${rows.length} actividades estratégicas y operativas alineadas al PEI MINSAL 2026–2030. El índice de ejecución promedio acotado (evitando distorsiones por sobre-demanda epidemiológica) alcanzó el ${avgAcotado}%, con ${cumplidas.length} actividades en rango de cumplimiento satisfactorio y ${retrasadas.length} en seguimiento por ajuste o reprogramación.
+
+`;
+
+      texto += `2. PRINCIPALES AVANCES POR UNIDAD ORGANIZATIVA
+`;
       const unidadesUnicas = [...new Set(rows.map(r => r.unidad_ins))];
       unidadesUnicas.forEach(u => {
         const actsU = rows.filter(r => r.unidad_ins === u);
-        texto += `• ${u} (${actsU.length} actividades):\n`;
+        texto += `• ${u} (${actsU.length} actividades):
+`;
         actsU.forEach(a => {
-          texto += `  - ${a.actividad}: Ejecución acumulada al corte de ${a.pct_cumplimiento_corte ?? 0}% (${a.semaforo_calculado}).\n`;
+          texto += `  - ${a.actividad}: Ejecución acumulada al corte de ${a.pct_cumplimiento_corte ?? 0}% (${a.semaforo_calculado}).
+`;
         });
       });
 
-      texto += `\n3. GESTIÓN DE DESVIACIONES, JUSTIFICACIONES Y ACCIONES CORRECTIVAS (AUDITORÍA)\n`;
+      texto += `
+3. GESTIÓN DE DESVIACIONES, JUSTIFICACIONES Y ACCIONES CORRECTIVAS (AUDITORÍA)
+`;
       const justificaciones = (evData || []).filter(e => e.categoria !== 'evidencia_cumplimiento');
       if (justificaciones.length > 0) {
         justificaciones.forEach(j => {
-          texto += `• Actividad: ${j.actividades_poa?.actividad}\n`;
-          texto += `  - Causa tipificada: ${j.causa_retraso_tipificada || 'Ajuste operativo'}\n`;
-          texto += `  - Justificación técnica: ${j.descripcion_narrativa}\n`;
+          texto += `• Actividad: ${j.actividades_poa?.actividad}
+`;
+          texto += `  - Causa tipificada: ${j.causa_retraso_tipificada || 'Ajuste operativo'}
+`;
+          texto += `  - Justificación técnica: ${j.descripcion_narrativa}
+`;
         });
       } else {
-        texto += `• No se registraron desviaciones críticas sin justificación documental en el expediente del período.\n`;
+        texto += `• No se registraron desviaciones críticas sin justificación documental en el expediente del período.
+`;
       }
 
-      texto += `\n4. CONCLUSIONES\n`;
+      texto += `
+4. CONCLUSIONES
+`;
       texto += `El INS mantiene trazabilidad documental sobre sus metas operativas, asegurando el respaldo verificable ante auditorías internas y del Nivel Superior del MINSAL.`;
 
       document.getElementById('informe-editor').value = texto;
@@ -1744,7 +1770,7 @@
       const contenido = document.getElementById('informe-editor').value;
       if (!contenido) return alert('Primero genera el borrador del informe.');
       const htmlDoc = `<html><head><meta charset="utf-8"></head><body style="font-family: Calibri, sans-serif; line-height: 1.5; white-space: pre-wrap;">${contenido}</body></html>`;
-      const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
+      const blob = new Blob(['﻿', htmlDoc], { type: 'application/msword' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

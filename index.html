@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v1.1 | INS El Salvador</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS SDK v2 -->
@@ -33,7 +33,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica</p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.1</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -70,7 +70,10 @@
             INS
           </div>
           <div>
-            <div class="font-semibold text-sm sm:text-base leading-tight">Planificación Operativa y Estratégica</div>
+            <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
+              Planificación Operativa y Estratégica
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.1</span>
+            </div>
             <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad • MINSAL</div>
           </div>
         </div>
@@ -470,7 +473,7 @@
         <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 class="text-lg font-bold text-slate-800">Generador de Informes Gerenciales Trimestrales</h2>
-            <p class="text-xs text-slate-500">Redacta automáticamente el informe ejecutivo para la Dirección del INS con trazabilidad de auditoría.</p>
+            <p class="text-xs text-slate-500">Redacta automáticamente el informe ejecutivo para la Dirección del INS con desglose por categorías de producto.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <select id="inf-trimestre" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold">
@@ -490,7 +493,7 @@
 
         <div class="bg-white p-6 rounded-xl card-shadow border border-slate-200">
           <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Vista Previa Editable del Informe Gerencial INS</label>
-          <textarea id="informe-editor" rows="20"
+          <textarea id="informe-editor" rows="22"
             class="w-full p-5 rounded-xl border border-slate-300 text-sm font-serif leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-600"
             placeholder="Selecciona el trimestre y presiona 'Redactar Borrador Ejecutivo' para generar el informe basado en los datos reales de Supabase..."></textarea>
         </div>
@@ -500,26 +503,52 @@
       <!-- TAB 8: PARAMETRIZACIÓN DEL SISTEMA (ADMIN)                          -->
       <!-- =================================================================== -->
       <section id="tab-configuracion" class="tab-content hidden space-y-6">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Catálogo de Tipos de Producto INS -->
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
-            <h3 class="text-sm font-bold text-slate-800 mb-3">Catálogo Parametrizable de Tipos de Producto INS</h3>
-            <form id="form-nuevo-tipo-producto" class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 text-xs">
-              <input type="text" id="tp-codigo" required placeholder="Código (ej. PROD-TALLER)" class="px-3 py-2 rounded-lg border border-slate-300" />
-              <input type="text" id="tp-nombre" required placeholder="Nombre del Producto" class="px-3 py-2 rounded-lg border border-slate-300" />
-              <div class="flex gap-1">
-                <input type="text" id="tp-unidad" required placeholder="Unidad medida" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
-                <button type="submit" class="px-3 py-2 bg-sky-700 text-white rounded-lg font-semibold">+</button>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Catálogo de Tipos de Producto INS (Con Categoría/Área y Edición directa) -->
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 lg:col-span-2">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <div>
+                <h3 class="text-sm font-bold text-slate-800">Catálogo Parametrizable de Tipos de Producto INS</h3>
+                <p class="text-[11px] text-slate-500">Agrupa por área temática y edita directamente cualquier registro existente.</p>
+              </div>
+              <select id="filtro-cat-tp" onchange="renderConfigTables()" class="px-2.5 py-1 rounded-lg border border-slate-300 text-xs bg-slate-50">
+                <option value="ALL">Todas las Categorías</option>
+              </select>
+            </div>
+
+            <form id="form-nuevo-tipo-producto" class="grid grid-cols-1 sm:grid-cols-12 gap-2 mb-4 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div class="sm:col-span-3">
+                <input type="text" id="tp-categoria" list="lista-categorias-tp" placeholder="Área / Categoría (ej. Investigación)" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 bg-white" />
+                <datalist id="lista-categorias-tp">
+                  <option value="Investigación">
+                  <option value="Laboratorio Nacional">
+                  <option value="Educación Continua / ECHO">
+                  <option value="Vigilancia y Observatorio">
+                  <option value="Gestión y Calidad">
+                </datalist>
+              </div>
+              <div class="sm:col-span-2">
+                <input type="text" id="tp-codigo" required placeholder="Código" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 bg-white" />
+              </div>
+              <div class="sm:col-span-4">
+                <input type="text" id="tp-nombre" required placeholder="Nombre del Producto" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 bg-white" />
+              </div>
+              <div class="sm:col-span-3 flex gap-1">
+                <input type="text" id="tp-unidad" required placeholder="Unidad medida" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 bg-white" />
+                <button type="submit" title="Agregar nuevo tipo de producto" class="px-3 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-lg font-semibold">+</button>
               </div>
             </form>
-            <div class="max-h-72 overflow-y-auto scrollbar-thin">
+
+            <div class="max-h-96 overflow-y-auto scrollbar-thin">
               <table class="w-full text-left text-xs">
                 <thead class="bg-slate-50 text-slate-600 border-b">
                   <tr>
+                    <th class="py-2 px-2">Área / Categoría</th>
                     <th class="py-2 px-2">Código</th>
                     <th class="py-2 px-2">Tipo de Producto</th>
                     <th class="py-2 px-2">Unidad Medida</th>
                     <th class="py-2 px-2 text-center">Estado</th>
+                    <th class="py-2 px-2 text-center">Editar</th>
                   </tr>
                 </thead>
                 <tbody id="tabla-tipos-producto" class="divide-y divide-slate-100"></tbody>
@@ -527,20 +556,75 @@
             </div>
           </div>
 
-          <!-- Gestión de Planes Estratégicos y Ciclos Anuales -->
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 space-y-4">
-            <h3 class="text-sm font-bold text-slate-800">Planes Estratégicos y Ciclos Anuales</h3>
-            <form id="form-nuevo-ciclo" class="grid grid-cols-3 gap-2 text-xs">
-              <input type="number" id="ciclo-anio" required placeholder="Año (ej. 2028)" min="2025" max="2040" class="px-3 py-2 rounded-lg border border-slate-300" />
-              <select id="ciclo-plan-id" class="px-3 py-2 rounded-lg border border-slate-300"></select>
-              <button type="submit" class="px-3 py-2 bg-emerald-700 text-white rounded-lg font-semibold">Abrir Ciclo PAO</button>
-            </form>
-            <div id="lista-ciclos-admin" class="space-y-2 text-xs"></div>
+          <!-- Columna Derecha: Ciclos Anuales y Directorio de Referentes -->
+          <div class="space-y-6">
+            <!-- Gestión de Planes Estratégicos y Ciclos Anuales -->
+            <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 space-y-4">
+              <h3 class="text-sm font-bold text-slate-800">Planes Estratégicos y Ciclos Anuales</h3>
+              <form id="form-nuevo-ciclo" class="grid grid-cols-3 gap-2 text-xs">
+                <input type="number" id="ciclo-anio" required placeholder="Año (ej. 2028)" min="2025" max="2040" class="px-3 py-2 rounded-lg border border-slate-300" />
+                <select id="ciclo-plan-id" class="px-3 py-2 rounded-lg border border-slate-300"></select>
+                <button type="submit" class="px-3 py-2 bg-emerald-700 text-white rounded-lg font-semibold">Abrir Ciclo</button>
+              </form>
+              <div id="lista-ciclos-admin" class="space-y-2 text-xs"></div>
+            </div>
+
+            <!-- Directorio de Referentes / Responsables INS -->
+            <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 space-y-3">
+              <div>
+                <h3 class="text-sm font-bold text-slate-800">Directorio de Referentes INS (Col U)</h3>
+                <p class="text-[11px] text-slate-500">Se alimenta automáticamente desde los perfiles registrados y permite agregar referentes operativos.</p>
+              </div>
+              <form id="form-nuevo-referente" class="space-y-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <input type="text" id="ref-nombre" required placeholder="Nombre completo (ej. Dra. Ana López)" class="w-full px-2.5 py-1.5 rounded border border-slate-300 bg-white" />
+                <div class="grid grid-cols-2 gap-1.5">
+                  <select id="ref-unidad" class="px-2 py-1.5 rounded border border-slate-300 bg-white"></select>
+                  <input type="text" id="ref-cargo" placeholder="Cargo funcional" class="px-2.5 py-1.5 rounded border border-slate-300 bg-white" />
+                </div>
+                <button type="submit" class="w-full py-1.5 bg-sky-700 hover:bg-sky-800 text-white rounded-lg font-semibold">+ Agregar al Directorio</button>
+              </form>
+              <div id="lista-referentes-admin" class="max-h-48 overflow-y-auto scrollbar-thin divide-y divide-slate-100 text-xs"></div>
+            </div>
           </div>
         </div>
       </section>
 
     </main>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL: EDITAR TIPO DE PRODUCTO (PARAMETRIZACIÓN)                        -->
+  <!-- ======================================================================= -->
+  <div id="modal-editar-tp" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex justify-between items-center pb-3 border-b mb-4">
+        <h3 class="text-base font-bold text-slate-800">Editar Tipo de Producto INS</h3>
+        <button onclick="cerrarModal('modal-editar-tp')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="form-editar-tp" class="space-y-3 text-xs">
+        <input type="hidden" id="edit-tp-id" />
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Área / Categoría de Agrupación</label>
+          <input type="text" id="edit-tp-categoria" list="lista-categorias-tp" placeholder="ej. Investigación, Laboratorio Nacional..." class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Código</label>
+          <input type="text" id="edit-tp-codigo" required class="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono" />
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Nombre del Tipo de Producto</label>
+          <input type="text" id="edit-tp-nombre" required class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Unidad de Medida por Defecto</label>
+          <input type="text" id="edit-tp-unidad" required class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="cerrarModal('modal-editar-tp')" class="px-4 py-2 rounded-lg border text-slate-600 font-semibold">Cancelar</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-sky-700 text-white font-semibold hover:bg-sky-800">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- ======================================================================= -->
@@ -575,13 +659,21 @@
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Persona Responsable (Col U)</label>
-            <input type="text" id="act-responsable" required placeholder="Nombre completo del referente" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+            <input type="text" id="act-responsable" list="datalist-responsables" required placeholder="Selecciona o escribe el referente responsable" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+            <datalist id="datalist-responsables"></datalist>
+            <span id="act-responsable-cargo-hint" class="text-[11px] text-sky-700 font-medium block mt-0.5"></span>
           </div>
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Descripción de la Actividad (Col D - Verbo en infinitivo)</label>
-          <textarea id="act-descripcion" rows="2" required placeholder="Ej. Desarrollar 128 sesiones de teleclínicas del Proyecto ECHO..." class="w-full px-3 py-2 rounded-lg border border-slate-300"></textarea>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block font-semibold text-slate-700">Descripción de la Actividad (Col D - Verbo en infinitivo)</label>
+            <button type="button" onclick="mejorarRedaccionActividadIA()"
+              class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-[11px] border border-indigo-200 flex items-center gap-1 transition">
+              <i data-lucide="sparkles" class="w-3 h-3"></i> Mejorar redacción con IA
+            </button>
+          </div>
+          <textarea id="act-descripcion" rows="2" required placeholder="Escribe tu idea libre (ej. hacer 128 sesiones de teleclínicas echo sobre varios temas para capacitar médicos)..." class="w-full px-3 py-2 rounded-lg border border-slate-300"></textarea>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -590,15 +682,28 @@
             <input type="text" id="act-indicador" required placeholder="Ej. Porcentaje de sesiones de teleclínicas realizadas" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">Ponderación Gerencial</label>
-            <input type="number" step="0.1" id="act-ponderacion" value="1.0" required class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+            <div class="flex items-center gap-1 mb-1">
+              <label class="block font-semibold text-slate-700">Ponderación Gerencial</label>
+              <span title="Peso estratégico interno para el Dashboard Plurianual del INS (no afecta el Excel MINSAL):&#10;• 1.0 = Actividad operativa estándar&#10;• 1.5 = Actividad prioritaria de unidad&#10;• 2.0 = Proyecto insignia / alto impacto institucional"
+                class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-sky-100 text-sky-700 font-bold text-[10px] cursor-help">?</span>
+            </div>
+            <input type="number" step="0.1" min="0.1" max="5" id="act-ponderacion" value="1.0" required
+              onfocus="document.getElementById('ponderacion-help-box').classList.remove('hidden')"
+              onblur="setTimeout(()=>document.getElementById('ponderacion-help-box').classList.add('hidden'), 200)"
+              class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+            <div id="ponderacion-help-box" class="hidden mt-1 p-2 rounded-lg bg-sky-50 border border-sky-200 text-[10px] text-sky-900 leading-snug">
+              <b>Peso estratégico interno INS:</b><br/>
+              • <b>1.0</b>: Operativa estándar<br/>
+              • <b>1.5</b>: Prioritaria de unidad<br/>
+              • <b>2.0</b>: Estratégica / Alto impacto
+            </div>
           </div>
         </div>
 
         <div class="bg-sky-50 p-3 rounded-xl border border-sky-200">
           <label class="flex items-center gap-2 font-semibold text-sky-900 cursor-pointer">
             <input type="checkbox" id="act-consolida-productos" class="rounded text-sky-700" />
-            <span>Consolidar automáticamente desde Productos INS (ej. desglosar por temas de teleclínicas, cursos o investigaciones)</span>
+            <span>Consolidar automáticamente desde Productos INS (al guardar se abrirá la ventana para desglosar temáticas o entregables)</span>
           </label>
         </div>
 
@@ -640,7 +745,13 @@
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Supuestos Externos (Col X - Obligatorio MINSAL)</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block font-semibold text-slate-700">Supuestos Externos (Col X - Obligatorio MINSAL)</label>
+            <button type="button" onclick="sugerirSupuestosIA()"
+              class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-[11px] border border-indigo-200 flex items-center gap-1 transition">
+              <i data-lucide="sparkles" class="w-3 h-3"></i> Sugerir / Complementar con IA
+            </button>
+          </div>
           <input type="text" id="act-supuestos" required placeholder="Ej. Disponibilidad presupuestaria, participación de personal de las RIIS..." class="w-full px-3 py-2 rounded-lg border border-slate-300" />
         </div>
 
@@ -656,7 +767,7 @@
   <!-- MODAL: GESTIÓN DE PRODUCTOS INS / AVANCE TRIMESTRAL                     -->
   <!-- ======================================================================= -->
   <div id="modal-productos" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
+    <div class="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
       <div class="flex justify-between items-start pb-3 border-b border-slate-200 mb-4">
         <div>
           <span class="text-[11px] font-bold uppercase text-sky-700">Desglose Operativo y Seguimiento</span>
@@ -695,46 +806,51 @@
         </div>
       </div>
 
-      <!-- Sección B: Desglose por Productos INS (Roll-up automático) -->
+      <!-- Sección B: Desglose por Productos INS (Roll-up automático + Edición de Programados) -->
       <div id="seccion-productos-hijos" class="hidden space-y-4 text-xs">
         <form id="form-nuevo-producto" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
           <div class="font-bold text-slate-700">Agregar Producto / Entregable Específico del INS</div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <select id="prod-tipo-id" class="px-3 py-2 rounded-lg border border-slate-300"></select>
-            <input type="text" id="prod-nombre" required placeholder="Nombre específico (ej. Teleclínica ECHO Obstetricia)" class="sm:col-span-2 px-3 py-2 rounded-lg border border-slate-300" />
+            <select id="prod-tipo-id" class="px-3 py-2 rounded-lg border border-slate-300 bg-white"></select>
+            <input type="text" id="prod-nombre" required placeholder="Nombre específico (ej. Teleclínica ECHO Obstetricia)" class="sm:col-span-2 px-3 py-2 rounded-lg border border-slate-300 bg-white" />
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end">
             <div>
               <label class="block text-[11px] font-semibold text-slate-600">Prog. T1</label>
-              <input type="number" id="prod-p1" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+              <input type="number" id="prod-p1" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300 bg-white" />
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-600">Prog. T2</label>
-              <input type="number" id="prod-p2" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+              <input type="number" id="prod-p2" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300 bg-white" />
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-600">Prog. T3</label>
-              <input type="number" id="prod-p3" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+              <input type="number" id="prod-p3" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300 bg-white" />
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-600">Prog. T4</label>
-              <input type="number" id="prod-p4" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+              <input type="number" id="prod-p4" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300 bg-white" />
             </div>
             <button type="submit" class="px-3 py-2 bg-sky-700 text-white font-semibold rounded-lg hover:bg-sky-800">+ Agregar Producto</button>
           </div>
         </form>
 
+        <div class="bg-amber-50/70 border border-amber-200 rounded-lg px-3 py-2 text-[11px] text-amber-900 flex items-center justify-between">
+          <span>Puedes corregir directamente los valores <b>Programados (P)</b> o <b>Realizados (R)</b> y presionar <b>Guardar</b> en cada fila.</span>
+          <span id="resumen-suma-productos" class="font-bold text-sky-900"></span>
+        </div>
+
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs border">
             <thead class="bg-slate-100 text-slate-700">
               <tr>
-                <th class="p-2">Producto INS</th>
+                <th class="p-2 min-w-[210px]">Producto INS</th>
                 <th class="p-2 text-center">T1 (P / R)</th>
                 <th class="p-2 text-center">T2 (P / R)</th>
                 <th class="p-2 text-center">T3 (P / R)</th>
                 <th class="p-2 text-center">T4 (P / R)</th>
                 <th class="p-2">Comentario Técnico</th>
-                <th class="p-2 text-center">Guardar</th>
+                <th class="p-2 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody id="tabla-productos-hijos" class="divide-y"></tbody>
@@ -804,7 +920,7 @@
         </div>
         <div>
           <label class="block font-semibold mb-1">7. Persona Responsable</label>
-          <input type="text" id="rk-responsable" required class="w-full px-3 py-2 rounded-lg border" />
+          <input type="text" id="rk-responsable" list="datalist-responsables" required class="w-full px-3 py-2 rounded-lg border" />
         </div>
         <div class="flex justify-end gap-2 pt-3 border-t">
           <button type="button" onclick="cerrarModal('modal-riesgo')" class="px-4 py-2 rounded-lg border">Cancelar</button>
@@ -815,7 +931,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ                 -->
+  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.1            -->
   <!-- ======================================================================= -->
   <script>
     // 1. INICIALIZACIÓN DE SUPABASE
@@ -834,9 +950,35 @@
     let estrategiasList = [];
     let lineasList = [];
     let tiposProductoList = [];
+    let referentesList = [];
     let actividadesCache = [];
     let dashDataCache = [];
     let charts = {};
+
+    // Metadatos locales complementarios (para soportar agrupación y cargos sin requerir migración inmediata)
+    const LOCAL_TP_CAT_KEY = 'ins_tp_categorias_v11';
+    const LOCAL_REF_KEY = 'ins_directorio_referentes_v11';
+
+    function getLocalTpCats() {
+      try { return JSON.parse(localStorage.getItem(LOCAL_TP_CAT_KEY) || '{}'); } catch { return {}; }
+    }
+    function setLocalTpCat(id, cat) {
+      const map = getLocalTpCats();
+      if (cat) map[id] = cat; else delete map[id];
+      localStorage.setItem(LOCAL_TP_CAT_KEY, JSON.stringify(map));
+    }
+
+    function inferirCategoriaProducto(tp) {
+      const localMap = getLocalTpCats();
+      if (tp.categoria) return tp.categoria;
+      if (localMap[tp.id]) return localMap[tp.id];
+      const txt = ((tp.codigo || '') + ' ' + (tp.nombre || '')).toLowerCase();
+      if (txt.includes('investigaci') || txt.includes('revisi') || txt.includes('artículo') || txt.includes('protocolo')) return 'Investigación';
+      if (txt.includes('laboratorio') || txt.includes('muestra') || txt.includes('ensayo') || txt.includes('diagnóstico')) return 'Laboratorio Nacional';
+      if (txt.includes('echo') || txt.includes('teleclínica') || txt.includes('curso') || txt.includes('taller') || txt.includes('capacitaci')) return 'Educación Continua / ECHO';
+      if (txt.includes('vigilancia') || txt.includes('boletín') || txt.includes('observatorio')) return 'Vigilancia y Observatorio';
+      return 'General INS';
+    }
 
     // Inicializar iconos
     lucide.createIcons();
@@ -952,16 +1094,17 @@
       document.getElementById(id).classList.add('hidden');
     }
 
-    // 4. CARGA DE CATÁLOGOS MAESTROS
+    // 4. CARGA DE CATÁLOGOS MAESTROS Y DIRECTORIO DE REFERENTES
     async function initMasterData() {
-      const [uRes, pRes, cRes, eRes, estRes, laRes, tpRes] = await Promise.all([
+      const [uRes, pRes, cRes, eRes, estRes, laRes, tpRes, perfRes] = await Promise.all([
         sb.from('unidades_ins').select('*').eq('activa', true).order('nombre'),
         sb.from('planes_estrategicos').select('*').order('anio_inicio', { ascending: false }),
         sb.from('ciclos_anuales').select('*').order('anio', { ascending: false }),
         sb.from('pei_ejes').select('*').order('numero_orden'),
         sb.from('pei_estrategias').select('*').order('numero_orden'),
         sb.from('pei_lineas_accion').select('*').order('numero_orden'),
-        sb.from('catalogo_tipos_producto').select('*').order('nombre')
+        sb.from('catalogo_tipos_producto').select('*').order('nombre'),
+        sb.from('perfiles_usuarios').select('id, nombre_completo, unidad_id, rol')
       ]);
 
       unidadesList = uRes.data || [];
@@ -971,6 +1114,18 @@
       estrategiasList = estRes.data || [];
       lineasList = laRes.data || [];
       tiposProductoList = tpRes.data || [];
+
+      // Construir Directorio de Referentes combinando perfiles_usuarios + referentes locales
+      const perfilesDb = (perfRes.data || []).map(p => ({
+        id: p.id,
+        nombre: p.nombre_completo,
+        unidad_id: p.unidad_id,
+        cargo: (p.rol || 'Referente Técnico').replace('_', ' '),
+        origen: 'supabase'
+      }));
+      let locales = [];
+      try { locales = JSON.parse(localStorage.getItem(LOCAL_REF_KEY) || '[]'); } catch { locales = []; }
+      referentesList = [...perfilesDb, ...locales];
 
       const cicloSel = document.getElementById('global-ciclo-select');
       cicloSel.innerHTML = ciclosList.map(c => `<option value="${c.id}">PAO ${c.anio} (${c.estado})</option>`).join('');
@@ -987,15 +1142,47 @@
       document.getElementById('dash-unidad-filter').innerHTML = `<option value="ALL">Todas las Unidades INS</option>` + unitOpts;
       document.getElementById('act-unidad').innerHTML = unitOpts;
       document.getElementById('rk-unidad').innerHTML = unitOpts;
+      document.getElementById('ref-unidad').innerHTML = unitOpts;
 
       const planOpts = planesList.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
       document.getElementById('dash-plan-select').innerHTML = planOpts;
       document.getElementById('ciclo-plan-id').innerHTML = planOpts;
 
       setupPeiCascade();
+      actualizarDatalistResponsables();
       renderConfigTables();
       await reloadAllCycleData();
     }
+
+    function actualizarDatalistResponsables() {
+      const unitId = document.getElementById('act-unidad')?.value;
+      const dl = document.getElementById('datalist-responsables');
+      if (!dl) return;
+      // Ordenar poniendo primero los de la unidad seleccionada
+      const ordenados = [...referentesList].sort((a, b) => {
+        if (a.unidad_id === unitId && b.unidad_id !== unitId) return -1;
+        if (b.unidad_id === unitId && a.unidad_id !== unitId) return 1;
+        return a.nombre.localeCompare(b.nombre);
+      });
+      dl.innerHTML = ordenados.map(r => {
+        const u = unidadesList.find(x => x.id === r.unidad_id);
+        const uLabel = u ? (u.siglas || u.nombre) : 'INS';
+        return `<option value="${r.nombre}">${uLabel} • ${r.cargo || 'Referente'}</option>`;
+      }).join('');
+    }
+
+    document.getElementById('act-unidad').addEventListener('change', actualizarDatalistResponsables);
+    document.getElementById('act-responsable').addEventListener('input', (e) => {
+      const val = e.target.value.trim().toLowerCase();
+      const match = referentesList.find(r => r.nombre.toLowerCase() === val);
+      const hint = document.getElementById('act-responsable-cargo-hint');
+      if (match) {
+        const u = unidadesList.find(x => x.id === match.unidad_id);
+        hint.textContent = `Cargo: ${match.cargo || 'Referente'} (${u ? (u.siglas || u.nombre) : 'INS'})`;
+      } else {
+        hint.textContent = '';
+      }
+    });
 
     function setupPeiCascade() {
       const ejeSel = document.getElementById('act-eje');
@@ -1038,10 +1225,78 @@
       if (tab === 'evidencias') loadEvidencias();
       if (tab === 'riesgos') loadRiesgos();
       if (tab === 'foda') loadFoda();
+      if (tab === 'configuracion') renderConfigTables();
     }
 
     // =========================================================================
-    // 5. DASHBOARD OPERATIVO ANUAL
+    // 5. ASISTENTES IA EN FORMULARIO DE ACTIVIDADES (COL D Y COL X)
+    // =========================================================================
+    function mejorarRedaccionActividadIA() {
+      const field = document.getElementById('act-descripcion');
+      let texto = field.value.trim();
+      if (!texto) {
+        alert('Escribe primero una idea general de lo que deseas realizar en la actividad (por ejemplo: "hacer 128 teleclínicas echo sobre salud").');
+        field.focus();
+        return;
+      }
+
+      // Limpieza de redundancias y frases rebuscadas
+      texto = texto
+        .replace(/(almenos|al menos)/gi, 'al menos')
+        .replace(/(llevar a cabo|realizar la ejecución de|proceder a realizar|hacer)/gi, 'Ejecutar')
+        .replace(/(con el objetivo de poder|con la finalidad de lograr|a fin de poder)/gi, 'para')
+        .replace(/(distintas y variadas|diferentes y diversas)/gi, 'diversas')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      // Asegurar inicio con verbo en infinitivo institucional claro
+      const verbosInfinitivo = /^(desarrollar|ejecutar|implementar|realizar|elaborar|fortalecer|gestionar|publicar|evaluar|coordinar|efectuar|brindar|analizar|diseñar|establecer|conducir)/i;
+      if (!verbosInfinitivo.test(texto)) {
+        texto = 'Desarrollar ' + texto.charAt(0).toLowerCase() + texto.slice(1);
+      } else {
+        texto = texto.charAt(0).toUpperCase() + texto.slice(1);
+      }
+
+      if (!texto.endsWith('.')) texto += '.';
+      field.value = texto;
+
+      // Si el indicador está vacío, sugerir uno alineado automáticamente
+      const indField = document.getElementById('act-indicador');
+      if (!indField.value.trim()) {
+        const cleanBase = texto.replace(/^[A-Za-zÁÉÍÓÚáéíóúñÑ]+\s+/, '').replace(/\.$/, '');
+        indField.value = 'Porcentaje de avance en ' + cleanBase.charAt(0).toLowerCase() + cleanBase.slice(1);
+      }
+    }
+
+    function sugerirSupuestosIA() {
+      const act = document.getElementById('act-descripcion').value.toLowerCase();
+      const supField = document.getElementById('act-supuestos');
+      const actual = supField.value.trim();
+
+      let sugerencias = [];
+      if (act.includes('echo') || act.includes('teleclínica') || act.includes('capacita') || act.includes('curso')) {
+        sugerencias.push('Disponibilidad de conectividad tecnológica, participación activa del personal de salud de las RIIS y confirmación oportuna de ponentes especialistas.');
+      } else if (act.includes('investigaci') || act.includes('estudio') || act.includes('protocolo') || act.includes('revisi')) {
+        sugerencias.push('Aprobación oportuna por el Comité Nacional de Ética de Investigación en Salud (CNEIS), acceso a fuentes de información y disponibilidad presupuestaria.');
+      } else if (act.includes('laboratorio') || act.includes('muestra') || act.includes('vigilancia') || act.includes('diagnóstico')) {
+        sugerencias.push('Abastecimiento continuo de reactivos e insumos críticos, envío oportuno de muestras desde la red de establecimientos y estabilidad epidemiológica.');
+      } else if (act.includes('publica') || act.includes('revista') || act.includes('alerta') || act.includes('artículo')) {
+        sugerencias.push('Recepción oportuna de manuscritos científicos y cumplimiento de tiempos de evaluación por pares externos.');
+      } else {
+        sugerencias.push('Disponibilidad oportuna de recursos financieros y logísticos, así como articulación efectiva con las dependencias técnicas del MINSAL.');
+      }
+
+      if (actual && !actual.endsWith('.')) {
+        supField.value = actual + '; ' + sugerencias[0].charAt(0).toLowerCase() + sugerencias[0].slice(1);
+      } else if (actual) {
+        supField.value = actual + ' ' + sugerencias[0];
+      } else {
+        supField.value = sugerencias[0];
+      }
+    }
+
+    // =========================================================================
+    // 6. DASHBOARD OPERATIVO ANUAL
     // =========================================================================
     document.getElementById('dash-trimestre-corte').addEventListener('change', loadDashboardAnual);
     document.getElementById('dash-unidad-filter').addEventListener('change', loadDashboardAnual);
@@ -1123,7 +1378,7 @@
     }
 
     // =========================================================================
-    // 6. DASHBOARD ESTRATÉGICO PLURIANUAL
+    // 7. DASHBOARD ESTRATÉGICO PLURIANUAL
     // =========================================================================
     document.getElementById('dash-plan-select').addEventListener('change', loadDashboardPlurianual);
 
@@ -1172,10 +1427,11 @@
     }
 
     // =========================================================================
-    // 7. MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS
+    // 8. MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS (CON FLUJO CONTINUO Y EDICIÓN)
     // =========================================================================
     document.getElementById('btn-nueva-actividad').addEventListener('click', () => {
       document.getElementById('modal-actividad').classList.remove('hidden');
+      actualizarDatalistResponsables();
     });
 
     document.getElementById('act-consolida-productos').addEventListener('change', (e) => {
@@ -1189,9 +1445,9 @@
         ciclo_id: activeCicloId,
         linea_accion_id: document.getElementById('act-linea').value,
         unidad_ins_id: document.getElementById('act-unidad').value,
-        responsable_nombre: document.getElementById('act-responsable').value,
-        actividad: document.getElementById('act-descripcion').value,
-        indicador: document.getElementById('act-indicador').value,
+        responsable_nombre: document.getElementById('act-responsable').value.trim(),
+        actividad: document.getElementById('act-descripcion').value.trim(),
+        indicador: document.getElementById('act-indicador').value.trim(),
         ponderacion: parseFloat(document.getElementById('act-ponderacion').value) || 1.0,
         consolida_desde_productos: consolida,
         prog_t1: consolida ? 0 : parseFloat(document.getElementById('act-p1').value) || 0,
@@ -1201,16 +1457,22 @@
         fecha_inicio: document.getElementById('act-inicio').value,
         fecha_fin: document.getElementById('act-fin').value,
         pasa_poi: document.getElementById('act-poi').value === 'true',
-        supuestos_externos: document.getElementById('act-supuestos').value
+        supuestos_externos: document.getElementById('act-supuestos').value.trim()
       };
 
-      const { error } = await sb.from('actividades_poa').insert(payload);
+      const { data: inserted, error } = await sb.from('actividades_poa').insert(payload).select().single();
       if (error) {
         alert('Error al guardar actividad: ' + error.message);
       } else {
         cerrarModal('modal-actividad');
         e.target.reset();
+        document.getElementById('bloque-prog-directa').classList.remove('hidden');
         await reloadAllCycleData();
+
+        // MEJORA v1.1: Flujo continuo -> abrir automáticamente la ventana de desglose de productos
+        if (consolida && inserted?.id) {
+          await abrirGestionProductos(inserted.id);
+        }
       }
     });
 
@@ -1245,7 +1507,7 @@
               <td class="px-3 py-2.5 font-semibold text-slate-700">Eje ${ejeNum}</td>
               <td class="px-3 py-2.5">
                 <div class="font-medium text-slate-900">${a.actividad}</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Resp: ${a.responsable_nombre}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Resp: ${a.responsable_nombre} • Pond: ${a.ponderacion}</div>
               </td>
               <td class="px-3 py-2.5 text-slate-600">${a.unidades_ins?.siglas || a.unidades_ins?.nombre || '-'}</td>
               <td class="px-3 py-2.5 text-center">${badgeModo}</td>
@@ -1284,9 +1546,25 @@
       if (act.consolida_desde_productos) {
         document.getElementById('seccion-avance-directo').classList.add('hidden');
         document.getElementById('seccion-productos-hijos').classList.remove('hidden');
-        document.getElementById('prod-tipo-id').innerHTML = tiposProductoList
-          .filter(t => t.activo)
-          .map(t => `<option value="${t.id}">${t.nombre}</option>`).join('');
+
+        // Agrupar tipos de producto por Área/Categoría en el selector
+        const activos = tiposProductoList.filter(t => t.activo).map(t => ({
+          ...t,
+          _cat: inferirCategoriaProducto(t)
+        })).sort((a, b) => a._cat.localeCompare(b._cat) || a.nombre.localeCompare(b.nombre));
+
+        const grupos = {};
+        activos.forEach(t => {
+          if (!grupos[t._cat]) grupos[t._cat] = [];
+          grupos[t._cat].push(t);
+        });
+
+        document.getElementById('prod-tipo-id').innerHTML = Object.keys(grupos).map(cat => `
+          <optgroup label="${cat}">
+            ${grupos[cat].map(t => `<option value="${t.id}">${t.nombre}</option>`).join('')}
+          </optgroup>
+        `).join('');
+
         await loadProductosHijos(actId);
       } else {
         document.getElementById('seccion-productos-hijos').classList.add('hidden');
@@ -1325,20 +1603,47 @@
         .eq('actividad_poa_id', actId)
         .order('created_at');
 
+      const items = data || [];
+      const totalProg = items.reduce((acc, p) => acc + (Number(p.prog_num_t1)||0) + (Number(p.prog_num_t2)||0) + (Number(p.prog_num_t3)||0) + (Number(p.prog_num_t4)||0), 0);
+      const totalReal = items.reduce((acc, p) => acc + (Number(p.real_num_t1)||0) + (Number(p.real_num_t2)||0) + (Number(p.real_num_t3)||0) + (Number(p.real_num_t4)||0), 0);
+      document.getElementById('resumen-suma-productos').textContent = `Total Consolidado: ${totalReal} realizados / ${totalProg} programados (${items.length} entregables)`;
+
       const tbody = document.getElementById('tabla-productos-hijos');
-      tbody.innerHTML = (data || []).map(p => `
-        <tr>
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Agrega arriba los productos o temáticas específicas que componen esta actividad.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = items.map(p => `
+        <tr class="hover:bg-slate-50">
           <td class="p-2">
-            <div class="font-semibold text-slate-800">${p.nombre_producto}</div>
-            <div class="text-[10px] text-slate-400">${p.catalogo_tipos_producto?.nombre || ''}</div>
+            <input type="text" id="pnom-${p.id}" value="${p.nombre_producto.replace(/"/g, '&quot;')}" class="w-full font-semibold text-slate-800 px-1.5 py-0.5 border border-transparent hover:border-slate-300 focus:border-sky-500 rounded bg-transparent focus:bg-white" />
+            <div class="text-[10px] text-slate-400 px-1.5">${p.catalogo_tipos_producto?.nombre || ''}</div>
           </td>
-          <td class="p-2 text-center">${p.prog_num_t1} / <input type="number" id="pr1-${p.id}" value="${p.real_num_t1 ?? ''}" class="w-12 px-1 py-0.5 border rounded text-center" /></td>
-          <td class="p-2 text-center">${p.prog_num_t2} / <input type="number" id="pr2-${p.id}" value="${p.real_num_t2 ?? ''}" class="w-12 px-1 py-0.5 border rounded text-center" /></td>
-          <td class="p-2 text-center">${p.prog_num_t3} / <input type="number" id="pr3-${p.id}" value="${p.real_num_t3 ?? ''}" class="w-12 px-1 py-0.5 border rounded text-center" /></td>
-          <td class="p-2 text-center">${p.prog_num_t4} / <input type="number" id="pr4-${p.id}" value="${p.real_num_t4 ?? ''}" class="w-12 px-1 py-0.5 border rounded text-center" /></td>
+          <td class="p-2 text-center whitespace-nowrap">
+            <input type="number" min="0" id="pp1-${p.id}" value="${p.prog_num_t1 ?? 0}" title="Programado T1" class="w-11 px-1 py-0.5 border border-sky-200 bg-sky-50/50 rounded text-center font-semibold text-sky-900" />
+            /
+            <input type="number" min="0" id="pr1-${p.id}" value="${p.real_num_t1 ?? ''}" title="Realizado T1" placeholder="-" class="w-11 px-1 py-0.5 border rounded text-center" />
+          </td>
+          <td class="p-2 text-center whitespace-nowrap">
+            <input type="number" min="0" id="pp2-${p.id}" value="${p.prog_num_t2 ?? 0}" title="Programado T2" class="w-11 px-1 py-0.5 border border-sky-200 bg-sky-50/50 rounded text-center font-semibold text-sky-900" />
+            /
+            <input type="number" min="0" id="pr2-${p.id}" value="${p.real_num_t2 ?? ''}" title="Realizado T2" placeholder="-" class="w-11 px-1 py-0.5 border rounded text-center" />
+          </td>
+          <td class="p-2 text-center whitespace-nowrap">
+            <input type="number" min="0" id="pp3-${p.id}" value="${p.prog_num_t3 ?? 0}" title="Programado T3" class="w-11 px-1 py-0.5 border border-sky-200 bg-sky-50/50 rounded text-center font-semibold text-sky-900" />
+            /
+            <input type="number" min="0" id="pr3-${p.id}" value="${p.real_num_t3 ?? ''}" title="Realizado T3" placeholder="-" class="w-11 px-1 py-0.5 border rounded text-center" />
+          </td>
+          <td class="p-2 text-center whitespace-nowrap">
+            <input type="number" min="0" id="pp4-${p.id}" value="${p.prog_num_t4 ?? 0}" title="Programado T4" class="w-11 px-1 py-0.5 border border-sky-200 bg-sky-50/50 rounded text-center font-semibold text-sky-900" />
+            /
+            <input type="number" min="0" id="pr4-${p.id}" value="${p.real_num_t4 ?? ''}" title="Realizado T4" placeholder="-" class="w-11 px-1 py-0.5 border rounded text-center" />
+          </td>
           <td class="p-2"><input type="text" id="pcom-${p.id}" value="${p.comentario_t1 || ''}" placeholder="Comentario..." class="w-full px-2 py-1 border rounded" /></td>
-          <td class="p-2 text-center">
-            <button onclick="guardarProductoHijo('${p.id}')" class="px-2 py-1 bg-emerald-600 text-white rounded font-semibold">OK</button>
+          <td class="p-2 text-center whitespace-nowrap">
+            <button onclick="guardarProductoHijo('${p.id}')" title="Guardar cambios" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded font-semibold">Guardar</button>
+            <button onclick="eliminarProductoHijo('${p.id}')" title="Eliminar entregable" class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded font-semibold ml-1">✕</button>
           </td>
         </tr>
       `).join('');
@@ -1349,7 +1654,7 @@
       const { error } = await sb.from('productos_poa').insert({
         actividad_poa_id: currentEditingActId,
         tipo_producto_id: document.getElementById('prod-tipo-id').value,
-        nombre_producto: document.getElementById('prod-nombre').value,
+        nombre_producto: document.getElementById('prod-nombre').value.trim(),
         prog_num_t1: parseFloat(document.getElementById('prod-p1').value) || 0,
         prog_num_t2: parseFloat(document.getElementById('prod-p2').value) || 0,
         prog_num_t3: parseFloat(document.getElementById('prod-p3').value) || 0,
@@ -1357,7 +1662,7 @@
       });
       if (error) alert(error.message);
       else {
-        e.target.reset();
+        document.getElementById('prod-nombre').value = '';
         await loadProductosHijos(currentEditingActId);
         await reloadAllCycleData();
       }
@@ -1369,6 +1674,11 @@
         return v === '' ? null : parseFloat(v);
       };
       const { error } = await sb.from('productos_poa').update({
+        nombre_producto: document.getElementById(`pnom-${prodId}`).value.trim(),
+        prog_num_t1: parseFloat(document.getElementById(`pp1-${prodId}`).value) || 0,
+        prog_num_t2: parseFloat(document.getElementById(`pp2-${prodId}`).value) || 0,
+        prog_num_t3: parseFloat(document.getElementById(`pp3-${prodId}`).value) || 0,
+        prog_num_t4: parseFloat(document.getElementById(`pp4-${prodId}`).value) || 0,
         real_num_t1: pVal(`pr1-${prodId}`),
         real_num_t2: pVal(`pr2-${prodId}`),
         real_num_t3: pVal(`pr3-${prodId}`),
@@ -1378,8 +1688,19 @@
 
       if (error) alert(error.message);
       else {
+        await loadProductosHijos(currentEditingActId);
         await reloadAllCycleData();
         alert('Producto actualizado y consolidado automáticamente en la Matriz MINSAL.');
+      }
+    }
+
+    async function eliminarProductoHijo(prodId) {
+      if (!confirm('¿Estás seguro de eliminar este producto/temática de la actividad?')) return;
+      const { error } = await sb.from('productos_poa').delete().eq('id', prodId);
+      if (error) alert(error.message);
+      else {
+        await loadProductosHijos(currentEditingActId);
+        await reloadAllCycleData();
       }
     }
 
@@ -1421,7 +1742,7 @@
     });
 
     // =========================================================================
-    // 8. BÓVEDA DE EVIDENCIAS Y JUSTIFICACIONES
+    // 9. BÓVEDA DE EVIDENCIAS Y JUSTIFICACIONES
     // =========================================================================
     document.getElementById('form-evidencia').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1500,7 +1821,7 @@
     }
 
     // =========================================================================
-    // 9. MATRIZ DE RIESGOS (13 COLUMNAS)
+    // 10. MATRIZ DE RIESGOS (13 COLUMNAS)
     // =========================================================================
     document.getElementById('btn-nuevo-riesgo').addEventListener('click', () => {
       document.getElementById('modal-riesgo').classList.remove('hidden');
@@ -1578,7 +1899,7 @@
     }
 
     // =========================================================================
-    // 10. ANÁLISIS FODA PARTICIPATIVO CON SÍNTESIS IA
+    // 11. ANÁLISIS FODA PARTICIPATIVO CON SÍNTESIS IA
     // =========================================================================
     document.getElementById('form-aporte-foda').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -1681,7 +2002,7 @@
     });
 
     // =========================================================================
-    // 11. GENERADOR DE INFORMES GERENCIALES TRIMESTRALES
+    // 12. GENERADOR DE INFORMES GERENCIALES (CON DESGLOSE POR TIPO DE PRODUCTO)
     // =========================================================================
     document.getElementById('btn-generar-informe').addEventListener('click', async () => {
       const trim = parseInt(document.getElementById('inf-trimestre').value);
@@ -1694,6 +2015,16 @@
         .select('*, actividades_poa(actividad)')
         .eq('ciclo_id', activeCicloId)
         .eq('trimestre', trim);
+
+      // Consultar todos los productos hijos de las actividades de este ciclo para el desglose por categoría
+      const actIds = actividadesCache.map(a => a.id);
+      let productosCiclo = [];
+      if (actIds.length > 0) {
+        const { data: prodData } = await sb.from('productos_poa')
+          .select('*, catalogo_tipos_producto(id, codigo, nombre, unidad_medida_default)')
+          .in('actividad_poa_id', actIds);
+        productosCiclo = prodData || [];
+      }
 
       const rows = evalData || [];
       const anio = rows[0]?.anio || '2026';
@@ -1732,8 +2063,45 @@
         });
       });
 
+      // MEJORA v1.1: Desglose de Productos Técnicos por Área y Tipo de Producto (ej. Investigaciones por subtipo)
       texto += `
-3. GESTIÓN DE DESVIACIONES, JUSTIFICACIONES Y ACCIONES CORRECTIVAS (AUDITORÍA)
+3. DESGLOSE TÉCNICO DE ENTREGABLES POR ÁREA Y TIPO DE PRODUCTO
+`;
+      if (productosCiclo.length > 0) {
+        const mapArea = {};
+        productosCiclo.forEach(p => {
+          const tp = p.catalogo_tipos_producto || { nombre: 'Producto General INS', unidad_medida_default: 'unidades' };
+          const area = inferirCategoriaProducto(tp);
+          const tipoNombre = tp.nombre;
+          if (!mapArea[area]) mapArea[area] = {};
+          if (!mapArea[area][tipoNombre]) {
+            mapArea[area][tipoNombre] = { progAcum: 0, realAcum: 0, progAnual: 0, unidad: tp.unidad_medida_default || 'entregables', count: 0 };
+          }
+          for (let t = 1; t <= trim; t++) {
+            mapArea[area][tipoNombre].progAcum += Number(p['prog_num_t' + t] || 0);
+            mapArea[area][tipoNombre].realAcum += Number(p['real_num_t' + t] || 0);
+          }
+          mapArea[area][tipoNombre].progAnual += (Number(p.prog_num_t1)||0) + (Number(p.prog_num_t2)||0) + (Number(p.prog_num_t3)||0) + (Number(p.prog_num_t4)||0);
+          mapArea[area][tipoNombre].count += 1;
+        });
+
+        Object.keys(mapArea).sort().forEach(area => {
+          texto += `• Área: ${area}
+`;
+          Object.keys(mapArea[area]).sort().forEach(tipo => {
+            const st = mapArea[area][tipo];
+            const pct = st.progAcum > 0 ? ((st.realAcum / st.progAcum) * 100).toFixed(1) : '0.0';
+            texto += `  - ${tipo}: ${st.realAcum} realizados de ${st.progAcum} programados al T${trim} (${pct}% de ejecución al corte; meta anual: ${st.progAnual} ${st.unidad}).
+`;
+          });
+        });
+      } else {
+        texto += `• No se registraron productos desagregados en las actividades del ciclo actual.
+`;
+      }
+
+      texto += `
+4. GESTIÓN DE DESVIACIONES, JUSTIFICACIONES Y ACCIONES CORRECTIVAS (AUDITORÍA)
 `;
       const justificaciones = (evData || []).filter(e => e.categoria !== 'evidencia_cumplimiento');
       if (justificaciones.length > 0) {
@@ -1751,9 +2119,9 @@
       }
 
       texto += `
-4. CONCLUSIONES
+5. CONCLUSIONES
 `;
-      texto += `El INS mantiene trazabilidad documental sobre sus metas operativas, asegurando el respaldo verificable ante auditorías internas y del Nivel Superior del MINSAL.`;
+      texto += `El INS mantiene trazabilidad documental sobre sus metas operativas y desglose técnico por producto, asegurando el respaldo verificable ante auditorías internas y del Nivel Superior del MINSAL.`;
 
       document.getElementById('informe-editor').value = texto;
 
@@ -1779,19 +2147,47 @@
     });
 
     // =========================================================================
-    // 12. PARAMETRIZACIÓN (ADMIN)
+    // 13. PARAMETRIZACIÓN (ADMIN v1.1: EDICIÓN DIRECTA, CATEGORÍAS Y DIRECTORIO)
     // =========================================================================
     function renderConfigTables() {
+      const enriquecidos = tiposProductoList.map(tp => ({
+        ...tp,
+        _cat: inferirCategoriaProducto(tp)
+      }));
+
+      // Actualizar filtro de categorías
+      const catsUnicas = [...new Set(enriquecidos.map(x => x._cat))].sort();
+      const filtroSel = document.getElementById('filtro-cat-tp');
+      const valActualFiltro = filtroSel.value || 'ALL';
+      filtroSel.innerHTML = `<option value="ALL">Todas las Categorías (${enriquecidos.length})</option>` +
+        catsUnicas.map(c => `<option value="${c}">${c}</option>`).join('');
+      if ([...filtroSel.options].some(o => o.value === valActualFiltro)) {
+        filtroSel.value = valActualFiltro;
+      }
+
+      const filtrados = enriquecidos
+        .filter(tp => filtroSel.value === 'ALL' || tp._cat === filtroSel.value)
+        .sort((a, b) => a._cat.localeCompare(b._cat) || a.nombre.localeCompare(b.nombre));
+
       const tbody = document.getElementById('tabla-tipos-producto');
-      tbody.innerHTML = tiposProductoList.map(tp => `
-        <tr>
-          <td class="py-2 px-2 font-mono text-[11px]">${tp.codigo}</td>
-          <td class="py-2 px-2 font-medium">${tp.nombre}</td>
+      tbody.innerHTML = filtrados.map(tp => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-2 px-2">
+            <span class="px-2 py-0.5 rounded bg-sky-50 text-sky-800 font-semibold text-[10px] border border-sky-100">${tp._cat}</span>
+          </td>
+          <td class="py-2 px-2 font-mono text-[11px] text-slate-600">${tp.codigo}</td>
+          <td class="py-2 px-2 font-medium text-slate-900">${tp.nombre}</td>
           <td class="py-2 px-2 text-slate-500">${tp.unidad_medida_default}</td>
           <td class="py-2 px-2 text-center">
             <button onclick="toggleTipoProducto('${tp.id}', ${!tp.activo})"
               class="px-2 py-0.5 rounded text-[10px] font-semibold ${tp.activo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
               ${tp.activo ? 'Activo' : 'Inactivo'}
+            </button>
+          </td>
+          <td class="py-2 px-2 text-center">
+            <button onclick="abrirModalEditarTp('${tp.id}')" title="Editar producto"
+              class="px-2 py-1 rounded bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-800 font-semibold text-[11px]">
+              Editar
             </button>
           </td>
         </tr>
@@ -1800,24 +2196,79 @@
       document.getElementById('lista-ciclos-admin').innerHTML = ciclosList.map(c => `
         <div class="p-3 rounded-lg border bg-slate-50 flex justify-between items-center">
           <div><b>PAO ${c.anio}</b> • Estado: <span class="uppercase text-sky-700 font-semibold">${c.estado}</span></div>
-          <select onchange="cambiarEstadoCiclo('${c.id}', this.value)" class="px-2 py-1 border rounded text-xs">
+          <select onchange="cambiarEstadoCiclo('${c.id}', this.value)" class="px-2 py-1 border rounded text-xs bg-white">
             <option value="formulacion" ${c.estado === 'formulacion' ? 'selected' : ''}>Formulación</option>
             <option value="en_ejecucion" ${c.estado === 'en_ejecucion' ? 'selected' : ''}>En Ejecución</option>
             <option value="cerrado" ${c.estado === 'cerrado' ? 'selected' : ''}>Cerrado</option>
           </select>
         </div>
       `).join('');
+
+      // Renderizar Directorio de Referentes
+      const refCont = document.getElementById('lista-referentes-admin');
+      if (referentesList.length === 0) {
+        refCont.innerHTML = `<div class="py-3 text-slate-400 text-center">No hay referentes registrados.</div>`;
+      } else {
+        refCont.innerHTML = referentesList.map((r, idx) => {
+          const u = unidadesList.find(x => x.id === r.unidad_id);
+          return `
+            <div class="py-2 flex items-center justify-between gap-2">
+              <div>
+                <div class="font-semibold text-slate-800">${r.nombre}</div>
+                <div class="text-[10px] text-slate-500">${u ? (u.siglas || u.nombre) : 'INS'} • ${r.cargo || 'Referente Técnico'}</div>
+              </div>
+              ${r.origen === 'local' ? `<button onclick="eliminarReferenteLocal(${idx})" class="text-rose-500 hover:text-rose-700 text-[11px] font-semibold">Quitar</button>` : `<span class="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Usuario</span>`}
+            </div>
+          `;
+        }).join('');
+      }
     }
+
+    function abrirModalEditarTp(id) {
+      const tp = tiposProductoList.find(x => x.id === id);
+      if (!tp) return;
+      document.getElementById('edit-tp-id').value = tp.id;
+      document.getElementById('edit-tp-categoria').value = inferirCategoriaProducto(tp);
+      document.getElementById('edit-tp-codigo').value = tp.codigo;
+      document.getElementById('edit-tp-nombre').value = tp.nombre;
+      document.getElementById('edit-tp-unidad').value = tp.unidad_medida_default;
+      document.getElementById('modal-editar-tp').classList.remove('hidden');
+    }
+
+    document.getElementById('form-editar-tp').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('edit-tp-id').value;
+      const cat = document.getElementById('edit-tp-categoria').value.trim();
+      const payload = {
+        codigo: document.getElementById('edit-tp-codigo').value.trim().toUpperCase(),
+        nombre: document.getElementById('edit-tp-nombre').value.trim(),
+        unidad_medida_default: document.getElementById('edit-tp-unidad').value.trim()
+      };
+
+      const { error } = await sb.from('catalogo_tipos_producto').update(payload).eq('id', id);
+      if (error) {
+        alert('Error al actualizar tipo de producto: ' + error.message);
+      } else {
+        setLocalTpCat(id, cat);
+        const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
+        tiposProductoList = data || [];
+        cerrarModal('modal-editar-tp');
+        renderConfigTables();
+      }
+    });
 
     document.getElementById('form-nuevo-tipo-producto').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const { error } = await sb.from('catalogo_tipos_producto').insert({
+      const cat = document.getElementById('tp-categoria').value.trim();
+      const { data: inserted, error } = await sb.from('catalogo_tipos_producto').insert({
         codigo: document.getElementById('tp-codigo').value.trim().toUpperCase(),
         nombre: document.getElementById('tp-nombre').value.trim(),
         unidad_medida_default: document.getElementById('tp-unidad').value.trim()
-      });
+      }).select().single();
+
       if (error) alert(error.message);
       else {
+        if (inserted?.id && cat) setLocalTpCat(inserted.id, cat);
         e.target.reset();
         const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
         tiposProductoList = data || [];
@@ -1829,6 +2280,37 @@
       await sb.from('catalogo_tipos_producto').update({ activo: nuevoEstado }).eq('id', id);
       const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
       tiposProductoList = data || [];
+      renderConfigTables();
+    }
+
+    document.getElementById('form-nuevo-referente').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nuevo = {
+        id: 'local-' + Date.now(),
+        nombre: document.getElementById('ref-nombre').value.trim(),
+        unidad_id: document.getElementById('ref-unidad').value,
+        cargo: document.getElementById('ref-cargo').value.trim() || 'Referente Técnico',
+        origen: 'local'
+      };
+      let locales = [];
+      try { locales = JSON.parse(localStorage.getItem(LOCAL_REF_KEY) || '[]'); } catch { locales = []; }
+      locales.push(nuevo);
+      localStorage.setItem(LOCAL_REF_KEY, JSON.stringify(locales));
+      referentesList.push(nuevo);
+      e.target.reset();
+      actualizarDatalistResponsables();
+      renderConfigTables();
+    });
+
+    function eliminarReferenteLocal(idx) {
+      const target = referentesList[idx];
+      if (!target || target.origen !== 'local') return;
+      let locales = [];
+      try { locales = JSON.parse(localStorage.getItem(LOCAL_REF_KEY) || '[]'); } catch { locales = []; }
+      locales = locales.filter(x => x.id !== target.id);
+      localStorage.setItem(LOCAL_REF_KEY, JSON.stringify(locales));
+      referentesList.splice(idx, 1);
+      actualizarDatalistResponsables();
       renderConfigTables();
     }
 

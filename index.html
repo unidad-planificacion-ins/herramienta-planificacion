@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Planificación Operativa y Estratégica | INS El Salvador</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS SDK v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Chart.js para Dashboards -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS para Exportación Excel 25 Columnas MINSAL -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .ins-gradient { background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 55%, #0284c7 100%); }
+    .card-shadow { box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.06); }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- PANTALLA DE INICIO DE SESIÓN -->
+  <div id="login-screen" class="min-h-screen flex items-center justify-center ins-gradient p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-sky-50 text-sky-700 font-bold text-2xl mb-3 border border-sky-200">
+          INS
+        </div>
+        <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica</p>
+      </div>
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Correo Institucional</label>
+          <input type="email" id="login-email" required placeholder="usuario@salud.gob.sv"
+            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Contraseña</label>
+          <input type="password" id="login-password" required placeholder="••••••••••••"
+            class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600" />
+        </div>
+        <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
+        <button type="submit" id="login-btn"
+          class="w-full py-2.5 px-4 bg-sky-700 hover:bg-sky-800 text-white font-semibold rounded-lg text-sm transition shadow-sm">
+          Ingresar al Sistema
+        </button>
+      </form>
+      <div class="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-400">
+        Unidad de Planificación y Calidad • MINSAL El Salvador
+      </div>
+    </div>
+  </div>
+
+  <!-- APLICACIÓN PRINCIPAL -->
+  <div id="app-shell" class="hidden min-h-screen flex flex-col">
+    <!-- Barra Superior -->
+    <header class="ins-gradient text-white shadow-md sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="bg-white/15 backdrop-blur px-2.5 py-1 rounded-lg font-bold tracking-tight text-lg border border-white/20">
+            INS
+          </div>
+          <div>
+            <div class="font-semibold text-sm sm:text-base leading-tight">Planificación Operativa y Estratégica</div>
+            <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad • MINSAL</div>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <!-- Selector Global de Ciclo Anual -->
+          <div class="flex items-center bg-white/10 rounded-lg px-2.5 py-1 border border-white/20">
+            <span class="text-xs text-sky-200 mr-2">Ciclo PAO:</span>
+            <select id="global-ciclo-select" class="bg-transparent text-white text-xs font-bold focus:outline-none cursor-pointer">
+            </select>
+          </div>
+          <!-- Perfil Usuario -->
+          <div class="hidden md:flex flex-col text-right">
+            <span id="user-name-display" class="text-xs font-semibold">Cargando...</span>
+            <span id="user-role-display" class="text-[10px] text-sky-200 uppercase tracking-wider">Rol</span>
+          </div>
+          <button id="logout-btn" title="Cerrar sesión"
+            class="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition text-xs flex items-center gap-1">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Menú de Navegación -->
+      <nav class="bg-sky-950/40 border-t border-white/10 overflow-x-auto scrollbar-thin">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 py-1.5 text-xs font-medium whitespace-nowrap" id="main-nav">
+          <button data-tab="dash-anual" class="nav-btn px-3 py-2 rounded-lg bg-white text-sky-900 font-semibold flex items-center gap-1.5">
+            <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Dashboard Anual
+          </button>
+          <button data-tab="dash-estrategico" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
+            <i data-lucide="layers" class="w-3.5 h-3.5"></i> Dashboard Plurianual
+          </button>
+          <button data-tab="matriz-poa" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
+            <i data-lucide="table-2" class="w-3.5 h-3.5"></i> Matriz PAO y Productos
+          </button>
+          <button data-tab="evidencias" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
+            <i data-lucide="folder-check" class="w-3.5 h-3.5"></i> Evidencias y Justificaciones
+          </button>
+          <button data-tab="riesgos" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
+            <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Matriz de Riesgos
+          </button>
+          <button data-tab="foda" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> FODA Asistido IA
+          </button>
+          <button data-tab="informes" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Informes Gerenciales
+          </button>
+          <button data-tab="configuracion" id="nav-config" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
+            <i data-lucide="settings" class="w-3.5 h-3.5"></i> Parametrización
+          </button>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+      <!-- =================================================================== -->
+      <!-- TAB 1: DASHBOARD OPERATIVO ANUAL                                    -->
+      <!-- =================================================================== -->
+      <section id="tab-dash-anual" class="tab-content space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-xl card-shadow border border-slate-200">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Tablero de Control Operativo Anual (PAO)</h2>
+            <p class="text-xs text-slate-500">Evaluación acumulada al trimestre de corte sin errores de división por cero ni castigo por metas futuras.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="dash-trimestre-corte" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold bg-slate-50">
+              <option value="1">Corte: Trimestre 1 (Ene-Mar)</option>
+              <option value="2">Corte: Trimestre 2 (Abr-Jun)</option>
+              <option value="3">Corte: Trimestre 3 (Jul-Sep)</option>
+              <option value="4" selected>Corte: Trimestre 4 (Anual)</option>
+            </select>
+            <select id="dash-unidad-filter" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-slate-50 max-w-xs">
+              <option value="ALL">Todas las Unidades INS</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- KPIs Ejecutivos -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+            <div class="text-xs font-semibold text-slate-500 uppercase">Ejecución Acotada (Máx 100%)</div>
+            <div id="kpi-cumplimiento-acotado" class="text-3xl font-bold text-sky-700 mt-1">0.0%</div>
+            <div id="kpi-cumplimiento-bruto" class="text-xs text-slate-400 mt-1">Promedio bruto: 0.0%</div>
+          </div>
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+            <div class="text-xs font-semibold text-slate-500 uppercase">Actividades Evaluadas</div>
+            <div id="kpi-total-act" class="text-3xl font-bold text-slate-800 mt-1">0</div>
+            <div id="kpi-finalizadas" class="text-xs text-emerald-600 font-medium mt-1">0 finalizadas al 100%</div>
+          </div>
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+            <div class="text-xs font-semibold text-slate-500 uppercase">En Curso / En Atención</div>
+            <div id="kpi-en-curso" class="text-3xl font-bold text-amber-500 mt-1">0</div>
+            <div class="text-xs text-slate-400 mt-1">Cumplimiento entre 75% y 99%</div>
+          </div>
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+            <div class="text-xs font-semibold text-slate-500 uppercase">Alertas / Con Retraso</div>
+            <div id="kpi-retraso" class="text-3xl font-bold text-rose-600 mt-1">0</div>
+            <div id="kpi-sin-registro" class="text-xs text-rose-500 mt-1">0 con omisión de registro</div>
+          </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+            <h3 class="text-sm font-bold text-slate-800 mb-3">Distribución por Semáforo Oficial</h3>
+            <div class="h-64 flex items-center justify-center">
+              <canvas id="chart-semaforo"></canvas>
+            </div>
+          </div>
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 lg:col-span-2">
+            <h3 class="text-sm font-bold text-slate-800 mb-3">Cumplimiento Promedio por Unidad Organizativa (%)</h3>
+            <div class="h-64">
+              <canvas id="chart-unidades"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 2: DASHBOARD ESTRATÉGICO PLURIANUAL                             -->
+      <!-- =================================================================== -->
+      <section id="tab-dash-estrategico" class="tab-content hidden space-y-6">
+        <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Tablero Estratégico Plurianual (PEI)</h2>
+            <p class="text-xs text-slate-500">Contribución acumulada de los ciclos operativos anuales hacia los 14 Ejes Estratégicos del MINSAL.</p>
+          </div>
+          <select id="dash-plan-select" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold bg-slate-50"></select>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+          <h3 class="text-sm font-bold text-slate-800 mb-4">Avance por Eje Estratégico (Simple vs. Ponderado)</h3>
+          <div class="h-80">
+            <canvas id="chart-ejes-pei"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
+          <div class="px-5 py-3 border-b border-slate-200 font-bold text-sm text-slate-800">Desglose por Eje Estratégico</div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-600 uppercase border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-3">Eje</th>
+                  <th class="px-4 py-3">Año</th>
+                  <th class="px-4 py-3 text-center">Actividades</th>
+                  <th class="px-4 py-3 text-center">Finalizadas</th>
+                  <th class="px-4 py-3 text-right">Avance Simple</th>
+                  <th class="px-4 py-3 text-right">Avance Ponderado</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-ejes-plurianual" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 3: MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS                     -->
+      <!-- =================================================================== -->
+      <section id="tab-matriz-poa" class="tab-content hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl card-shadow border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Matriz Operativa PAO y Productos INS</h2>
+            <p class="text-xs text-slate-500">Programa actividades MINSAL y desagrega productos específicos del INS con consolidación automática.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="btn-nueva-actividad" class="px-3.5 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="plus" class="w-4 h-4"></i> Nueva Actividad PAO
+            </button>
+            <button id="btn-exportar-excel" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Exportar Excel 25 Cols (MINSAL)
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla Principal -->
+        <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
+          <div class="overflow-x-auto scrollbar-thin">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-800 text-white uppercase text-[11px]">
+                <tr>
+                  <th class="px-3 py-3">Eje / Línea</th>
+                  <th class="px-3 py-3 min-w-[240px]">Actividad INS (Col D)</th>
+                  <th class="px-3 py-3">Unidad</th>
+                  <th class="px-3 py-3 text-center">Modo</th>
+                  <th class="px-3 py-3 text-center">T1 (P/R)</th>
+                  <th class="px-3 py-3 text-center">T2 (P/R)</th>
+                  <th class="px-3 py-3 text-center">T3 (P/R)</th>
+                  <th class="px-3 py-3 text-center">T4 (P/R)</th>
+                  <th class="px-3 py-3 text-right">Acum.</th>
+                  <th class="px-3 py-3 text-center">Semáforo</th>
+                  <th class="px-3 py-3 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-actividades-poa" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 4: EVIDENCIAS DE CUMPLIMIENTO Y JUSTIFICACIONES DE RETRASO      -->
+      <!-- =================================================================== -->
+      <section id="tab-evidencias" class="tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Formulario de Carga -->
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+            <h3 class="text-sm font-bold text-slate-8

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica v1.1 | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v1.2 | INS El Salvador</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS SDK v2 -->
@@ -33,7 +33,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.1</span></p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.2</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -72,7 +72,7 @@
           <div>
             <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
               Planificación Operativa y Estratégica
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.1</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.2</span>
             </div>
             <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad • MINSAL</div>
           </div>
@@ -240,7 +240,7 @@
         <div class="bg-white p-4 rounded-xl card-shadow border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
           <div>
             <h2 class="text-lg font-bold text-slate-800">Matriz Operativa PAO y Productos INS</h2>
-            <p class="text-xs text-slate-500">Programa actividades MINSAL y desagrega productos específicos del INS con consolidación automática.</p>
+            <p class="text-xs text-slate-500">Programa, edita o elimina actividades MINSAL y desagrega productos específicos del INS con consolidación automática.</p>
           </div>
           <div class="flex flex-wrap gap-2">
             <button id="btn-nueva-actividad" class="px-3.5 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
@@ -628,15 +628,16 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- MODAL: NUEVA ACTIVIDAD PAO (25 COLUMNAS MINSAL)                         -->
+  <!-- MODAL: REGISTRAR O EDITAR ACTIVIDAD PAO (25 COLUMNAS MINSAL)            -->
   <!-- ======================================================================= -->
   <div id="modal-actividad" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
       <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
-        <h3 class="text-base font-bold text-slate-800">Registrar Actividad en Matriz PAO (25 Columnas MINSAL)</h3>
+        <h3 id="modal-act-titulo" class="text-base font-bold text-slate-800">Registrar Actividad en Matriz PAO (25 Columnas MINSAL)</h3>
         <button onclick="cerrarModal('modal-actividad')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
       <form id="form-actividad-poa" class="space-y-4 text-xs">
+        <input type="hidden" id="act-edit-id" value="" />
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
             <label class="block font-semibold text-slate-700 mb-1">1. Eje Estratégico PEI</label>
@@ -673,7 +674,7 @@
               <i data-lucide="sparkles" class="w-3 h-3"></i> Mejorar redacción con IA
             </button>
           </div>
-          <textarea id="act-descripcion" rows="2" required placeholder="Escribe tu idea libre (ej. hacer 128 sesiones de teleclínicas echo sobre varios temas para capacitar médicos)..." class="w-full px-3 py-2 rounded-lg border border-slate-300"></textarea>
+          <textarea id="act-descripcion" rows="2" required placeholder="Escribe tu idea libre (ej. hacer 128 sesiones de teleclínicas echo sobre varios temas para capacitar médicos)..." class="w-full px-3 py-2 rounded-lg border border-slate-300 resize-y"></textarea>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -703,7 +704,7 @@
         <div class="bg-sky-50 p-3 rounded-xl border border-sky-200">
           <label class="flex items-center gap-2 font-semibold text-sky-900 cursor-pointer">
             <input type="checkbox" id="act-consolida-productos" class="rounded text-sky-700" />
-            <span>Consolidar automáticamente desde Productos INS (al guardar se abrirá la ventana para desglosar temáticas o entregables)</span>
+            <span>Consolidar automáticamente desde Productos INS (permite desglosar temáticas o entregables hijos)</span>
           </label>
         </div>
 
@@ -744,6 +745,7 @@
           </div>
         </div>
 
+        <!-- MEJORA v1.2: Campo amplio y redimensionable para Supuestos Externos (Col X) -->
         <div>
           <div class="flex items-center justify-between mb-1">
             <label class="block font-semibold text-slate-700">Supuestos Externos (Col X - Obligatorio MINSAL)</label>
@@ -752,12 +754,13 @@
               <i data-lucide="sparkles" class="w-3 h-3"></i> Sugerir / Complementar con IA
             </button>
           </div>
-          <input type="text" id="act-supuestos" required placeholder="Ej. Disponibilidad presupuestaria, participación de personal de las RIIS..." class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+          <textarea id="act-supuestos" rows="3" required placeholder="Ej. Disponibilidad presupuestaria, participación activa de personal de las RIIS, aprobación ética oportuna..."
+            class="w-full px-3 py-2 rounded-lg border border-slate-300 resize-y leading-relaxed"></textarea>
         </div>
 
         <div class="flex justify-end gap-2 pt-3 border-t">
           <button type="button" onclick="cerrarModal('modal-actividad')" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-600 font-semibold">Cancelar</button>
-          <button type="submit" class="px-5 py-2 rounded-lg bg-sky-700 text-white font-semibold hover:bg-sky-800">Guardar Actividad</button>
+          <button type="submit" id="btn-submit-actividad" class="px-5 py-2 rounded-lg bg-sky-700 text-white font-semibold hover:bg-sky-800">Guardar Actividad</button>
         </div>
       </form>
     </div>
@@ -931,7 +934,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.1            -->
+  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.2            -->
   <!-- ======================================================================= -->
   <script>
     // 1. INICIALIZACIÓN DE SUPABASE
@@ -955,7 +958,7 @@
     let dashDataCache = [];
     let charts = {};
 
-    // Metadatos locales complementarios (para soportar agrupación y cargos sin requerir migración inmediata)
+    // Metadatos locales complementarios
     const LOCAL_TP_CAT_KEY = 'ins_tp_categorias_v11';
     const LOCAL_REF_KEY = 'ins_directorio_referentes_v11';
 
@@ -1115,7 +1118,6 @@
       lineasList = laRes.data || [];
       tiposProductoList = tpRes.data || [];
 
-      // Construir Directorio de Referentes combinando perfiles_usuarios + referentes locales
       const perfilesDb = (perfRes.data || []).map(p => ({
         id: p.id,
         nombre: p.nombre_completo,
@@ -1158,7 +1160,6 @@
       const unitId = document.getElementById('act-unidad')?.value;
       const dl = document.getElementById('datalist-responsables');
       if (!dl) return;
-      // Ordenar poniendo primero los de la unidad seleccionada
       const ordenados = [...referentesList].sort((a, b) => {
         if (a.unidad_id === unitId && b.unidad_id !== unitId) return -1;
         if (b.unidad_id === unitId && a.unidad_id !== unitId) return 1;
@@ -1240,16 +1241,14 @@
         return;
       }
 
-      // Limpieza de redundancias y frases rebuscadas
       texto = texto
-        .replace(/(almenos|al menos)/gi, 'al menos')
-        .replace(/(llevar a cabo|realizar la ejecución de|proceder a realizar|hacer)/gi, 'Ejecutar')
-        .replace(/(con el objetivo de poder|con la finalidad de lograr|a fin de poder)/gi, 'para')
-        .replace(/(distintas y variadas|diferentes y diversas)/gi, 'diversas')
+        .replace(/\b(almenos|al menos)\b/gi, 'al menos')
+        .replace(/\b(llevar a cabo|realizar la ejecución de|proceder a realizar|hacer)\b/gi, 'Ejecutar')
+        .replace(/\b(con el objetivo de poder|con la finalidad de lograr|a fin de poder)\b/gi, 'para')
+        .replace(/\b(distintas y variadas|diferentes y diversas)\b/gi, 'diversas')
         .replace(/\s+/g, ' ')
         .trim();
 
-      // Asegurar inicio con verbo en infinitivo institucional claro
       const verbosInfinitivo = /^(desarrollar|ejecutar|implementar|realizar|elaborar|fortalecer|gestionar|publicar|evaluar|coordinar|efectuar|brindar|analizar|diseñar|establecer|conducir)/i;
       if (!verbosInfinitivo.test(texto)) {
         texto = 'Desarrollar ' + texto.charAt(0).toLowerCase() + texto.slice(1);
@@ -1260,7 +1259,6 @@
       if (!texto.endsWith('.')) texto += '.';
       field.value = texto;
 
-      // Si el indicador está vacío, sugerir uno alineado automáticamente
       const indField = document.getElementById('act-indicador');
       if (!indField.value.trim()) {
         const cleanBase = texto.replace(/^[A-Za-zÁÉÍÓÚáéíóúñÑ]+\s+/, '').replace(/\.$/, '');
@@ -1427,12 +1425,106 @@
     }
 
     // =========================================================================
-    // 8. MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS (CON FLUJO CONTINUO Y EDICIÓN)
+    // 8. MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS (CREAR, EDITAR, ELIMINAR)
     // =========================================================================
-    document.getElementById('btn-nueva-actividad').addEventListener('click', () => {
+    function abrirNuevaActividadModal() {
+      document.getElementById('act-edit-id').value = '';
+      document.getElementById('modal-act-titulo').textContent = 'Registrar Actividad en Matriz PAO (25 Columnas MINSAL)';
+      document.getElementById('btn-submit-actividad').textContent = 'Guardar Actividad';
+      document.getElementById('form-actividad-poa').reset();
+      document.getElementById('act-ponderacion').value = '1.0';
+      document.getElementById('act-p1').value = '25';
+      document.getElementById('act-p2').value = '25';
+      document.getElementById('act-p3').value = '25';
+      document.getElementById('act-p4').value = '25';
+      document.getElementById('act-responsable-cargo-hint').textContent = '';
+
+      // Sincronizar fechas por defecto con el año del ciclo activo
+      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
+      const anioCiclo = cicloObj?.anio || new Date().getFullYear();
+      document.getElementById('act-inicio').value = `${anioCiclo}-01-01`;
+      document.getElementById('act-fin').value = `${anioCiclo}-12-31`;
+
+      if (ejesList.length > 0) {
+        document.getElementById('act-eje').value = ejesList[0].id;
+        document.getElementById('act-eje').dispatchEvent(new Event('change'));
+      }
+      document.getElementById('bloque-prog-directa').classList.remove('hidden');
       document.getElementById('modal-actividad').classList.remove('hidden');
       actualizarDatalistResponsables();
-    });
+    }
+
+    function abrirEditarActividadModal(actId) {
+      const act = actividadesCache.find(x => x.id === actId);
+      if (!act) return;
+
+      document.getElementById('act-edit-id').value = act.id;
+      document.getElementById('modal-act-titulo').textContent = 'Editar Actividad Registrada en Matriz PAO';
+      document.getElementById('btn-submit-actividad').textContent = 'Guardar Cambios';
+
+      // Reconstruir cascada PEI (Eje -> Estrategia -> Línea de Acción)
+      const linObj = lineasList.find(l => l.id === act.linea_accion_id);
+      const estObj = linObj ? estrategiasList.find(s => s.id === linObj.estrategia_id) : null;
+      if (estObj) {
+        document.getElementById('act-eje').value = estObj.eje_id;
+        document.getElementById('act-eje').dispatchEvent(new Event('change'));
+        document.getElementById('act-estrategia').value = estObj.id;
+        document.getElementById('act-estrategia').dispatchEvent(new Event('change'));
+        document.getElementById('act-linea').value = linObj.id;
+      }
+
+      document.getElementById('act-unidad').value = act.unidad_ins_id || '';
+      actualizarDatalistResponsables();
+      document.getElementById('act-responsable').value = act.responsable_nombre || '';
+      document.getElementById('act-responsable').dispatchEvent(new Event('input'));
+      document.getElementById('act-descripcion').value = act.actividad || '';
+      document.getElementById('act-indicador').value = act.indicador || '';
+      document.getElementById('act-ponderacion').value = act.ponderacion ?? 1.0;
+
+      const consolida = Boolean(act.consolida_desde_productos);
+      document.getElementById('act-consolida-productos').checked = consolida;
+      document.getElementById('bloque-prog-directa').classList.toggle('hidden', consolida);
+
+      document.getElementById('act-p1').value = act.prog_t1 ?? 0;
+      document.getElementById('act-p2').value = act.prog_t2 ?? 0;
+      document.getElementById('act-p3').value = act.prog_t3 ?? 0;
+      document.getElementById('act-p4').value = act.prog_t4 ?? 0;
+
+      document.getElementById('act-inicio').value = act.fecha_inicio || '';
+      document.getElementById('act-fin').value = act.fecha_fin || '';
+      document.getElementById('act-poi').value = act.pasa_poi ? 'true' : 'false';
+      document.getElementById('act-supuestos').value = act.supuestos_externos || '';
+
+      document.getElementById('modal-actividad').classList.remove('hidden');
+    }
+
+    async function eliminarActividadPOA(actId) {
+      const act = actividadesCache.find(x => x.id === actId);
+      const nombreCorto = act ? act.actividad.substring(0, 90) : 'esta actividad';
+      const confirmar = confirm(
+        `¿Estás seguro de eliminar completamente esta actividad del PAO?
+
+` +
+        `"${nombreCorto}${act && act.actividad.length > 90 ? '...' : ''}"
+
+` +
+        `Esta acción también eliminará todos sus productos/entregables hijos y evidencias asociadas, y no se puede deshacer.`
+      );
+      if (!confirmar) return;
+
+      // Eliminar registros dependientes por seguridad (en caso de que no haya ON DELETE CASCADE)
+      await sb.from('productos_poa').delete().eq('actividad_poa_id', actId);
+      await sb.from('evidencias_poa').delete().eq('actividad_poa_id', actId);
+
+      const { error } = await sb.from('actividades_poa').delete().eq('id', actId);
+      if (error) {
+        alert('Error al eliminar la actividad: ' + error.message);
+      } else {
+        await reloadAllCycleData();
+      }
+    }
+
+    document.getElementById('btn-nueva-actividad').addEventListener('click', abrirNuevaActividadModal);
 
     document.getElementById('act-consolida-productos').addEventListener('change', (e) => {
       document.getElementById('bloque-prog-directa').classList.toggle('hidden', e.target.checked);
@@ -1440,7 +1532,9 @@
 
     document.getElementById('form-actividad-poa').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const editId = document.getElementById('act-edit-id').value;
       const consolida = document.getElementById('act-consolida-productos').checked;
+
       const payload = {
         ciclo_id: activeCicloId,
         linea_accion_id: document.getElementById('act-linea').value,
@@ -1450,28 +1544,49 @@
         indicador: document.getElementById('act-indicador').value.trim(),
         ponderacion: parseFloat(document.getElementById('act-ponderacion').value) || 1.0,
         consolida_desde_productos: consolida,
-        prog_t1: consolida ? 0 : parseFloat(document.getElementById('act-p1').value) || 0,
-        prog_t2: consolida ? 0 : parseFloat(document.getElementById('act-p2').value) || 0,
-        prog_t3: consolida ? 0 : parseFloat(document.getElementById('act-p3').value) || 0,
-        prog_t4: consolida ? 0 : parseFloat(document.getElementById('act-p4').value) || 0,
         fecha_inicio: document.getElementById('act-inicio').value,
         fecha_fin: document.getElementById('act-fin').value,
         pasa_poi: document.getElementById('act-poi').value === 'true',
-        supuestos_externos: document.getElementById('act-supuestos').value.trim()
+        supuestos_externos: document.getElementById('act-supuestos').value.trim(),
+        updated_at: new Date().toISOString()
       };
 
-      const { data: inserted, error } = await sb.from('actividades_poa').insert(payload).select().single();
-      if (error) {
-        alert('Error al guardar actividad: ' + error.message);
-      } else {
-        cerrarModal('modal-actividad');
-        e.target.reset();
-        document.getElementById('bloque-prog-directa').classList.remove('hidden');
-        await reloadAllCycleData();
+      // Solo sobrescribir prog_t1..t4 si es modo directo o si es una inserción nueva consolidada
+      if (!consolida) {
+        payload.prog_t1 = parseFloat(document.getElementById('act-p1').value) || 0;
+        payload.prog_t2 = parseFloat(document.getElementById('act-p2').value) || 0;
+        payload.prog_t3 = parseFloat(document.getElementById('act-p3').value) || 0;
+        payload.prog_t4 = parseFloat(document.getElementById('act-p4').value) || 0;
+      } else if (!editId) {
+        payload.prog_t1 = 0;
+        payload.prog_t2 = 0;
+        payload.prog_t3 = 0;
+        payload.prog_t4 = 0;
+      }
 
-        // MEJORA v1.1: Flujo continuo -> abrir automáticamente la ventana de desglose de productos
-        if (consolida && inserted?.id) {
-          await abrirGestionProductos(inserted.id);
+      if (editId) {
+        const { error } = await sb.from('actividades_poa').update(payload).eq('id', editId);
+        if (error) {
+          alert('Error al actualizar actividad: ' + error.message);
+        } else {
+          cerrarModal('modal-actividad');
+          document.getElementById('act-edit-id').value = '';
+          await reloadAllCycleData();
+        }
+      } else {
+        const { data: inserted, error } = await sb.from('actividades_poa').insert(payload).select().single();
+        if (error) {
+          alert('Error al guardar actividad: ' + error.message);
+        } else {
+          cerrarModal('modal-actividad');
+          e.target.reset();
+          document.getElementById('bloque-prog-directa').classList.remove('hidden');
+          await reloadAllCycleData();
+
+          // Flujo continuo: abrir automáticamente desglose de productos al crear actividad consolidada
+          if (consolida && inserted?.id) {
+            await abrirGestionProductos(inserted.id);
+          }
         }
       }
     });
@@ -1519,10 +1634,21 @@
               <td class="px-3 py-2.5 text-center">
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${semColor}">${acum >= 100 ? 'Finalizado' : a.estado_avance}</span>
               </td>
-              <td class="px-3 py-2.5 text-center">
-                <button onclick="abrirGestionProductos('${a.id}')" class="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg font-semibold text-[11px] border border-sky-200">
-                  ${a.consolida_desde_productos ? 'Productos / Avance' : 'Registrar Avance'}
-                </button>
+              <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                <div class="inline-flex items-center gap-1">
+                  <button onclick="abrirEditarActividadModal('${a.id}')" title="Editar actividad PAO"
+                    class="px-2 py-1 bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 rounded-lg font-semibold text-[11px] border border-slate-200">
+                    Editar
+                  </button>
+                  <button onclick="abrirGestionProductos('${a.id}')" title="Gestionar productos y avance trimestral"
+                    class="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg font-semibold text-[11px] border border-sky-200">
+                    ${a.consolida_desde_productos ? 'Productos / Avance' : 'Avance'}
+                  </button>
+                  <button onclick="eliminarActividadPOA('${a.id}')" title="Eliminar actividad y sus productos hijos"
+                    class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-semibold text-[11px] border border-rose-200">
+                    ✕
+                  </button>
+                </div>
               </td>
             </tr>
           `;
@@ -1547,7 +1673,6 @@
         document.getElementById('seccion-avance-directo').classList.add('hidden');
         document.getElementById('seccion-productos-hijos').classList.remove('hidden');
 
-        // Agrupar tipos de producto por Área/Categoría en el selector
         const activos = tiposProductoList.filter(t => t.activo).map(t => ({
           ...t,
           _cat: inferirCategoriaProducto(t)
@@ -1978,17 +2103,11 @@
       const dCount = nuevosFactores.filter(x => x.cuadrante === 'debilidad').length;
       const aCount = nuevosFactores.filter(x => x.cuadrante === 'amenaza').length;
 
-      const resumenTexto = `DIAGNÓSTICO SITUACIONAL CONSOLIDADO DEL INS:
-` +
-        `Se integraron ${aportes.length} aportes técnicos de las unidades organizativas, consolidándose en ${fCount} Fortalezas, ${oCount} Oportunidades, ${dCount} Debilidades y ${aCount} Amenazas.
-
-` +
-        `• Estrategia Ofensiva (FO): Capitalizar las capacidades técnicas del Laboratorio Nacional de Salud Pública, Investigación y Educación Continua (ECHO) para aprovechar alianzas internacionales y cooperación técnica.
-` +
-        `• Estrategia de Reorientación (DO): Programar actividades en el PAO orientadas a cerrar las brechas internas identificadas en tiempos de respuesta, articulación de procesos y disponibilidad de insumos.
-` +
-        `• Estrategia Defensiva (FA): Utilizar el rigor científico y los sistemas de gestión de calidad/antisoborno (ISO 37001) para mitigar brotes epidemiológicos y riesgos externos.
-` +
+      const resumenTexto = `DIAGNÓSTICO SITUACIONAL CONSOLIDADO DEL INS:\n` +
+        `Se integraron ${aportes.length} aportes técnicos de las unidades organizativas, consolidándose en ${fCount} Fortalezas, ${oCount} Oportunidades, ${dCount} Debilidades y ${aCount} Amenazas.\n\n` +
+        `• Estrategia Ofensiva (FO): Capitalizar las capacidades técnicas del Laboratorio Nacional de Salud Pública, Investigación y Educación Continua (ECHO) para aprovechar alianzas internacionales y cooperación técnica.\n` +
+        `• Estrategia de Reorientación (DO): Programar actividades en el PAO orientadas a cerrar las brechas internas identificadas en tiempos de respuesta, articulación de procesos y disponibilidad de insumos.\n` +
+        `• Estrategia Defensiva (FA): Utilizar el rigor científico y los sistemas de gestión de calidad/antisoborno (ISO 37001) para mitigar brotes epidemiológicos y riesgos externos.\n` +
         `• Estrategia de Supervivencia (DA): Incorporar controles preventivos en la Matriz de Valoración de Riesgos para evitar la materialización de vulnerabilidades críticas.`;
 
       await sb.from('foda_analisis_ejecutivo').upsert({
@@ -2016,7 +2135,6 @@
         .eq('ciclo_id', activeCicloId)
         .eq('trimestre', trim);
 
-      // Consultar todos los productos hijos de las actividades de este ciclo para el desglose por categoría
       const actIds = actividadesCache.map(a => a.id);
       let productosCiclo = [];
       if (actIds.length > 0) {
@@ -2033,40 +2151,25 @@
       const cumplidas = rows.filter(r => ['Finalizada', 'En curso'].includes(r.semaforo_calculado));
       const retrasadas = rows.filter(r => ['Con retraso', 'En atención'].includes(r.semaforo_calculado));
 
-      let texto = `INSTITUTO NACIONAL DE SALUD (INS)
-`;
-      texto += `EVALUACIÓN DEL PLAN ANUAL OPERATIVO ${anio} — TRIMESTRE ${trim}
-`;
-      texto += `Presenta: Ing. Roberto Iván Rodas (Coordinador Unidad de Planificación y Calidad)
-`;
-      texto += `Visto Bueno: Dirección del Instituto Nacional de Salud
-`;
-      texto += `========================================================================
+      let texto = `INSTITUTO NACIONAL DE SALUD (INS)\n`;
+      texto += `EVALUACIÓN DEL PLAN ANUAL OPERATIVO ${anio} — TRIMESTRE ${trim}\n`;
+      texto += `Presenta: Ing. Roberto Iván Rodas (Coordinador Unidad de Planificación y Calidad)\n`;
+      texto += `Visto Bueno: Dirección del Instituto Nacional de Salud\n`;
+      texto += `========================================================================\n\n`;
+      texto += `1. INTRODUCCIÓN Y RESUMEN EJECUTIVO\n`;
+      texto += `Durante el Trimestre ${trim} de ${anio}, el Instituto Nacional de Salud (INS) dio seguimiento a ${rows.length} actividades estratégicas y operativas alineadas al PEI MINSAL 2026–2030. El índice de ejecución promedio acotado (evitando distorsiones por sobre-demanda epidemiológica) alcanzó el ${avgAcotado}%, con ${cumplidas.length} actividades en rango de cumplimiento satisfactorio y ${retrasadas.length} en seguimiento por ajuste o reprogramación.\n\n`;
 
-`;
-      texto += `1. INTRODUCCIÓN Y RESUMEN EJECUTIVO
-`;
-      texto += `Durante el Trimestre ${trim} de ${anio}, el Instituto Nacional de Salud (INS) dio seguimiento a ${rows.length} actividades estratégicas y operativas alineadas al PEI MINSAL 2026–2030. El índice de ejecución promedio acotado (evitando distorsiones por sobre-demanda epidemiológica) alcanzó el ${avgAcotado}%, con ${cumplidas.length} actividades en rango de cumplimiento satisfactorio y ${retrasadas.length} en seguimiento por ajuste o reprogramación.
-
-`;
-
-      texto += `2. PRINCIPALES AVANCES POR UNIDAD ORGANIZATIVA
-`;
+      texto += `2. PRINCIPALES AVANCES POR UNIDAD ORGANIZATIVA\n`;
       const unidadesUnicas = [...new Set(rows.map(r => r.unidad_ins))];
       unidadesUnicas.forEach(u => {
         const actsU = rows.filter(r => r.unidad_ins === u);
-        texto += `• ${u} (${actsU.length} actividades):
-`;
+        texto += `• ${u} (${actsU.length} actividades):\n`;
         actsU.forEach(a => {
-          texto += `  - ${a.actividad}: Ejecución acumulada al corte de ${a.pct_cumplimiento_corte ?? 0}% (${a.semaforo_calculado}).
-`;
+          texto += `  - ${a.actividad}: Ejecución acumulada al corte de ${a.pct_cumplimiento_corte ?? 0}% (${a.semaforo_calculado}).\n`;
         });
       });
 
-      // MEJORA v1.1: Desglose de Productos Técnicos por Área y Tipo de Producto (ej. Investigaciones por subtipo)
-      texto += `
-3. DESGLOSE TÉCNICO DE ENTREGABLES POR ÁREA Y TIPO DE PRODUCTO
-`;
+      texto += `\n3. DESGLOSE TÉCNICO DE ENTREGABLES POR ÁREA Y TIPO DE PRODUCTO\n`;
       if (productosCiclo.length > 0) {
         const mapArea = {};
         productosCiclo.forEach(p => {
@@ -2086,41 +2189,30 @@
         });
 
         Object.keys(mapArea).sort().forEach(area => {
-          texto += `• Área: ${area}
-`;
+          texto += `• Área: ${area}\n`;
           Object.keys(mapArea[area]).sort().forEach(tipo => {
             const st = mapArea[area][tipo];
             const pct = st.progAcum > 0 ? ((st.realAcum / st.progAcum) * 100).toFixed(1) : '0.0';
-            texto += `  - ${tipo}: ${st.realAcum} realizados de ${st.progAcum} programados al T${trim} (${pct}% de ejecución al corte; meta anual: ${st.progAnual} ${st.unidad}).
-`;
+            texto += `  - ${tipo}: ${st.realAcum} realizados de ${st.progAcum} programados al T${trim} (${pct}% de ejecución al corte; meta anual: ${st.progAnual} ${st.unidad}).\n`;
           });
         });
       } else {
-        texto += `• No se registraron productos desagregados en las actividades del ciclo actual.
-`;
+        texto += `• No se registraron productos desagregados en las actividades del ciclo actual.\n`;
       }
 
-      texto += `
-4. GESTIÓN DE DESVIACIONES, JUSTIFICACIONES Y ACCIONES CORRECTIVAS (AUDITORÍA)
-`;
+      texto += `\n4. GESTIÓN DE DESVIACIONES, JUSTIFICACIONES Y ACCIONES CORRECTIVAS (AUDITORÍA)\n`;
       const justificaciones = (evData || []).filter(e => e.categoria !== 'evidencia_cumplimiento');
       if (justificaciones.length > 0) {
         justificaciones.forEach(j => {
-          texto += `• Actividad: ${j.actividades_poa?.actividad}
-`;
-          texto += `  - Causa tipificada: ${j.causa_retraso_tipificada || 'Ajuste operativo'}
-`;
-          texto += `  - Justificación técnica: ${j.descripcion_narrativa}
-`;
+          texto += `• Actividad: ${j.actividades_poa?.actividad}\n`;
+          texto += `  - Causa tipificada: ${j.causa_retraso_tipificada || 'Ajuste operativo'}\n`;
+          texto += `  - Justificación técnica: ${j.descripcion_narrativa}\n`;
         });
       } else {
-        texto += `• No se registraron desviaciones críticas sin justificación documental en el expediente del período.
-`;
+        texto += `• No se registraron desviaciones críticas sin justificación documental en el expediente del período.\n`;
       }
 
-      texto += `
-5. CONCLUSIONES
-`;
+      texto += `\n5. CONCLUSIONES\n`;
       texto += `El INS mantiene trazabilidad documental sobre sus metas operativas y desglose técnico por producto, asegurando el respaldo verificable ante auditorías internas y del Nivel Superior del MINSAL.`;
 
       document.getElementById('informe-editor').value = texto;
@@ -2138,7 +2230,7 @@
       const contenido = document.getElementById('informe-editor').value;
       if (!contenido) return alert('Primero genera el borrador del informe.');
       const htmlDoc = `<html><head><meta charset="utf-8"></head><body style="font-family: Calibri, sans-serif; line-height: 1.5; white-space: pre-wrap;">${contenido}</body></html>`;
-      const blob = new Blob(['﻿', htmlDoc], { type: 'application/msword' });
+      const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -2147,7 +2239,7 @@
     });
 
     // =========================================================================
-    // 13. PARAMETRIZACIÓN (ADMIN v1.1: EDICIÓN DIRECTA, CATEGORÍAS Y DIRECTORIO)
+    // 13. PARAMETRIZACIÓN (ADMIN)
     // =========================================================================
     function renderConfigTables() {
       const enriquecidos = tiposProductoList.map(tp => ({
@@ -2155,7 +2247,6 @@
         _cat: inferirCategoriaProducto(tp)
       }));
 
-      // Actualizar filtro de categorías
       const catsUnicas = [...new Set(enriquecidos.map(x => x._cat))].sort();
       const filtroSel = document.getElementById('filtro-cat-tp');
       const valActualFiltro = filtroSel.value || 'ALL';
@@ -2204,7 +2295,6 @@
         </div>
       `).join('');
 
-      // Renderizar Directorio de Referentes
       const refCont = document.getElementById('lista-referentes-admin');
       if (referentesList.length === 0) {
         refCont.innerHTML = `<div class="py-3 text-slate-400 text-center">No hay referentes registrados.</div>`;

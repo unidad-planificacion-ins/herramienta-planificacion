@@ -35,23 +35,25 @@
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
         <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica</p>
       </div>
-      <form id="login-form" class="space-y-4">
+      <div id="login-form" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Correo Institucional</label>
           <input type="email" id="login-email" required placeholder="usuario@salud.gob.sv"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();ejecutarLogin();}"
             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Contraseña</label>
           <input type="password" id="login-password" required placeholder="••••••••••••"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();ejecutarLogin();}"
             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-600" />
         </div>
-        <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
-        <button type="submit" id="login-btn"
-          class="w-full py-2.5 px-4 bg-sky-700 hover:bg-sky-800 text-white font-semibold rounded-lg text-sm transition shadow-sm">
+        <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 p-3 rounded-lg border border-red-200 break-words"></div>
+        <button type="button" id="login-btn" onclick="ejecutarLogin()"
+          class="w-full py-2.5 px-4 bg-sky-700 hover:bg-sky-800 disabled:opacity-60 text-white font-semibold rounded-lg text-sm transition shadow-sm">
           Ingresar al Sistema
         </button>
-      </form>
+      </div>
       <div class="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-400">
         Unidad de Planificación y Calidad • MINSAL El Salvador
       </div>
@@ -279,4 +281,1552 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Formulario de Carga -->
           <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
-            <h3 class="text-sm font-bold text-slate-8
+            <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+              <i data-lucide="upload-cloud" class="w-4 h-4 text-sky-700"></i> Registrar Evidencia o Justificación
+            </h3>
+            <form id="form-evidencia" class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Actividad PAO Vinculada</label>
+                <select id="ev-actividad-id" required class="w-full px-3 py-2 rounded-lg border border-slate-300"></select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-semibold text-slate-700 mb-1">Trimestre</label>
+                  <select id="ev-trimestre" class="w-full px-3 py-2 rounded-lg border border-slate-300">
+                    <option value="1">Trimestre 1</option>
+                    <option value="2">Trimestre 2</option>
+                    <option value="3">Trimestre 3</option>
+                    <option value="4">Trimestre 4</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-semibold text-slate-700 mb-1">Tipo de Registro</label>
+                  <select id="ev-categoria" class="w-full px-3 py-2 rounded-lg border border-slate-300">
+                    <option value="evidencia_cumplimiento">Evidencia Cumplimiento (100%)</option>
+                    <option value="justificacion_retraso">Justificación de Retraso</option>
+                    <option value="accion_correctiva">Acción Correctiva / Reprog.</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Título del Respaldo</label>
+                <input type="text" id="ev-titulo" required placeholder="Ej. Informe final / Memorándum de reprogramación"
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Causa Raíz (si aplica retraso)</label>
+                <select id="ev-causa" class="w-full px-3 py-2 rounded-lg border border-slate-300">
+                  <option value="">N/A - Cumplimiento normal</option>
+                  <option value="Disposición institucional superior">Disposición institucional superior</option>
+                  <option value="Emergencia epidemiológica / Brotes">Emergencia epidemiológica / Brotes</option>
+                  <option value="Factor externo / Ponente / Proveedor">Factor externo / Ponente / Proveedor</option>
+                  <option value="Requisito ético / Consentimiento">Requisito ético / Consentimiento</option>
+                  <option value="Reprogramación técnica">Reprogramación técnica</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Descripción / Justificación Técnica</label>
+                <textarea id="ev-descripcion" rows="3" required placeholder="Detalla los resultados alcanzados o el motivo técnico del retraso y medida tomada..."
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300"></textarea>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Archivo PDF / Imagen (Bucket INS)</label>
+                <input type="file" id="ev-archivo" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                  class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-sky-50 file:text-sky-700 file:font-semibold" />
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">O Enlace Externo (Google Drive INS)</label>
+                <input type="url" id="ev-url" placeholder="https://drive.google.com/..."
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+              </div>
+              <button type="submit" class="w-full py-2.5 bg-sky-700 hover:bg-sky-800 text-white font-semibold rounded-lg transition">
+                Guardar en Bóveda Documental
+              </button>
+            </form>
+          </div>
+
+          <!-- Listado de Evidencias -->
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 lg:col-span-2">
+            <h3 class="text-sm font-bold text-slate-800 mb-3">Expediente Documental del Ciclo</h3>
+            <div id="lista-evidencias" class="space-y-3 max-h-[600px] overflow-y-auto scrollbar-thin"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 5: MATRIZ DE VALORACIÓN Y SEGUIMIENTO DE RIESGOS (ANEXO 2)      -->
+      <!-- =================================================================== -->
+      <section id="tab-riesgos" class="tab-content hidden space-y-5">
+        <div class="bg-white p-4 rounded-xl card-shadow border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Matriz de Valoración y Seguimiento de Riesgos (13 Columnas)</h2>
+            <p class="text-xs text-slate-500">Incluye riesgos operativos, de fraude y antisoborno (ISO 37001) con control trimestral de materialización.</p>
+          </div>
+          <button id="btn-nuevo-riesgo" class="px-3.5 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-4 h-4"></i> Registrar Riesgo
+          </button>
+        </div>
+
+        <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
+          <div class="overflow-x-auto scrollbar-thin">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-800 text-white uppercase text-[11px]">
+                <tr>
+                  <th class="px-3 py-3">1. Proceso</th>
+                  <th class="px-3 py-3">2. Riesgo</th>
+                  <th class="px-3 py-3 text-center">3. F</th>
+                  <th class="px-3 py-3 text-center">4. I</th>
+                  <th class="px-3 py-3 text-center">5. FxI</th>
+                  <th class="px-3 py-3">6. Acciones de Control</th>
+                  <th class="px-3 py-3">7. Responsable</th>
+                  <th class="px-3 py-3 text-center">¿Materializó? (T1-T4)</th>
+                  <th class="px-3 py-3">13. Acción Tomada</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-riesgos" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 6: ANÁLISIS FODA PARTICIPATIVO CON SÍNTESIS IA (ANEXO 3)        -->
+      <!-- =================================================================== -->
+      <section id="tab-foda" class="tab-content hidden space-y-6">
+        <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Diagnóstico Situacional FODA Asistido por IA</h2>
+            <p class="text-xs text-slate-500">Recolecta aportes de todas las unidades del INS, consolídalos automáticamente y genera estrategias cruzadas CAME.</p>
+          </div>
+          <button id="btn-sintetizar-foda" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Sintetizar Aportes y Generar Análisis CAME
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Buzón de Lluvia de Ideas -->
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+            <h3 class="text-sm font-bold text-slate-800 mb-3">1. Ingresar Aporte / Idea al Taller FODA</h3>
+            <form id="form-aporte-foda" class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Cuadrante</label>
+                <select id="foda-cuadrante" class="w-full px-3 py-2 rounded-lg border border-slate-300">
+                  <option value="fortaleza">Fortaleza (Interna)</option>
+                  <option value="oportunidad">Oportunidad (Externa)</option>
+                  <option value="debilidad">Debilidad (Interna)</option>
+                  <option value="amenaza">Amenaza (Externa)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Idea o Percepción Técnica</label>
+                <textarea id="foda-idea" rows="3" required placeholder="Escribe la fortaleza, brecha u oportunidad identificada en tu unidad..."
+                  class="w-full px-3 py-2 rounded-lg border border-slate-300"></textarea>
+              </div>
+              <button type="submit" class="w-full py-2 bg-sky-700 hover:bg-sky-800 text-white font-semibold rounded-lg">
+                Enviar Aporte
+              </button>
+            </form>
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <div class="text-xs font-bold text-slate-600 mb-2">Aportes Recibidos (<span id="count-aportes-foda">0</span>)</div>
+              <div id="lista-aportes-foda" class="space-y-2 max-h-60 overflow-y-auto scrollbar-thin text-xs"></div>
+            </div>
+          </div>
+
+          <!-- Matriz Consolidada y Resumen Analítico -->
+          <div class="lg:col-span-2 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200">
+                <h4 class="text-xs font-bold text-emerald-900 uppercase mb-2">Fortalezas Consolidadas (F)</h4>
+                <ul id="foda-list-fortaleza" class="space-y-1.5 text-xs text-emerald-950 list-disc pl-4"></ul>
+              </div>
+              <div class="bg-sky-50/70 p-4 rounded-xl border border-sky-200">
+                <h4 class="text-xs font-bold text-sky-900 uppercase mb-2">Oportunidades Consolidadas (O)</h4>
+                <ul id="foda-list-oportunidad" class="space-y-1.5 text-xs text-sky-950 list-disc pl-4"></ul>
+              </div>
+              <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200">
+                <h4 class="text-xs font-bold text-amber-900 uppercase mb-2">Debilidades Consolidadas (D)</h4>
+                <ul id="foda-list-debilidad" class="space-y-1.5 text-xs text-amber-950 list-disc pl-4"></ul>
+              </div>
+              <div class="bg-rose-50/70 p-4 rounded-xl border border-rose-200">
+                <h4 class="text-xs font-bold text-rose-900 uppercase mb-2">Amenazas Consolidadas (A)</h4>
+                <ul id="foda-list-amenaza" class="space-y-1.5 text-xs text-rose-950 list-disc pl-4"></ul>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+              <h4 class="text-sm font-bold text-slate-800 mb-2">Síntesis Analítica y Estrategias Cruzadas (CAME)</h4>
+              <div id="foda-resumen-ejecutivo" class="text-xs text-slate-600 whitespace-pre-line leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-200">
+                Aún no se ha generado la síntesis ejecutiva. Ingresa aportes y presiona "Sintetizar Aportes y Generar Análisis CAME".
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 7: GENERADOR DE INFORMES GERENCIALES TRIMESTRALES               -->
+      <!-- =================================================================== -->
+      <section id="tab-informes" class="tab-content hidden space-y-5">
+        <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-800">Generador de Informes Gerenciales Trimestrales</h2>
+            <p class="text-xs text-slate-500">Redacta automáticamente el informe ejecutivo para la Dirección del INS con trazabilidad de auditoría.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="inf-trimestre" class="px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold">
+              <option value="1">Primer Trimestre (T1)</option>
+              <option value="2">Segundo Trimestre (T2)</option>
+              <option value="3">Tercer Trimestre (T3)</option>
+              <option value="4">Cuarto Trimestre (T4)</option>
+            </select>
+            <button id="btn-generar-informe" class="px-4 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5">
+              <i data-lucide="file-check-2" class="w-4 h-4"></i> Redactar Borrador Ejecutivo
+            </button>
+            <button id="btn-descargar-word" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5">
+              <i data-lucide="download" class="w-4 h-4"></i> Descargar Documento (.doc)
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl card-shadow border border-slate-200">
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Vista Previa Editable del Informe Gerencial INS</label>
+          <textarea id="informe-editor" rows="20"
+            class="w-full p-5 rounded-xl border border-slate-300 text-sm font-serif leading-relaxed text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-600"
+            placeholder="Selecciona el trimestre y presiona 'Redactar Borrador Ejecutivo' para generar el informe basado en los datos reales de Supabase..."></textarea>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB 8: PARAMETRIZACIÓN DEL SISTEMA (ADMIN)                          -->
+      <!-- =================================================================== -->
+      <section id="tab-configuracion" class="tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Catálogo de Tipos de Producto INS -->
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+            <h3 class="text-sm font-bold text-slate-800 mb-3">Catálogo Parametrizable de Tipos de Producto INS</h3>
+            <form id="form-nuevo-tipo-producto" class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 text-xs">
+              <input type="text" id="tp-codigo" required placeholder="Código (ej. PROD-TALLER)" class="px-3 py-2 rounded-lg border border-slate-300" />
+              <input type="text" id="tp-nombre" required placeholder="Nombre del Producto" class="px-3 py-2 rounded-lg border border-slate-300" />
+              <div class="flex gap-1">
+                <input type="text" id="tp-unidad" required placeholder="Unidad medida" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+                <button type="submit" class="px-3 py-2 bg-sky-700 text-white rounded-lg font-semibold">+</button>
+              </div>
+            </form>
+            <div class="max-h-72 overflow-y-auto scrollbar-thin">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-600 border-b">
+                  <tr>
+                    <th class="py-2 px-2">Código</th>
+                    <th class="py-2 px-2">Tipo de Producto</th>
+                    <th class="py-2 px-2">Unidad Medida</th>
+                    <th class="py-2 px-2 text-center">Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-tipos-producto" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Gestión de Planes Estratégicos y Ciclos Anuales -->
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 space-y-4">
+            <h3 class="text-sm font-bold text-slate-800">Planes Estratégicos y Ciclos Anuales</h3>
+            <form id="form-nuevo-ciclo" class="grid grid-cols-3 gap-2 text-xs">
+              <input type="number" id="ciclo-anio" required placeholder="Año (ej. 2028)" min="2025" max="2040" class="px-3 py-2 rounded-lg border border-slate-300" />
+              <select id="ciclo-plan-id" class="px-3 py-2 rounded-lg border border-slate-300"></select>
+              <button type="submit" class="px-3 py-2 bg-emerald-700 text-white rounded-lg font-semibold">Abrir Ciclo PAO</button>
+            </form>
+            <div id="lista-ciclos-admin" class="space-y-2 text-xs"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL: NUEVA ACTIVIDAD PAO (25 COLUMNAS MINSAL)                         -->
+  <!-- ======================================================================= -->
+  <div id="modal-actividad" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
+      <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
+        <h3 class="text-base font-bold text-slate-800">Registrar Actividad en Matriz PAO (25 Columnas MINSAL)</h3>
+        <button onclick="cerrarModal('modal-actividad')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="form-actividad-poa" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">1. Eje Estratégico PEI</label>
+            <select id="act-eje" required class="w-full px-3 py-2 rounded-lg border border-slate-300"></select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">2. Estrategia PEI</label>
+            <select id="act-estrategia" required class="w-full px-3 py-2 rounded-lg border border-slate-300"></select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">3. Línea de Acción PEI</label>
+            <select id="act-linea" required class="w-full px-3 py-2 rounded-lg border border-slate-300"></select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Unidad / Oficina Responsable INS</label>
+            <select id="act-unidad" required class="w-full px-3 py-2 rounded-lg border border-slate-300"></select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Persona Responsable (Col U)</label>
+            <input type="text" id="act-responsable" required placeholder="Nombre completo del referente" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Descripción de la Actividad (Col D - Verbo en infinitivo)</label>
+          <textarea id="act-descripcion" rows="2" required placeholder="Ej. Desarrollar 128 sesiones de teleclínicas del Proyecto ECHO..." class="w-full px-3 py-2 rounded-lg border border-slate-300"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="md:col-span-2">
+            <label class="block font-semibold text-slate-700 mb-1">Indicador de Medición (Col E)</label>
+            <input type="text" id="act-indicador" required placeholder="Ej. Porcentaje de sesiones de teleclínicas realizadas" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Ponderación Gerencial</label>
+            <input type="number" step="0.1" id="act-ponderacion" value="1.0" required class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+          </div>
+        </div>
+
+        <div class="bg-sky-50 p-3 rounded-xl border border-sky-200">
+          <label class="flex items-center gap-2 font-semibold text-sky-900 cursor-pointer">
+            <input type="checkbox" id="act-consolida-productos" class="rounded text-sky-700" />
+            <span>Consolidar automáticamente desde Productos INS (ej. desglosar por temas de teleclínicas, cursos o investigaciones)</span>
+          </label>
+        </div>
+
+        <div id="bloque-prog-directa" class="grid grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Prog. T1 (%)</label>
+            <input type="number" step="0.01" id="act-p1" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Prog. T2 (%)</label>
+            <input type="number" step="0.01" id="act-p2" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Prog. T3 (%)</label>
+            <input type="number" step="0.01" id="act-p3" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Prog. T4 (%)</label>
+            <input type="number" step="0.01" id="act-p4" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Fecha Inicio (Col V)</label>
+            <input type="date" id="act-inicio" required value="2027-01-01" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Fecha Fin (Col W)</label>
+            <input type="date" id="act-fin" required value="2027-12-31" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">¿Pasa a POI? (Col Y)</label>
+            <select id="act-poi" class="w-full px-3 py-2 rounded-lg border border-slate-300">
+              <option value="false">NO</option>
+              <option value="true">SI</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Supuestos Externos (Col X - Obligatorio MINSAL)</label>
+          <input type="text" id="act-supuestos" required placeholder="Ej. Disponibilidad presupuestaria, participación de personal de las RIIS..." class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="cerrarModal('modal-actividad')" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-600 font-semibold">Cancelar</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-sky-700 text-white font-semibold hover:bg-sky-800">Guardar Actividad</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL: GESTIÓN DE PRODUCTOS INS / AVANCE TRIMESTRAL                     -->
+  <!-- ======================================================================= -->
+  <div id="modal-productos" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
+      <div class="flex justify-between items-start pb-3 border-b border-slate-200 mb-4">
+        <div>
+          <span class="text-[11px] font-bold uppercase text-sky-700">Desglose Operativo y Seguimiento</span>
+          <h3 id="modal-prod-titulo" class="text-base font-bold text-slate-800 mt-0.5">Actividad</h3>
+        </div>
+        <button onclick="cerrarModal('modal-productos')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Sección A: Captura Directa (si no consolida por productos) -->
+      <div id="seccion-avance-directo" class="hidden space-y-4 text-xs">
+        <p class="text-slate-500">Ingresa el porcentaje realizado en cada trimestre (deja vacío si el trimestre aún no ha sido evaluado):</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 bg-slate-50 rounded-xl border">
+            <div class="font-bold text-slate-700 mb-1">Trimestre 1</div>
+            <div class="text-[11px] text-slate-500 mb-2">Prog: <span id="dir-p1">0</span>%</div>
+            <input type="number" step="0.01" id="dir-r1" placeholder="Realizado %" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border">
+            <div class="font-bold text-slate-700 mb-1">Trimestre 2</div>
+            <div class="text-[11px] text-slate-500 mb-2">Prog: <span id="dir-p2">0</span>%</div>
+            <input type="number" step="0.01" id="dir-r2" placeholder="Realizado %" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border">
+            <div class="font-bold text-slate-700 mb-1">Trimestre 3</div>
+            <div class="text-[11px] text-slate-500 mb-2">Prog: <span id="dir-p3">0</span>%</div>
+            <input type="number" step="0.01" id="dir-r3" placeholder="Realizado %" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border">
+            <div class="font-bold text-slate-700 mb-1">Trimestre 4</div>
+            <div class="text-[11px] text-slate-500 mb-2">Prog: <span id="dir-p4">0</span>%</div>
+            <input type="number" step="0.01" id="dir-r4" placeholder="Realizado %" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button id="btn-guardar-directo" class="px-4 py-2 bg-sky-700 text-white font-semibold rounded-lg">Actualizar Avance Trimestral</button>
+        </div>
+      </div>
+
+      <!-- Sección B: Desglose por Productos INS (Roll-up automático) -->
+      <div id="seccion-productos-hijos" class="hidden space-y-4 text-xs">
+        <form id="form-nuevo-producto" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <div class="font-bold text-slate-700">Agregar Producto / Entregable Específico del INS</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <select id="prod-tipo-id" class="px-3 py-2 rounded-lg border border-slate-300"></select>
+            <input type="text" id="prod-nombre" required placeholder="Nombre específico (ej. Teleclínica ECHO Obstetricia)" class="sm:col-span-2 px-3 py-2 rounded-lg border border-slate-300" />
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">Prog. T1</label>
+              <input type="number" id="prod-p1" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">Prog. T2</label>
+              <input type="number" id="prod-p2" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">Prog. T3</label>
+              <input type="number" id="prod-p3" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">Prog. T4</label>
+              <input type="number" id="prod-p4" value="0" min="0" class="w-full px-2.5 py-1.5 rounded border border-slate-300" />
+            </div>
+            <button type="submit" class="px-3 py-2 bg-sky-700 text-white font-semibold rounded-lg hover:bg-sky-800">+ Agregar Producto</button>
+          </div>
+        </form>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border">
+            <thead class="bg-slate-100 text-slate-700">
+              <tr>
+                <th class="p-2">Producto INS</th>
+                <th class="p-2 text-center">T1 (P / R)</th>
+                <th class="p-2 text-center">T2 (P / R)</th>
+                <th class="p-2 text-center">T3 (P / R)</th>
+                <th class="p-2 text-center">T4 (P / R)</th>
+                <th class="p-2">Comentario Técnico</th>
+                <th class="p-2 text-center">Guardar</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-productos-hijos" class="divide-y"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL: NUEVO RIESGO (MATRIZ 13 COLUMNAS)                                -->
+  <!-- ======================================================================= -->
+  <div id="modal-riesgo" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
+      <div class="flex justify-between items-center pb-3 border-b mb-4">
+        <h3 class="text-base font-bold text-slate-800">Registrar Riesgo en Matriz PAO (Anexo 2)</h3>
+        <button onclick="cerrarModal('modal-riesgo')" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <form id="form-riesgo" class="space-y-3 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Código Proceso (ej. E06-INS06)</label>
+            <input type="text" id="rk-codigo" placeholder="C01-INS10" class="w-full px-3 py-2 rounded-lg border" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Unidad INS</label>
+            <select id="rk-unidad" class="w-full px-3 py-2 rounded-lg border"></select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">1. Nombre del Proceso</label>
+          <input type="text" id="rk-proceso" required placeholder="Ej. Vigilancia Laboratorial / Gestión editorial Revista ALERTA" class="w-full px-3 py-2 rounded-lg border" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Tipo de Riesgo</label>
+            <select id="rk-tipo" class="w-full px-3 py-2 rounded-lg border">
+              <option value="operativo">Operativo</option>
+              <option value="fraude">Fraude</option>
+              <option value="soborno_iso37001">Soborno (ISO 37001)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">3. Probabilidad F (1-3)</label>
+            <select id="rk-f" class="w-full px-3 py-2 rounded-lg border">
+              <option value="1">1 - Baja</option>
+              <option value="2">2 - Media</option>
+              <option value="3">3 - Alta</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">4. Impacto I (1-3)</label>
+            <select id="rk-i" class="w-full px-3 py-2 rounded-lg border">
+              <option value="1">1 - Leve</option>
+              <option value="2">2 - Moderado</option>
+              <option value="3">3 - Severo</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">2. Descripción del Riesgo</label>
+          <textarea id="rk-descripcion" rows="2" required class="w-full px-3 py-2 rounded-lg border"></textarea>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">6. Acciones para Control de Riesgos</label>
+          <textarea id="rk-controles" rows="2" required class="w-full px-3 py-2 rounded-lg border"></textarea>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">7. Persona Responsable</label>
+          <input type="text" id="rk-responsable" required class="w-full px-3 py-2 rounded-lg border" />
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t">
+          <button type="button" onclick="cerrarModal('modal-riesgo')" class="px-4 py-2 rounded-lg border">Cancelar</button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-sky-700 text-white font-semibold">Guardar Riesgo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ                 -->
+  <!-- ======================================================================= -->
+  <script>
+    // 1. INICIALIZACIÓN DE SUPABASE
+    const SUPABASE_URL = 'https://bobaevnmobediajszsuh.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_yeRD5fOfDgF4D1Jxla4Otg_gBGPnMnM';
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Estado Global
+    let currentUser = null;
+    let currentProfile = null;
+    let ciclosList = [];
+    let activeCicloId = null;
+    let unidadesList = [];
+    let planesList = [];
+    let ejesList = [];
+    let estrategiasList = [];
+    let lineasList = [];
+    let tiposProductoList = [];
+    let actividadesCache = [];
+    let dashDataCache = [];
+    let charts = {};
+
+    // Inicializar iconos
+    lucide.createIcons();
+
+    // 2. AUTENTICACIÓN Y SESIÓN
+    async function checkSession() {
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          await loadUserProfile();
+        } else {
+          document.getElementById('login-screen').classList.remove('hidden');
+          document.getElementById('app-shell').classList.add('hidden');
+        }
+      } catch (e) {
+        console.error('Error verificando sesión:', e);
+        document.getElementById('login-screen').classList.remove('hidden');
+        document.getElementById('app-shell').classList.add('hidden');
+      }
+    }
+
+    async function loadUserProfile() {
+      try {
+        const { data, error } = await sb.from('perfiles_usuarios')
+          .select('*, unidades_ins(nombre, siglas)')
+          .eq('id', currentUser.id)
+          .maybeSingle();
+
+        if (error) console.warn('Aviso al leer perfil:', error.message);
+
+        currentProfile = data || {
+          nombre_completo: currentUser.email,
+          rol: currentUser.email === 'roberto.rodas@salud.gob.sv' ? 'admin_planificacion' : 'operativo_referente'
+        };
+
+        document.getElementById('user-name-display').textContent = currentProfile.nombre_completo;
+        document.getElementById('user-role-display').textContent = (currentProfile.rol || 'usuario').replace('_', ' ');
+
+        if (currentProfile.rol !== 'admin_planificacion') {
+          document.getElementById('nav-config').classList.add('hidden');
+        }
+
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('app-shell').classList.remove('hidden');
+        await initMasterData();
+      } catch (err) {
+        const errBox = document.getElementById('login-error');
+        errBox.textContent = 'Error cargando perfil: ' + err.message;
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    async function ejecutarLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errBox = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+
+      if (!email || !password) {
+        errBox.textContent = 'Por favor ingresa tu correo institucional y contraseña.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      errBox.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Verificando credenciales...';
+
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          errBox.textContent = 'Error de acceso: ' + error.message;
+          errBox.classList.remove('hidden');
+          btn.disabled = false;
+          btn.textContent = 'Ingresar al Sistema';
+          return;
+        }
+        btn.textContent = 'Cargando entorno INS...';
+        currentUser = data.user;
+        await loadUserProfile();
+      } catch (err) {
+        errBox.textContent = 'Error de conexión: ' + err.message;
+        errBox.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Ingresar al Sistema';
+      }
+    }
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      location.reload();
+    });
+
+    // 3. NAVEGACIÓN POR PESTAÑAS
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => {
+          b.classList.remove('bg-white', 'text-sky-900', 'font-semibold');
+          b.classList.add('text-sky-100');
+        });
+        btn.classList.add('bg-white', 'text-sky-900', 'font-semibold');
+        btn.classList.remove('text-sky-100');
+
+        const target = btn.dataset.tab;
+        document.querySelectorAll('.tab-content').forEach(sec => sec.classList.add('hidden'));
+        document.getElementById('tab-' + target).classList.remove('hidden');
+        refreshActiveTab(target);
+      });
+    });
+
+    function cerrarModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // 4. CARGA DE CATÁLOGOS MAESTROS
+    async function initMasterData() {
+      const [uRes, pRes, cRes, eRes, estRes, laRes, tpRes] = await Promise.all([
+        sb.from('unidades_ins').select('*').eq('activa', true).order('nombre'),
+        sb.from('planes_estrategicos').select('*').order('anio_inicio', { ascending: false }),
+        sb.from('ciclos_anuales').select('*').order('anio', { ascending: false }),
+        sb.from('pei_ejes').select('*').order('numero_orden'),
+        sb.from('pei_estrategias').select('*').order('numero_orden'),
+        sb.from('pei_lineas_accion').select('*').order('numero_orden'),
+        sb.from('catalogo_tipos_producto').select('*').order('nombre')
+      ]);
+
+      unidadesList = uRes.data || [];
+      planesList = pRes.data || [];
+      ciclosList = cRes.data || [];
+      ejesList = eRes.data || [];
+      estrategiasList = estRes.data || [];
+      lineasList = laRes.data || [];
+      tiposProductoList = tpRes.data || [];
+
+      const cicloSel = document.getElementById('global-ciclo-select');
+      cicloSel.innerHTML = ciclosList.map(c => `<option value="${c.id}">PAO ${c.anio} (${c.estado})</option>`).join('');
+      if (ciclosList.length > 0) {
+        activeCicloId = ciclosList[0].id;
+      }
+
+      cicloSel.addEventListener('change', (e) => {
+        activeCicloId = e.target.value;
+        reloadAllCycleData();
+      });
+
+      const unitOpts = unidadesList.map(u => `<option value="${u.id}">${u.siglas ? u.siglas + ' - ' : ''}${u.nombre}</option>`).join('');
+      document.getElementById('dash-unidad-filter').innerHTML = `<option value="ALL">Todas las Unidades INS</option>` + unitOpts;
+      document.getElementById('act-unidad').innerHTML = unitOpts;
+      document.getElementById('rk-unidad').innerHTML = unitOpts;
+
+      const planOpts = planesList.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+      document.getElementById('dash-plan-select').innerHTML = planOpts;
+      document.getElementById('ciclo-plan-id').innerHTML = planOpts;
+
+      setupPeiCascade();
+      renderConfigTables();
+      await reloadAllCycleData();
+    }
+
+    function setupPeiCascade() {
+      const ejeSel = document.getElementById('act-eje');
+      const estSel = document.getElementById('act-estrategia');
+      const linSel = document.getElementById('act-linea');
+
+      ejeSel.innerHTML = ejesList.map(e => `<option value="${e.id}">Eje ${e.numero_orden}. ${e.nombre}</option>`).join('');
+
+      const updateEst = () => {
+        const filteredEst = estrategiasList.filter(s => s.eje_id === ejeSel.value);
+        estSel.innerHTML = filteredEst.map(s => `<option value="${s.id}">${s.numero_orden}. ${s.nombre}</option>`).join('');
+        updateLin();
+      };
+
+      const updateLin = () => {
+        const filteredLin = lineasList.filter(l => l.estrategia_id === estSel.value);
+        linSel.innerHTML = filteredLin.map(l => `<option value="${l.id}">${l.numero_orden}. ${l.nombre}</option>`).join('');
+      };
+
+      ejeSel.addEventListener('change', updateEst);
+      estSel.addEventListener('change', updateLin);
+      updateEst();
+    }
+
+    async function reloadAllCycleData() {
+      await Promise.all([
+        loadDashboardAnual(),
+        loadDashboardPlurianual(),
+        loadActividadesPOA(),
+        loadEvidencias(),
+        loadRiesgos(),
+        loadFoda()
+      ]);
+    }
+
+    function refreshActiveTab(tab) {
+      if (tab === 'dash-anual') loadDashboardAnual();
+      if (tab === 'dash-estrategico') loadDashboardPlurianual();
+      if (tab === 'matriz-poa') loadActividadesPOA();
+      if (tab === 'evidencias') loadEvidencias();
+      if (tab === 'riesgos') loadRiesgos();
+      if (tab === 'foda') loadFoda();
+    }
+
+    // =========================================================================
+    // 5. DASHBOARD OPERATIVO ANUAL
+    // =========================================================================
+    document.getElementById('dash-trimestre-corte').addEventListener('change', loadDashboardAnual);
+    document.getElementById('dash-unidad-filter').addEventListener('change', loadDashboardAnual);
+
+    async function loadDashboardAnual() {
+      if (!activeCicloId) return;
+      const corte = parseInt(document.getElementById('dash-trimestre-corte').value);
+      const unitFilter = document.getElementById('dash-unidad-filter').value;
+
+      let query = sb.from('vw_dashboard_operativo_anual')
+        .select('*')
+        .eq('ciclo_id', activeCicloId)
+        .eq('trimestre_corte', corte);
+
+      if (unitFilter !== 'ALL') {
+        query = query.eq('unidad_id', unitFilter);
+      }
+
+      const { data } = await query;
+      dashDataCache = data || [];
+
+      const validas = dashDataCache.filter(d => d.pct_cumplimiento_corte !== null);
+      const avgAcotado = validas.length ? (validas.reduce((acc, r) => acc + Number(r.pct_cumplimiento_corte_acotado), 0) / validas.length) : 0;
+      const avgBruto = validas.length ? (validas.reduce((acc, r) => acc + Number(r.pct_cumplimiento_corte), 0) / validas.length) : 0;
+
+      const finalizadas = dashDataCache.filter(d => d.semaforo_calculado === 'Finalizada').length;
+      const enCurso = dashDataCache.filter(d => ['En curso', 'En atención'].includes(d.semaforo_calculado)).length;
+      const retraso = dashDataCache.filter(d => d.semaforo_calculado === 'Con retraso').length;
+      const sinReg = dashDataCache.filter(d => d.semaforo_calculado === 'Sin registro').length;
+
+      document.getElementById('kpi-cumplimiento-acotado').textContent = avgAcotado.toFixed(1) + '%';
+      document.getElementById('kpi-cumplimiento-bruto').textContent = `Promedio bruto (con brotes): ${avgBruto.toFixed(1)}%`;
+      document.getElementById('kpi-total-act').textContent = dashDataCache.length;
+      document.getElementById('kpi-finalizadas').textContent = `${finalizadas} finalizadas al 100%`;
+      document.getElementById('kpi-en-curso').textContent = enCurso;
+      document.getElementById('kpi-retraso').textContent = retraso;
+      document.getElementById('kpi-sin-registro').textContent = `${sinReg} con omisión de registro`;
+
+      renderChartsAnual(dashDataCache);
+    }
+
+    function renderChartsAnual(rows) {
+      const estados = ['Finalizada', 'En curso', 'En atención', 'Con retraso', 'Sin registro', 'Sin programación al corte'];
+      const colores = ['#059669', '#0284c7', '#f59e0b', '#e11d48', '#64748b', '#cbd5e1'];
+      const conteos = estados.map(e => rows.filter(r => r.semaforo_calculado === e).length);
+
+      if (charts.semaforo) charts.semaforo.destroy();
+      charts.semaforo = new Chart(document.getElementById('chart-semaforo'), {
+        type: 'doughnut',
+        data: { labels: estados, datasets: [{ data: conteos, backgroundColor: colores }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+      });
+
+      const mapU = {};
+      rows.forEach(r => {
+        if (r.pct_cumplimiento_corte_acotado !== null) {
+          if (!mapU[r.unidad_ins]) mapU[r.unidad_ins] = [];
+          mapU[r.unidad_ins].push(Number(r.pct_cumplimiento_corte_acotado));
+        }
+      });
+      const labelsU = Object.keys(mapU);
+      const valsU = labelsU.map(u => (mapU[u].reduce((a, b) => a + b, 0) / mapU[u].length).toFixed(1));
+
+      if (charts.unidades) charts.unidades.destroy();
+      charts.unidades = new Chart(document.getElementById('chart-unidades'), {
+        type: 'bar',
+        data: {
+          labels: labelsU.map(l => l.length > 28 ? l.substring(0, 28) + '...' : l),
+          datasets: [{ label: '% Cumplimiento Acotado', data: valsU, backgroundColor: '#0369a1', borderRadius: 6 }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { max: 100, beginAtZero: true } },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // =========================================================================
+    // 6. DASHBOARD ESTRATÉGICO PLURIANUAL
+    // =========================================================================
+    document.getElementById('dash-plan-select').addEventListener('change', loadDashboardPlurianual);
+
+    async function loadDashboardPlurianual() {
+      const planId = document.getElementById('dash-plan-select').value;
+      if (!planId) return;
+      const { data } = await sb.from('vw_dashboard_estrategico_plurianual').select('*').eq('plan_estrategico_id', planId);
+      const rows = data || [];
+
+      const tbody = document.getElementById('tabla-ejes-plurianual');
+      tbody.innerHTML = rows.map(r => `
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-2.5 font-medium text-slate-800">Eje ${r.eje_numero}. ${r.eje_estrategico}</td>
+          <td class="px-4 py-2.5">${r.anio || '-'}</td>
+          <td class="px-4 py-2.5 text-center">${r.total_actividades}</td>
+          <td class="px-4 py-2.5 text-center">${r.actividades_finalizadas}</td>
+          <td class="px-4 py-2.5 text-right font-semibold text-sky-700">${r.promedio_avance_simple ?? 0}%</td>
+          <td class="px-4 py-2.5 text-right font-bold text-indigo-700">${r.promedio_avance_ponderado ?? 0}%</td>
+        </tr>
+      `).join('');
+
+      const ejesMap = {};
+      rows.forEach(r => {
+        const key = `Eje ${r.eje_numero}`;
+        if (!ejesMap[key]) ejesMap[key] = { simple: [], pond: [] };
+        if (r.promedio_avance_simple !== null) ejesMap[key].simple.push(Number(r.promedio_avance_simple));
+        if (r.promedio_avance_ponderado !== null) ejesMap[key].pond.push(Number(r.promedio_avance_ponderado));
+      });
+
+      const labels = Object.keys(ejesMap);
+      const dSimple = labels.map(k => ejesMap[k].simple.length ? (ejesMap[k].simple.reduce((a,b)=>a+b,0)/ejesMap[k].simple.length).toFixed(1) : 0);
+      const dPond = labels.map(k => ejesMap[k].pond.length ? (ejesMap[k].pond.reduce((a,b)=>a+b,0)/ejesMap[k].pond.length).toFixed(1) : 0);
+
+      if (charts.ejes) charts.ejes.destroy();
+      charts.ejes = new Chart(document.getElementById('chart-ejes-pei'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Avance Simple (%)', data: dSimple, backgroundColor: '#0284c7', borderRadius: 4 },
+            { label: 'Avance Ponderado (%)', data: dPond, backgroundColor: '#4f46e5', borderRadius: 4 }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { max: 100, beginAtZero: true } } }
+      });
+    }
+
+    // =========================================================================
+    // 7. MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS
+    // =========================================================================
+    document.getElementById('btn-nueva-actividad').addEventListener('click', () => {
+      document.getElementById('modal-actividad').classList.remove('hidden');
+    });
+
+    document.getElementById('act-consolida-productos').addEventListener('change', (e) => {
+      document.getElementById('bloque-prog-directa').classList.toggle('hidden', e.target.checked);
+    });
+
+    document.getElementById('form-actividad-poa').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const consolida = document.getElementById('act-consolida-productos').checked;
+      const payload = {
+        ciclo_id: activeCicloId,
+        linea_accion_id: document.getElementById('act-linea').value,
+        unidad_ins_id: document.getElementById('act-unidad').value,
+        responsable_nombre: document.getElementById('act-responsable').value,
+        actividad: document.getElementById('act-descripcion').value,
+        indicador: document.getElementById('act-indicador').value,
+        ponderacion: parseFloat(document.getElementById('act-ponderacion').value) || 1.0,
+        consolida_desde_productos: consolida,
+        prog_t1: consolida ? 0 : parseFloat(document.getElementById('act-p1').value) || 0,
+        prog_t2: consolida ? 0 : parseFloat(document.getElementById('act-p2').value) || 0,
+        prog_t3: consolida ? 0 : parseFloat(document.getElementById('act-p3').value) || 0,
+        prog_t4: consolida ? 0 : parseFloat(document.getElementById('act-p4').value) || 0,
+        fecha_inicio: document.getElementById('act-inicio').value,
+        fecha_fin: document.getElementById('act-fin').value,
+        pasa_poi: document.getElementById('act-poi').value === 'true',
+        supuestos_externos: document.getElementById('act-supuestos').value
+      };
+
+      const { error } = await sb.from('actividades_poa').insert(payload);
+      if (error) {
+        alert('Error al guardar actividad: ' + error.message);
+      } else {
+        cerrarModal('modal-actividad');
+        e.target.reset();
+        await reloadAllCycleData();
+      }
+    });
+
+    async function loadActividadesPOA() {
+      if (!activeCicloId) return;
+      const { data } = await sb.from('actividades_poa')
+        .select(`
+          *,
+          unidades_ins(nombre, siglas),
+          pei_lineas_accion(nombre, pei_estrategias(nombre, pei_ejes(numero_orden, nombre)))
+        `)
+        .eq('ciclo_id', activeCicloId)
+        .order('created_at', { ascending: true });
+
+      actividadesCache = data || [];
+      const tbody = document.getElementById('tabla-actividades-poa');
+
+      if (actividadesCache.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-400">No hay actividades registradas en este ciclo PAO. Haz clic en "+ Nueva Actividad PAO".</td></tr>`;
+      } else {
+        tbody.innerHTML = actividadesCache.map(a => {
+          const ejeNum = a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.numero_orden || '-';
+          const badgeModo = a.consolida_desde_productos
+            ? `<span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-[10px]">Productos (${a.meta_numerica_anual || 0})</span>`
+            : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px]">Directo</span>`;
+
+          const acum = Number(a.acumulado_anual || 0);
+          const semColor = acum >= 100 ? 'bg-emerald-100 text-emerald-800' : acum >= 75 ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800';
+
+          return `
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2.5 font-semibold text-slate-700">Eje ${ejeNum}</td>
+              <td class="px-3 py-2.5">
+                <div class="font-medium text-slate-900">${a.actividad}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Resp: ${a.responsable_nombre}</div>
+              </td>
+              <td class="px-3 py-2.5 text-slate-600">${a.unidades_ins?.siglas || a.unidades_ins?.nombre || '-'}</td>
+              <td class="px-3 py-2.5 text-center">${badgeModo}</td>
+              <td class="px-3 py-2.5 text-center">${a.prog_t1}% / <b>${a.real_t1 ?? '-'}</b></td>
+              <td class="px-3 py-2.5 text-center">${a.prog_t2}% / <b>${a.real_t2 ?? '-'}</b></td>
+              <td class="px-3 py-2.5 text-center">${a.prog_t3}% / <b>${a.real_t3 ?? '-'}</b></td>
+              <td class="px-3 py-2.5 text-center">${a.prog_t4}% / <b>${a.real_t4 ?? '-'}</b></td>
+              <td class="px-3 py-2.5 text-right font-bold text-slate-800">${acum.toFixed(1)}%</td>
+              <td class="px-3 py-2.5 text-center">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${semColor}">${acum >= 100 ? 'Finalizado' : a.estado_avance}</span>
+              </td>
+              <td class="px-3 py-2.5 text-center">
+                <button onclick="abrirGestionProductos('${a.id}')" class="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg font-semibold text-[11px] border border-sky-200">
+                  ${a.consolida_desde_productos ? 'Productos / Avance' : 'Registrar Avance'}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('ev-actividad-id').innerHTML = actividadesCache.map(a =>
+        `<option value="${a.id}">${a.actividad.substring(0, 75)}...</option>`
+      ).join('');
+    }
+
+    let currentEditingActId = null;
+    async function abrirGestionProductos(actId) {
+      currentEditingActId = actId;
+      const act = actividadesCache.find(x => x.id === actId);
+      if (!act) return;
+
+      document.getElementById('modal-prod-titulo').textContent = act.actividad;
+      document.getElementById('modal-productos').classList.remove('hidden');
+
+      if (act.consolida_desde_productos) {
+        document.getElementById('seccion-avance-directo').classList.add('hidden');
+        document.getElementById('seccion-productos-hijos').classList.remove('hidden');
+        document.getElementById('prod-tipo-id').innerHTML = tiposProductoList
+          .filter(t => t.activo)
+          .map(t => `<option value="${t.id}">${t.nombre}</option>`).join('');
+        await loadProductosHijos(actId);
+      } else {
+        document.getElementById('seccion-productos-hijos').classList.add('hidden');
+        document.getElementById('seccion-avance-directo').classList.remove('hidden');
+        document.getElementById('dir-p1').textContent = act.prog_t1;
+        document.getElementById('dir-p2').textContent = act.prog_t2;
+        document.getElementById('dir-p3').textContent = act.prog_t3;
+        document.getElementById('dir-p4').textContent = act.prog_t4;
+        document.getElementById('dir-r1').value = act.real_t1 ?? '';
+        document.getElementById('dir-r2').value = act.real_t2 ?? '';
+        document.getElementById('dir-r3').value = act.real_t3 ?? '';
+        document.getElementById('dir-r4').value = act.real_t4 ?? '';
+      }
+    }
+
+    document.getElementById('btn-guardar-directo').addEventListener('click', async () => {
+      const parseNullable = (val) => val === '' ? null : parseFloat(val);
+      const { error } = await sb.from('actividades_poa').update({
+        real_t1: parseNullable(document.getElementById('dir-r1').value),
+        real_t2: parseNullable(document.getElementById('dir-r2').value),
+        real_t3: parseNullable(document.getElementById('dir-r3').value),
+        real_t4: parseNullable(document.getElementById('dir-r4').value),
+        updated_at: new Date().toISOString()
+      }).eq('id', currentEditingActId);
+
+      if (error) alert(error.message);
+      else {
+        cerrarModal('modal-productos');
+        await reloadAllCycleData();
+      }
+    });
+
+    async function loadProductosHijos(actId) {
+      const { data } = await sb.from('productos_poa')
+        .select('*, catalogo_tipos_producto(nombre)')
+        .eq('actividad_poa_id', actId)
+        .order('created_at');
+
+      const tbody = document.getElementById('tabla-productos-hijos');
+      tbody.innerHTML = (data || []).map(p => `
+        <tr>
+          <td class="p-2">
+            <div class="font-semibold text-slate-800">${p.nombre_producto}</div>
+            <div class="text-[10px] text-slate-400">${p.catalogo_tipos_producto?.nombre || ''}</div>
+          </td>
+          <td class="p-2 text-center">${p.prog_num_t1} / <input type="number" id="pr1-${p.id}" value="${p.real_num_t1 ?? ''}" class="w-12 px-1 py-0.5 border rounded text-center" /></td>
+          <td class="p-2 text-center">${p.prog_num_t2} / <input type="number" id="pr2-${p.id}" value="${p.real_num_t2 ?? ''}" class="w-12 px-1 py-0.5 border rounded text-center" /></td>
+          <td class="p-2 text-center">${p.prog_num_t3} / <input type="number" id="pr3-${p.id}" value="${p.real_num_t3 ?? ''}" class="w-12 px-1 py-0.5 border rounded text-center" /></td>
+          <td class="p-2 text-center">${p.prog_num_t4} / <input type="number" id="pr4-${p.id}" value="${p.real_num_t4 ?? ''}" class="w-12 px-1 py-0.5 border rounded text-center" /></td>
+          <td class="p-2"><input type="text" id="pcom-${p.id}" value="${p.comentario_t1 || ''}" placeholder="Comentario..." class="w-full px-2 py-1 border rounded" /></td>
+          <td class="p-2 text-center">
+            <button onclick="guardarProductoHijo('${p.id}')" class="px-2 py-1 bg-emerald-600 text-white rounded font-semibold">OK</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('form-nuevo-producto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await sb.from('productos_poa').insert({
+        actividad_poa_id: currentEditingActId,
+        tipo_producto_id: document.getElementById('prod-tipo-id').value,
+        nombre_producto: document.getElementById('prod-nombre').value,
+        prog_num_t1: parseFloat(document.getElementById('prod-p1').value) || 0,
+        prog_num_t2: parseFloat(document.getElementById('prod-p2').value) || 0,
+        prog_num_t3: parseFloat(document.getElementById('prod-p3').value) || 0,
+        prog_num_t4: parseFloat(document.getElementById('prod-p4').value) || 0
+      });
+      if (error) alert(error.message);
+      else {
+        e.target.reset();
+        await loadProductosHijos(currentEditingActId);
+        await reloadAllCycleData();
+      }
+    });
+
+    async function guardarProductoHijo(prodId) {
+      const pVal = (id) => {
+        const v = document.getElementById(id).value;
+        return v === '' ? null : parseFloat(v);
+      };
+      const { error } = await sb.from('productos_poa').update({
+        real_num_t1: pVal(`pr1-${prodId}`),
+        real_num_t2: pVal(`pr2-${prodId}`),
+        real_num_t3: pVal(`pr3-${prodId}`),
+        real_num_t4: pVal(`pr4-${prodId}`),
+        comentario_t1: document.getElementById(`pcom-${prodId}`).value
+      }).eq('id', prodId);
+
+      if (error) alert(error.message);
+      else {
+        await reloadAllCycleData();
+        alert('Producto actualizado y consolidado automáticamente en la Matriz MINSAL.');
+      }
+    }
+
+    // EXPORTADOR EXCEL OFICIAL MINSAL (25 COLUMNAS A-Y)
+    document.getElementById('btn-exportar-excel').addEventListener('click', () => {
+      if (!actividadesCache.length) return alert('No hay actividades para exportar en este ciclo.');
+      const rowsExcel = actividadesCache.map(a => ({
+        'A. Eje Estratégico': a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.nombre || '',
+        'B. Estrategia': a.pei_lineas_accion?.pei_estrategias?.nombre || '',
+        'C. Línea de Acción': a.pei_lineas_accion?.nombre || '',
+        'D. Actividades INS': a.actividad,
+        'E. Indicadores': a.indicador,
+        'F. Meta Anual': a.meta_anual,
+        'G. Prog. Trimestre 1': a.prog_t1,
+        'H. Realizado Trimestre 1': a.real_t1 ?? '',
+        'I. % Ejecución Trimestre 1': a.ejec_t1 ?? '',
+        'J. Prog. Trimestre 2': a.prog_t2,
+        'K. Realizado Trimestre 2': a.real_t2 ?? '',
+        'L. % Ejecución Trimestre 2': a.ejec_t2 ?? '',
+        'M. Prog. Trimestre 3': a.prog_t3,
+        'N. Realizado Trimestre 3': a.real_t3 ?? '',
+        'O. % Ejecución Trimestre 3': a.ejec_t3 ?? '',
+        'P. Prog. Trimestre 4': a.prog_t4,
+        'Q. Realizado Trimestre 4': a.real_t4 ?? '',
+        'R. % Ejecución Trimestre 4': a.ejec_t4 ?? '',
+        'S. % Ejecución Acumulado': a.acumulado_anual,
+        'T. Estado de avance': a.acumulado_anual >= 100 ? 'Finalizado' : a.estado_avance,
+        'U. Responsable': a.responsable_nombre,
+        'V. Fecha de inicio': a.fecha_inicio,
+        'W. Fecha de finalización': a.fecha_fin,
+        'X. Supuestos externos': a.supuestos_externos,
+        'Y. Pasa a POI': a.pasa_poi ? 'SI' : 'NO'
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(rowsExcel);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Matriz_PAO_INS');
+      XLSX.writeFile(wb, `Matriz_PAO_INS_MINSAL_25Cols.xlsx`);
+    });
+
+    // =========================================================================
+    // 8. BÓVEDA DE EVIDENCIAS Y JUSTIFICACIONES
+    // =========================================================================
+    document.getElementById('form-evidencia').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('ev-archivo');
+      let storagePath = null;
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const fileName = `${activeCicloId}/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+        const { error: upErr } = await sb.storage.from('evidencias-ins').upload(fileName, file);
+        if (upErr) return alert('Error subiendo archivo: ' + upErr.message);
+        storagePath = fileName;
+      }
+
+      const { error } = await sb.from('evidencias_poa').insert({
+        ciclo_id: activeCicloId,
+        actividad_poa_id: document.getElementById('ev-actividad-id').value,
+        trimestre: parseInt(document.getElementById('ev-trimestre').value),
+        categoria: document.getElementById('ev-categoria').value,
+        titulo: document.getElementById('ev-titulo').value,
+        causa_retraso_tipificada: document.getElementById('ev-causa').value || null,
+        descripcion_narrativa: document.getElementById('ev-descripcion').value,
+        archivo_storage_path: storagePath,
+        url_externa_drive: document.getElementById('ev-url').value || null,
+        subido_por: currentUser.id
+      });
+
+      if (error) alert(error.message);
+      else {
+        e.target.reset();
+        await loadEvidencias();
+        alert('Documento registrado en el expediente de auditoría.');
+      }
+    });
+
+    async function loadEvidencias() {
+      if (!activeCicloId) return;
+      const { data } = await sb.from('evidencias_poa')
+        .select('*, actividades_poa(actividad)')
+        .eq('ciclo_id', activeCicloId)
+        .order('created_at', { ascending: false });
+
+      const cont = document.getElementById('lista-evidencias');
+      if (!data || data.length === 0) {
+        cont.innerHTML = `<div class="text-xs text-slate-400 text-center py-8">No hay evidencias ni justificaciones registradas aún en este ciclo.</div>`;
+        return;
+      }
+
+      cont.innerHTML = data.map(ev => {
+        const isRetraso = ev.categoria === 'justificacion_retraso';
+        const badge = isRetraso
+          ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-semibold text-[10px]">Justificación Retraso</span>`
+          : `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Evidencia Cumplimiento</span>`;
+
+        return `
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs space-y-1.5">
+            <div class="flex justify-between items-start gap-2">
+              <div class="font-bold text-slate-800">${ev.titulo} <span class="text-slate-400 font-normal">(T${ev.trimestre})</span></div>
+              ${badge}
+            </div>
+            <div class="text-[11px] text-sky-800 font-medium">${ev.actividades_poa?.actividad || ''}</div>
+            <p class="text-slate-600">${ev.descripcion_narrativa}</p>
+            <div class="flex flex-wrap gap-3 pt-1 text-[11px]">
+              ${ev.archivo_storage_path ? `<button onclick="descargarEvidencia('${ev.archivo_storage_path}')" class="text-sky-700 font-semibold hover:underline">Descargar Archivo Adjunto</button>` : ''}
+              ${ev.url_externa_drive ? `<a href="${ev.url_externa_drive}" target="_blank" class="text-indigo-700 font-semibold hover:underline">Abrir Enlace Drive</a>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function descargarEvidencia(path) {
+      const { data, error } = await sb.storage.from('evidencias-ins').createSignedUrl(path, 60);
+      if (error) alert(error.message);
+      else window.open(data.signedUrl, '_blank');
+    }
+
+    // =========================================================================
+    // 9. MATRIZ DE RIESGOS (13 COLUMNAS)
+    // =========================================================================
+    document.getElementById('btn-nuevo-riesgo').addEventListener('click', () => {
+      document.getElementById('modal-riesgo').classList.remove('hidden');
+    });
+
+    document.getElementById('form-riesgo').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await sb.from('matriz_riesgos').insert({
+        ciclo_id: activeCicloId,
+        codigo_proceso: document.getElementById('rk-codigo').value,
+        unidad_ins_id: document.getElementById('rk-unidad').value,
+        nombre_proceso: document.getElementById('rk-proceso').value,
+        tipo_riesgo: document.getElementById('rk-tipo').value,
+        probabilidad_f: parseInt(document.getElementById('rk-f').value),
+        impacto_i: parseInt(document.getElementById('rk-i').value),
+        descripcion_riesgo: document.getElementById('rk-descripcion').value,
+        acciones_control: document.getElementById('rk-controles').value,
+        responsable_nombre: document.getElementById('rk-responsable').value
+      });
+
+      if (error) alert(error.message);
+      else {
+        cerrarModal('modal-riesgo');
+        e.target.reset();
+        await loadRiesgos();
+      }
+    });
+
+    async function loadRiesgos() {
+      if (!activeCicloId) return;
+      const { data } = await sb.from('matriz_riesgos').select('*').eq('ciclo_id', activeCicloId).order('created_at');
+      const tbody = document.getElementById('tabla-riesgos');
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">No hay riesgos registrados en este ciclo.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(r => {
+        const expColor = r.exposicion_fxi >= 7 ? 'bg-rose-100 text-rose-800' : r.exposicion_fxi >= 4 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="px-3 py-2.5 font-medium">${r.codigo_proceso ? `<b>${r.codigo_proceso}</b> ` : ''}${r.nombre_proceso}</td>
+            <td class="px-3 py-2.5">${r.descripcion_riesgo}</td>
+            <td class="px-3 py-2.5 text-center">${r.probabilidad_f}</td>
+            <td class="px-3 py-2.5 text-center">${r.impacto_i}</td>
+            <td class="px-3 py-2.5 text-center"><span class="px-2 py-0.5 rounded font-bold ${expColor}">${r.exposicion_fxi}</span></td>
+            <td class="px-3 py-2.5">${r.acciones_control}</td>
+            <td class="px-3 py-2.5">${r.responsable_nombre}</td>
+            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+              ${[1,2,3,4].map(t => `
+                <label class="inline-flex items-center mr-1.5 cursor-pointer">
+                  <input type="checkbox" ${r['materializado_t'+t] ? 'checked' : ''} onchange="toggleRiesgoMat('${r.id}', ${t}, this.checked)" />
+                  <span class="ml-0.5 text-[10px]">T${t}</span>
+                </label>
+              `).join('')}
+            </td>
+            <td class="px-3 py-2.5">
+              <input type="text" value="${r.acciones_tomadas_contingencia || ''}" placeholder="Si materializó, describir..."
+                onblur="guardarContingenciaRiesgo('${r.id}', this.value)"
+                class="w-full px-2 py-1 border rounded text-xs" />
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function toggleRiesgoMat(id, trim, val) {
+      await sb.from('matriz_riesgos').update({ [`materializado_t${trim}`]: val }).eq('id', id);
+      if (val) alert('Has marcado que el riesgo se materializó. Por favor describe la acción tomada en la columna 13 y adjunta el atestado en Evidencias.');
+    }
+
+    async function guardarContingenciaRiesgo(id, texto) {
+      await sb.from('matriz_riesgos').update({ acciones_tomadas_contingencia: texto }).eq('id', id);
+    }
+
+    // =========================================================================
+    // 10. ANÁLISIS FODA PARTICIPATIVO CON SÍNTESIS IA
+    // =========================================================================
+    document.getElementById('form-aporte-foda').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await sb.from('foda_aportes_participantes').insert({
+        ciclo_id: activeCicloId,
+        unidad_ins_id: currentProfile?.unidad_id || null,
+        usuario_id: currentUser.id,
+        cuadrante: document.getElementById('foda-cuadrante').value,
+        idea_bruta: document.getElementById('foda-idea').value
+      });
+      if (error) alert(error.message);
+      else {
+        e.target.reset();
+        await loadFoda();
+      }
+    });
+
+    async function loadFoda() {
+      if (!activeCicloId) return;
+      const [apRes, matRes, ejRes] = await Promise.all([
+        sb.from('foda_aportes_participantes').select('*, unidades_ins(siglas)').eq('ciclo_id', activeCicloId).order('created_at', { ascending: false }),
+        sb.from('matriz_foda').select('*').eq('ciclo_id', activeCicloId).order('codigo_factor'),
+        sb.from('foda_analisis_ejecutivo').select('*').eq('ciclo_id', activeCicloId).maybeSingle()
+      ]);
+
+      const aportes = apRes.data || [];
+      document.getElementById('count-aportes-foda').textContent = aportes.length;
+      document.getElementById('lista-aportes-foda').innerHTML = aportes.map(a => `
+        <div class="p-2 bg-slate-50 rounded border border-slate-200">
+          <span class="font-bold uppercase text-[10px] text-sky-700">[${a.cuadrante}]</span>
+          <span class="text-slate-700">${a.idea_bruta}</span>
+        </div>
+      `).join('');
+
+      const factores = matRes.data || [];
+      ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(c => {
+        const items = factores.filter(f => f.cuadrante === c);
+        document.getElementById('foda-list-' + c).innerHTML = items.length
+          ? items.map(i => `<li><b>${i.codigo_factor}:</b> ${i.descripcion_consolidada}</li>`).join('')
+          : `<li class="text-slate-400 italic">Sin factores consolidados</li>`;
+      });
+
+      if (ejRes.data?.resumen_situacional) {
+        document.getElementById('foda-resumen-ejecutivo').textContent = ejRes.data.resumen_situacional;
+      }
+    }
+
+    document.getElementById('btn-sintetizar-foda').addEventListener('click', async () => {
+      const { data: aportes } = await sb.from('foda_aportes_participantes').select('*').eq('ciclo_id', activeCicloId);
+      if (!aportes || aportes.length === 0) return alert('Primero ingresa aportes en el buzón FODA.');
+
+      const prefijos = { fortaleza: 'F', oportunidad: 'O', debilidad: 'D', amenaza: 'A' };
+      await sb.from('matriz_foda').delete().eq('ciclo_id', activeCicloId);
+
+      const nuevosFactores = [];
+      ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(cuad => {
+        const unicos = [...new Set(aportes.filter(a => a.cuadrante === cuad).map(a => a.idea_bruta.trim()))];
+        unicos.forEach((texto, idx) => {
+          nuevosFactores.push({
+            ciclo_id: activeCicloId,
+            cuadrante: cuad,
+            codigo_factor: `${prefijos[cuad]}${idx + 1}`,
+            descripcion_consolidada: texto.charAt(0).toUpperCase() + texto.slice(1),
+            generado_con_ia: true,
+            aprobado: true
+          });
+        });
+      });
+
+      if (nuevosFactores.length > 0) {
+        await sb.from('matriz_foda').insert(nuevosFactores);
+      }
+
+      const fCount = nuevosFactores.filter(x => x.cuadrante === 'fortaleza').length;
+      const oCount = nuevosFactores.filter(x => x.cuadrante === 'oportunidad').length;
+      const dCount = nuevosFactores.filter(x => x.cuadrante === 'debilidad').length;
+      const aCount = nuevosFactores.filter(x => x.cuadrante === 'amenaza').length;
+
+      const resumenTexto = `DIAGNÓSTICO SITUACIONAL CONSOLIDADO DEL INS:\n` +
+        `Se integraron ${aportes.length} aportes técnicos de las unidades organizativas, consolidándose en ${fCount} Fortalezas, ${oCount} Oportunidades, ${dCount} Debilidades y ${aCount} Amenazas.\n\n` +
+        `• Estrategia Ofensiva (FO): Capitalizar las capacidades técnicas del Laboratorio Nacional de Salud Pública, Investigación y Educación Continua (ECHO) para aprovechar alianzas internacionales y cooperación técnica.\n` +
+        `• Estrategia de Reorientación (DO): Programar actividades en el PAO orientadas a cerrar las brechas internas identificadas en tiempos de respuesta, articulación de procesos y disponibilidad de insumos.\n` +
+        `• Estrategia Defensiva (FA): Utilizar el rigor científico y los sistemas de gestión de calidad/antisoborno (ISO 37001) para mitigar brotes epidemiológicos y riesgos externos.\n` +
+        `• Estrategia de Supervivencia (DA): Incorporar controles preventivos en la Matriz de Valoración de Riesgos para evitar la materialización de vulnerabilidades críticas.`;
+
+      await sb.from('foda_analisis_ejecutivo').upsert({
+        ciclo_id: activeCicloId,
+        resumen_situacional: resumenTexto,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'ciclo_id' });
+
+      await loadFoda();
+      alert('Síntesis FODA y análisis CAME generados exitosamente.');
+    });
+
+    // =========================================================================
+    // 11. GENERADOR DE INFORMES GERENCIALES TRIMESTRALES
+    // =========================================================================
+    document.getElementById('btn-generar-informe').addEventListener('click', async () => {
+      const trim = parseInt(document.getElementById('inf-trimestre').value);
+      const { data: evalData } = await sb.from('vw_dashboard_operativo_anual')
+        .select('*')
+        .eq('ciclo_id', activeCicloId)
+        .eq('trimestre_corte', trim);
+
+      const { data: evData } = await sb.from('evidencias_poa')
+        .select('*, actividades_poa(actividad)')
+        .eq('ciclo_id', activeCicloId)
+        .eq('trimestre', trim);
+
+      const rows = evalData || [];
+      const anio = rows[0]?.anio || '2026';
+      const validas = rows.filter(r => r.pct_cumplimiento_corte !== null);
+      const avgAcotado = validas.length ? (validas.reduce((a, b) => a + Number(b.pct_cumplimiento_corte_acotado), 0) / validas.length).toFixed(1) : '0.0';
+      const cumplidas = rows.filter(r => ['Finalizada', 'En curso'].includes(r.semaforo_calculado));
+      const retrasadas = rows.filter(r => ['Con retraso', 'En atención'].includes(r.semaforo_calculado));
+
+      let texto = `INSTITUTO NACIONAL DE SALUD (INS)\n`;
+      texto += `EVALUACIÓN DEL PLAN ANUAL OPERATIVO ${anio} — TRIMESTRE ${trim}\n`;
+      texto += `Presenta: Ing. Roberto Iván Rodas (Coordinador Unidad de Planificación y Calidad)\n`;
+      texto += `Visto Bueno: Dirección del Instituto Nacional de Salud\n`;
+      texto += `========================================================================\n\n`;
+      texto += `1. INTRODUCCIÓN Y RESUMEN EJECUTIVO\n`;
+      texto += `Durante el Trimestre ${trim} de ${anio}, el Instituto Nacional de Salud (INS) dio seguimiento a ${rows.length} actividades estratégicas y operativas alineadas al PEI MINSAL 2026–2030. El índice de ejecución promedio acotado (evitando distorsiones por sobre-demanda epidemiológica) alcanzó el ${avgAcotado}%, con ${cumplidas.length} actividades en rango de cumplimiento satisfactorio y ${retrasadas.length} en seguimiento por ajuste o reprogramación.\n\n`;
+
+      texto += `2. PRINCIPALES AVANCES POR UNIDAD ORGANIZATIVA\n`;
+      const unidadesUnicas = [...new Set(rows.map(r => r.unidad_ins))];
+      unidadesUnicas.forEach(u => {
+        const actsU = rows.filter(r => r.unidad_ins === u);
+        texto += `• ${u} (${actsU.length} actividades):\n`;
+        actsU.forEach(a => {
+          texto += `  - ${a.actividad}: Ejecución acumulada al corte de ${a.pct_cumplimiento_corte ?? 0}% (${a.semaforo_calculado}).\n`;
+        });
+      });
+
+      texto += `\n3. GESTIÓN DE DESVIACIONES, JUSTIFICACIONES Y ACCIONES CORRECTIVAS (AUDITORÍA)\n`;
+      const justificaciones = (evData || []).filter(e => e.categoria !== 'evidencia_cumplimiento');
+      if (justificaciones.length > 0) {
+        justificaciones.forEach(j => {
+          texto += `• Actividad: ${j.actividades_poa?.actividad}\n`;
+          texto += `  - Causa tipificada: ${j.causa_retraso_tipificada || 'Ajuste operativo'}\n`;
+          texto += `  - Justificación técnica: ${j.descripcion_narrativa}\n`;
+        });
+      } else {
+        texto += `• No se registraron desviaciones críticas sin justificación documental en el expediente del período.\n`;
+      }
+
+      texto += `\n4. CONCLUSIONES\n`;
+      texto += `El INS mantiene trazabilidad documental sobre sus metas operativas, asegurando el respaldo verificable ante auditorías internas y del Nivel Superior del MINSAL.`;
+
+      document.getElementById('informe-editor').value = texto;
+
+      await sb.from('historial_informes_gerenciales').insert({
+        ciclo_id: activeCicloId,
+        trimestre: trim,
+        titulo: `Informe Gerencial PAO ${anio} - Trimestre ${trim}`,
+        contenido_markdown: texto,
+        generado_por: currentUser.id
+      });
+    });
+
+    document.getElementById('btn-descargar-word').addEventListener('click', () => {
+      const contenido = document.getElementById('informe-editor').value;
+      if (!contenido) return alert('Primero genera el borrador del informe.');
+      const htmlDoc = `<html><head><meta charset="utf-8"></head><body style="font-family: Calibri, sans-serif; line-height: 1.5; white-space: pre-wrap;">${contenido}</body></html>`;
+      const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Informe_Gerencial_PAO_INS.doc`;
+      a.click();
+    });
+
+    // =========================================================================
+    // 12. PARAMETRIZACIÓN (ADMIN)
+    // =========================================================================
+    function renderConfigTables() {
+      const tbody = document.getElementById('tabla-tipos-producto');
+      tbody.innerHTML = tiposProductoList.map(tp => `
+        <tr>
+          <td class="py-2 px-2 font-mono text-[11px]">${tp.codigo}</td>
+          <td class="py-2 px-2 font-medium">${tp.nombre}</td>
+          <td class="py-2 px-2 text-slate-500">${tp.unidad_medida_default}</td>
+          <td class="py-2 px-2 text-center">
+            <button onclick="toggleTipoProducto('${tp.id}', ${!tp.activo})"
+              class="px-2 py-0.5 rounded text-[10px] font-semibold ${tp.activo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
+              ${tp.activo ? 'Activo' : 'Inactivo'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      document.getElementById('lista-ciclos-admin').innerHTML = ciclosList.map(c => `
+        <div class="p-3 rounded-lg border bg-slate-50 flex justify-between items-center">
+          <div><b>PAO ${c.anio}</b> • Estado: <span class="uppercase text-sky-700 font-semibold">${c.estado}</span></div>
+          <select onchange="cambiarEstadoCiclo('${c.id}', this.value)" class="px-2 py-1 border rounded text-xs">
+            <option value="formulacion" ${c.estado === 'formulacion' ? 'selected' : ''}>Formulación</option>
+            <option value="en_ejecucion" ${c.estado === 'en_ejecucion' ? 'selected' : ''}>En Ejecución</option>
+            <option value="cerrado" ${c.estado === 'cerrado' ? 'selected' : ''}>Cerrado</option>
+          </select>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('form-nuevo-tipo-producto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await sb.from('catalogo_tipos_producto').insert({
+        codigo: document.getElementById('tp-codigo').value.trim().toUpperCase(),
+        nombre: document.getElementById('tp-nombre').value.trim(),
+        unidad_medida_default: document.getElementById('tp-unidad').value.trim()
+      });
+      if (error) alert(error.message);
+      else {
+        e.target.reset();
+        const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
+        tiposProductoList = data || [];
+        renderConfigTables();
+      }
+    });
+
+    async function toggleTipoProducto(id, nuevoEstado) {
+      await sb.from('catalogo_tipos_producto').update({ activo: nuevoEstado }).eq('id', id);
+      const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
+      tiposProductoList = data || [];
+      renderConfigTables();
+    }
+
+    document.getElementById('form-nuevo-ciclo').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await sb.from('ciclos_anuales').insert({
+        anio: parseInt(document.getElementById('ciclo-anio').value),
+        plan_estrategico_id: document.getElementById('ciclo-plan-id').value,
+        estado: 'formulacion'
+      });
+      if (error) alert(error.message);
+      else {
+        e.target.reset();
+        await initMasterData();
+      }
+    });
+
+    async function cambiarEstadoCiclo(id, estado) {
+      await sb.from('ciclos_anuales').update({ estado }).eq('id', id);
+      await initMasterData();
+    }
+
+    // Arrancar aplicación
+    checkSession();
+  </script>
+</body>
+</html>

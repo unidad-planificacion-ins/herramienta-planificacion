@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica v1.4 | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v1.5 | INS El Salvador</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS SDK v2 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Chart.js para Dashboards -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- SheetJS para Exportación Excel 25 Columnas MINSAL -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- ExcelJS (Licencia MIT 100% Gratuita) para Exportación Estilizada 25 Columnas MINSAL -->
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -33,7 +33,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.4</span></p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.5</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -72,7 +72,7 @@
           <div>
             <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
               Planificación Operativa y Estratégica
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.4</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.5</span>
             </div>
             <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad INS - MINSAL</div>
           </div>
@@ -269,16 +269,45 @@
               </select>
             </div>
 
-            <button id="btn-nueva-actividad" class="px-3.5 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+            <!-- Botón Nueva Actividad PAO -->
+            <button id="btn-nueva-actividad" class="px-3.5 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
               <i data-lucide="plus" class="w-4 h-4"></i> Nueva Actividad PAO
             </button>
-            <button id="btn-exportar-excel" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Exportar Excel 25 Cols (MINSAL)
-            </button>
+
+            <!-- Botón Compacto Excel (Solo Logo Blanco sobre Verde + Globo Informativo) -->
+            <div class="relative group inline-flex">
+              <button id="btn-exportar-excel" type="button" aria-label="Exportar Matriz PAO a Excel 25 columnas MINSAL"
+                class="p-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg shadow-sm transition flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <path d="m8 13 4 5"/>
+                  <path d="m12 13-4 5"/>
+                  <line x1="15" y1="13" x2="17" y2="13"/>
+                  <line x1="15" y1="17" x2="17" y2="17"/>
+                </svg>
+              </button>
+              <div class="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute right-0 top-full mt-2 w-64 p-2.5 rounded-lg bg-slate-900 text-white text-[11px] leading-snug shadow-xl z-40">
+                <div class="font-bold text-emerald-300 mb-0.5">Exportar Matriz PAO a Excel</div>
+                Genera el archivo oficial con las <b>25 columnas requeridas por el MINSAL</b> y el formato institucional de colores.
+              </div>
+            </div>
+
+            <!-- Botón Versión Imprimible (Anexo Informe Gerencial en 1 Página Carta Horizontal) -->
+            <div class="relative group inline-flex">
+              <button id="btn-imprimir-anexo" type="button" onclick="generarVersionImprimibleAnexo()" aria-label="Versión imprimible para anexo de informe gerencial"
+                class="p-2 bg-slate-700 hover:bg-slate-800 text-white rounded-lg shadow-sm transition flex items-center justify-center">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+              </button>
+              <div class="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute right-0 top-full mt-2 w-64 p-2.5 rounded-lg bg-slate-900 text-white text-[11px] leading-snug shadow-xl z-40">
+                <div class="font-bold text-sky-300 mb-0.5">Versión Imprimible (Anexo Informe)</div>
+                Prepara una vista compacta (Actividad, Indicador, T1–T4 y Acumulado) ajustada a <b>1 página Carta horizontal</b> para imprimir o guardar en PDF.
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Tabla Principal v1.4: Columna Prog. (Meta 100%) antes de Acum. -->
+        <!-- Tabla Principal v1.5: Columna Prog. (Meta 100%) antes de Acum. -->
         <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
           <div class="w-full">
             <table class="w-full lg:table-fixed text-left text-xs border-collapse">
@@ -1018,7 +1047,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.4            -->
+  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.5            -->
   <!-- ======================================================================= -->
   <script>
     // 1. INICIALIZACIÓN DE SUPABASE
@@ -1550,7 +1579,6 @@
         return;
       }
 
-      // 1. Limpieza de muletillas burocráticas y errores comunes
       texto = texto
         .replace(/\b(almenos|al menos)\b/gi, 'al menos')
         .replace(/^(llevar a cabo la ejecuci[oó]n de|llevar a cabo|proceder a realizar|realizar la ejecuci[oó]n de|se realizar[aá]n?|hacer)\s+/i, '')
@@ -1558,14 +1586,12 @@
         .replace(/\s+/g, ' ')
         .trim();
 
-      // 2. Si consolida productos hijos, evitar incrustar cifras rígidas al inicio del objeto
       if (consolida) {
         texto = texto
           .replace(/^([A-Za-zÁÉÍÓÚáéíóúñÑ]+\s+)(?:al menos\s+)?\d+\s+/i, '$1')
           .replace(/\bdistribuid[oa]s en \d+ tem[aá]ticas\b/gi, 'en temáticas');
       }
 
-      // 3. Estandarización sintáctica por ámbito (Normalización, Capacitación, Investigación, Vigilancia)
       if (/^(gu[ií]as?\s+cl[ií]nicas?|instructivos?|protocolos?|lineamientos?|manual(es)?|normativa)/i.test(texto)) {
         texto = 'Elaboración de ' + texto.charAt(0).toLowerCase() + texto.slice(1);
       } else if (/^capacitaci[oó]n\b/i.test(texto)) {
@@ -1588,7 +1614,6 @@
         }
       }
 
-      // 4. Eliminar justificaciones largas ("para fortalecer...", "con el objetivo de...") si excede 18 palabras
       const palabras = texto.split(/\s+/);
       if (palabras.length > 18) {
         const corteFinalidad = texto.search(/\s+(para\s+(fortalecer|mejorar|contribuir|garantizar|asegurar|impulsar)|con\s+el\s+(objetivo|fin|prop[oó]sito)\s+de|a\s+fin\s+de)\b/i);
@@ -1597,7 +1622,6 @@
         }
       }
 
-      // 5. Cierre limpio estilo MINSAL (sin punto final)
       texto = texto.replace(/[,;:.]+$/, '').trim();
       field.value = texto;
     }
@@ -1620,7 +1644,6 @@
       const txt = actRaw.toLowerCase();
       let indicadorSugerido = '';
 
-      // Mapeo sintético por núcleo del entregable (6 a 10 palabras máximo)
       if (txt.includes('teleclínica') || txt.includes('teleclinica') || txt.includes('echo')) {
         indicadorSugerido = 'Porcentaje de sesiones de teleclínicas realizadas';
       } else if (txt.includes('guía clínica') || txt.includes('guías clínicas') || txt.includes('guias clinicas')) {
@@ -1648,7 +1671,6 @@
       } else if (txt.includes('informe') || txt.includes('evaluación')) {
         indicadorSugerido = 'Porcentaje de informes técnicos elaborados';
       } else {
-        // Extracción genérica sintética de las primeras palabras clave del objeto
         let limpio = actRaw
           .replace(/^(elaborar|desarrollar|ejecutar|implementar|realizar|fortalecer|gestionar|publicar|evaluar|coordinar|efectuar|brindar|analizar|diseñar|establecer|conducir|vigilar|elaboración de|desarrollo de|ejecución de|implementación de|capacitación en|publicación de|evaluación de)\s+/i, '')
           .replace(/^(el|la|los|las|un|una|unos|unas)\s+/i, '')
@@ -1670,7 +1692,6 @@
       const supField = document.getElementById('act-supuestos');
       const actual = supField.value.trim();
 
-      // Supuestos externos adaptados exclusivamente al INS (sin gestión presupuestaria propia)
       let sugerencia = '';
       if (act.includes('echo') || act.includes('teleclínica') || act.includes('capacita') || act.includes('curso')) {
         sugerencia = 'Disponibilidad de conectividad y equipamiento audiovisual, asignación de horas protegidas del talento humano y participación activa del personal de las RIIS.';
@@ -1841,7 +1862,6 @@
       document.getElementById('act-p4').value = '25';
       document.getElementById('act-responsable-cargo-hint').textContent = '';
 
-      // Poblar selector de Tipo de Producto para actividad directa
       document.getElementById('act-tipo-producto-directo').innerHTML = construirOpcionesTiposProductoHTML();
 
       const cicloObj = ciclosList.find(c => c.id === activeCicloId);
@@ -1849,7 +1869,6 @@
       document.getElementById('act-inicio').value = `${anioCiclo}-01-01`;
       document.getElementById('act-fin').value = `${anioCiclo}-12-31`;
 
-      // Limpiar campos 1, 2 y 3 (Eje, Estrategia, Línea de Acción) en blanco para registro nuevo
       document.getElementById('act-eje').value = '';
       document.getElementById('act-eje').dispatchEvent(new Event('change'));
 
@@ -1866,7 +1885,6 @@
       document.getElementById('modal-act-titulo').textContent = 'Editar Actividad Registrada en Matriz PAO';
       document.getElementById('btn-submit-actividad').textContent = 'Guardar Cambios';
 
-      // Poblar selector de Tipo de Producto directo
       const tpSelDirecto = document.getElementById('act-tipo-producto-directo');
       tpSelDirecto.innerHTML = construirOpcionesTiposProductoHTML();
       const localTpMap = getLocalActTpMap();
@@ -2092,7 +2110,6 @@
       const filtroVal = document.getElementById('matriz-filtro-valor')?.value || 'ALL';
       let lista = [...actividadesCache];
 
-      // 1. Aplicar filtro si el modo Filtrar está activo
       if (modoControlMatriz === 'filtrar' && criterio !== 'registro' && filtroVal !== 'ALL') {
         if (criterio === 'alineacion') {
           lista = lista.filter(a => String(a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.numero_orden) === filtroVal);
@@ -2103,7 +2120,6 @@
         }
       }
 
-      // 2. Aplicar ordenamiento según criterio activo
       if (criterio === 'alineacion') {
         lista.sort((a, b) => {
           const linA = a.pei_lineas_accion;
@@ -2149,6 +2165,14 @@
       return lista;
     }
 
+    function construirSubtituloMetadatos(a, localTpMap) {
+      const unidadNombre = a.unidades_ins?.nombre || '-';
+      const tpIdDirecto = a.tipo_producto_id || localTpMap[a.id];
+      const tpObjDirecto = tpIdDirecto ? tiposProductoList.find(t => t.id === tpIdDirecto) : null;
+      const prodTexto = (tpObjDirecto && !a.consolida_desde_productos) ? ` • Prod: ${tpObjDirecto.nombre}` : '';
+      return `Unidad: ${unidadNombre} • Resp: ${a.responsable_nombre}${prodTexto} • Pond: ${a.ponderacion}`;
+    }
+
     function renderTablaActividadesPOA() {
       const tbody = document.getElementById('tabla-actividades-poa');
       const listaProcesada = obtenerActividadesProcesadas();
@@ -2167,9 +2191,7 @@
         tbody.innerHTML = listaProcesada.map(a => {
           const ejeObj = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
           const ejeNum = ejeObj ? `Eje ${ejeObj.numero_orden}` : 'Ver';
-          const unidadNombre = a.unidades_ins?.nombre || '-';
 
-          // Resolver nombre de producto si es actividad directa
           const tpIdDirecto = a.tipo_producto_id || localTpMap[a.id];
           const tpObjDirecto = tpIdDirecto ? tiposProductoList.find(t => t.id === tpIdDirecto) : null;
 
@@ -2180,13 +2202,14 @@
           const acum = calcularAcumuladoReal(a);
           const sem = calcularSemaforoYEstado(a);
 
-          // Validación de suma programada T1 + T2 + T3 + T4 = 100%
           const sumaProg = calcularSumaProgramada(a);
           const esCienExacto = Math.abs(sumaProg - 100) <= 0.05;
           const sumaFormateada = Number.isInteger(sumaProg) ? `${sumaProg}%` : `${sumaProg.toFixed(2)}%`;
           const badgeProg100 = esCienExacto
             ? `<span title="Programación trimestral válida: suma ${sumaFormateada}" class="inline-flex items-center justify-center gap-0.5 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-[10px]">✓ 100%</span>`
             : `<span title="Requiere corrección: la suma programada de los 4 trimestres es ${sumaFormateada} (debe ser exactamente 100%)" class="inline-flex items-center justify-center gap-0.5 px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-300 font-bold text-[10px] cursor-help">⚠ ${Number(sumaProg.toFixed(1))}%</span>`;
+
+          const metadatosGris = construirSubtituloMetadatos(a, localTpMap);
 
           return `
             <tr class="hover:bg-slate-50/90 transition-colors">
@@ -2200,9 +2223,7 @@
               </td>
               <td class="px-2.5 py-2 align-middle">
                 <div class="font-medium text-slate-900 leading-snug break-words">${a.actividad}</div>
-                <div class="text-[11px] text-slate-400 mt-0.5 leading-snug break-words">
-                  Unidad: ${unidadNombre} • Resp: ${a.responsable_nombre} • Pond: ${a.ponderacion}${tpObjDirecto && !a.consolida_desde_productos ? ` • Prod: <span class="text-slate-600 font-medium">${tpObjDirecto.nombre}</span>` : ''}
-                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5 leading-snug break-words">${metadatosGris}</div>
               </td>
               <td class="px-2.5 py-2 text-slate-700 align-middle text-[11px] leading-snug break-words">${a.indicador || '-'}</td>
               <td class="px-1.5 py-2 text-center align-middle">${badgeModo}</td>
@@ -2433,47 +2454,467 @@
       }
     }
 
-    // EXPORTADOR EXCEL OFICIAL MINSAL (25 COLUMNAS A-Y) - Respeta el orden/filtro visual seleccionado
-    document.getElementById('btn-exportar-excel').addEventListener('click', () => {
+    // =========================================================================
+    // EXPORTADOR EXCEL OFICIAL MINSAL (25 COLUMNAS A-Y) CON FORMATO (EXCELJS)
+    // =========================================================================
+    document.getElementById('btn-exportar-excel').addEventListener('click', async () => {
       const listaExport = obtenerActividadesProcesadas();
       if (!listaExport.length) return alert('No hay actividades para exportar en la vista actual.');
-      const rowsExcel = listaExport.map(a => {
-        const sem = calcularSemaforoYEstado(a);
-        const acum = calcularAcumuladoReal(a);
-        return {
-          'A. Eje Estratégico': a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.nombre || '',
-          'B. Estrategia': a.pei_lineas_accion?.pei_estrategias?.nombre || '',
-          'C. Línea de Acción': a.pei_lineas_accion?.nombre || '',
-          'D. Actividades INS': a.actividad,
-          'E. Indicadores': a.indicador,
-          'F. Meta Anual': a.meta_anual,
-          'G. Prog. Trimestre 1': a.prog_t1,
-          'H. Realizado Trimestre 1': a.real_t1 ?? '',
-          'I. % Ejecución Trimestre 1': a.ejec_t1 ?? '',
-          'J. Prog. Trimestre 2': a.prog_t2,
-          'K. Realizado Trimestre 2': a.real_t2 ?? '',
-          'L. % Ejecución Trimestre 2': a.ejec_t2 ?? '',
-          'M. Prog. Trimestre 3': a.prog_t3,
-          'N. Realizado Trimestre 3': a.real_t3 ?? '',
-          'O. % Ejecución Trimestre 3': a.ejec_t3 ?? '',
-          'P. Prog. Trimestre 4': a.prog_t4,
-          'Q. Realizado Trimestre 4': a.real_t4 ?? '',
-          'R. % Ejecución Trimestre 4': a.ejec_t4 ?? '',
-          'S. % Ejecución Acumulado': Number(acum.toFixed(1)),
-          'T. Estado de avance': sem.label,
-          'U. Responsable': a.responsable_nombre,
-          'V. Fecha de inicio': a.fecha_inicio,
-          'W. Fecha de finalización': a.fecha_fin,
-          'X. Supuestos externos': a.supuestos_externos,
-          'Y. Pasa a POI': a.pasa_poi ? 'SI' : 'NO'
+
+      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
+      const anioCiclo = cicloObj?.anio || new Date().getFullYear();
+
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = 'Instituto Nacional de Salud - MINSAL';
+      workbook.created = new Date();
+
+      const sheet = workbook.addWorksheet(`PAO ${anioCiclo}`, {
+        pageSetup: {
+          paperSize: 1, // Letter
+          orientation: 'landscape',
+          fitToPage: true,
+          fitToWidth: 1,
+          fitToHeight: 0,
+          margins: { left: 0.25, right: 0.25, top: 0.35, bottom: 0.35, header: 0.2, footer: 0.2 }
+        },
+        views: [{ state: 'frozen', ySplit: 5 }]
+      });
+
+      // Encabezado Institucional (Filas 1 a 4)
+      sheet.mergeCells('A1:C1');
+      sheet.getCell('A1').value = `PROGRAMACIÓN ANUAL OPERATIVA ${anioCiclo}`;
+      sheet.getCell('A1').font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF334155' } };
+
+      sheet.mergeCells('D2:Y2');
+      sheet.getCell('D2').value = 'MINISTERIO DE SALUD';
+      sheet.getCell('D2').font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF0F172A' } };
+      sheet.getCell('D2').alignment = { horizontal: 'center', vertical: 'middle' };
+
+      sheet.mergeCells('D3:Y3');
+      sheet.getCell('D3').value = `PROGRAMACIÓN ANUAL OPERATIVA ${anioCiclo} - INSTITUTO NACIONAL DE SALUD (INS)`;
+      sheet.getCell('D3').font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF0F172A' } };
+      sheet.getCell('D3').alignment = { horizontal: 'center', vertical: 'middle' };
+
+      // Fila 5: Encabezados Oficiales de las 25 Columnas A-Y
+      const headers = [
+        'A. Eje Estratégico',
+        'B. Estrategias',
+        'C. Líneas de Acción',
+        'D. Actividades',
+        'E. Indicadores',
+        'F. Meta Anual',
+        'G. Programado Trimestre 1',
+        'H. Realizado Trimestre 1',
+        'I. % Ejecución Trimestre 1',
+        'J. Programado Trimestre 2',
+        'K. Realizado Trimestre 2',
+        'L. % Ejecución Trimestre 2',
+        'M. Programado Trimestre 3',
+        'N. Realizado Trimestre 3',
+        'O. % Ejecución Trimestre 3',
+        'P. Programado Trimestre 4',
+        'Q. Realizado Trimestre 4',
+        'R. % Ejecución Trimestre 4',
+        'S. Acumulado a la fecha',
+        'T. Estado de avance',
+        'U. Nombre de la persona responsable',
+        'V. Fecha de inicio',
+        'W. Fecha de Finalización',
+        'X. Supuestos Externos',
+        'Y. ¿Pasa a POI?'
+      ];
+
+      const headerRow = sheet.getRow(5);
+      headerRow.height = 38;
+      headers.forEach((text, i) => {
+        const cell = headerRow.getCell(i + 1);
+        cell.value = text;
+        cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF0F172A' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FF000000' } },
+          left: { style: 'thin', color: { argb: 'FF000000' } },
+          bottom: { style: 'thin', color: { argb: 'FF000000' } },
+          right: { style: 'thin', color: { argb: 'FF000000' } }
         };
       });
 
-      const ws = XLSX.utils.json_to_sheet(rowsExcel);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Matriz_PAO_INS');
-      XLSX.writeFile(wb, `Matriz_PAO_INS_MINSAL_25Cols.xlsx`);
+      // Anchos de columna calibrados según formato MINSAL
+      const colWidths = [
+        22, 24, 28, 44, 30, // A-E
+        13, 13, 13, 13,     // F-I
+        13, 13, 13,         // J-L
+        13, 13, 13,         // M-O
+        13, 13, 13,         // P-R
+        15, 16, 24, 14, 14, 42, 12 // S-Y
+      ];
+      colWidths.forEach((w, idx) => { sheet.getColumn(idx + 1).width = w; });
+
+      // Formatear fecha YYYY-MM-DD -> DD/MM/YYYY
+      const fmtFecha = (iso) => {
+        if (!iso || !iso.includes('-')) return iso || '';
+        const [y, m, d] = iso.split('-');
+        return `${d}/${m}/${y}`;
+      };
+
+      const calcEjecTrim = (prog, real) => {
+        if (real === null || real === undefined || real === '') return 0;
+        const p = Number(prog || 0);
+        const r = Number(real || 0);
+        return p > 0 ? (r / p) : (r > 0 ? 1 : 0);
+      };
+
+      // Filas de Datos (desde fila 6)
+      listaExport.forEach((a, idx) => {
+        const rowNum = 6 + idx;
+        const sem = calcularSemaforoYEstado(a);
+        const acum = calcularAcumuladoReal(a) / 100;
+
+        const rowValues = [
+          a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.nombre || '',
+          a.pei_lineas_accion?.pei_estrategias?.nombre || '',
+          a.pei_lineas_accion?.nombre || '',
+          a.actividad || '',
+          a.indicador || '',
+          Number(a.meta_anual || 100),
+          Number(a.prog_t1 || 0),
+          a.real_t1 !== null && a.real_t1 !== undefined ? Number(a.real_t1) : null,
+          calcEjecTrim(a.prog_t1, a.real_t1),
+          Number(a.prog_t2 || 0),
+          a.real_t2 !== null && a.real_t2 !== undefined ? Number(a.real_t2) : null,
+          calcEjecTrim(a.prog_t2, a.real_t2),
+          Number(a.prog_t3 || 0),
+          a.real_t3 !== null && a.real_t3 !== undefined ? Number(a.real_t3) : null,
+          calcEjecTrim(a.prog_t3, a.real_t3),
+          Number(a.prog_t4 || 0),
+          a.real_t4 !== null && a.real_t4 !== undefined ? Number(a.real_t4) : null,
+          calcEjecTrim(a.prog_t4, a.real_t4),
+          acum,
+          sem.label,
+          a.responsable_nombre || '',
+          fmtFecha(a.fecha_inicio),
+          fmtFecha(a.fecha_fin),
+          a.supuestos_externos || '',
+          a.pasa_poi ? 'SI' : 'NO'
+        ];
+
+        const row = sheet.getRow(rowNum);
+
+        // Calcular altura dinámica según longitud de textos largos (Actividad o Supuestos)
+        const maxLen = Math.max(
+          (a.actividad || '').length / 40,
+          (a.supuestos_externos || '').length / 38,
+          (a.indicador || '').length / 26
+        );
+        row.height = Math.max(52, Math.ceil(maxLen) * 15 + 14);
+
+        rowValues.forEach((val, cIdx) => {
+          const colNumber = cIdx + 1;
+          const cell = row.getCell(colNumber);
+          cell.value = val;
+          cell.font = { name: 'Calibri', size: 9, color: { argb: 'FF0F172A' } };
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FF000000' } },
+            left: { style: 'thin', color: { argb: 'FF000000' } },
+            bottom: { style: 'thin', color: { argb: 'FF000000' } },
+            right: { style: 'thin', color: { argb: 'FF000000' } }
+          };
+
+          // Alineaciones
+          if ([1, 2, 3, 4, 5, 24].includes(colNumber)) {
+            cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+          } else if (colNumber === 20) {
+            // Col T: Estado de avance arriba a la izquierda como en captura MINSAL
+            cell.alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
+          } else {
+            cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+          }
+
+          // Colores institucionales MINSAL (Verde #6AA84F en Meta Anual F y Realizados H, K, N, Q)
+          if ([6, 8, 11, 14, 17].includes(colNumber)) {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6AA84F' } };
+            cell.numFmt = '0.00';
+          }
+
+          // Columnas Programadas (G, J, M, P)
+          if ([7, 10, 13, 16].includes(colNumber)) {
+            cell.numFmt = '0.00';
+          }
+
+          // Columnas % Ejecución Trimestral (I, L, O, R)
+          if ([9, 12, 15, 18].includes(colNumber)) {
+            cell.font = { name: 'Calibri', size: 9, bold: true };
+            cell.numFmt = '0.00%';
+          }
+
+          // Columna S: Acumulado a la fecha en Azul (#3C78D8)
+          if (colNumber === 19) {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3C78D8' } };
+            cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF000000' } };
+            cell.numFmt = '0.00%';
+          }
+
+          // Columna U: Responsable en negrita
+          if (colNumber === 21) {
+            cell.font = { name: 'Calibri', size: 9, bold: true };
+          }
+        });
+      });
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Matriz_PAO_${anioCiclo}_INS_MINSAL_25Cols.xlsx`;
+      link.click();
+      URL.revokeObjectURL(url);
     });
+
+    // =========================================================================
+    // VERSIÓN IMPRIMIBLE PARA ANEXO DE INFORME GERENCIAL (1 PÁGINA CARTA HORIZONTAL)
+    // =========================================================================
+    function generarVersionImprimibleAnexo() {
+      const listaExport = obtenerActividadesProcesadas();
+      if (!listaExport.length) {
+        alert('No hay actividades visibles para generar la versión imprimible.');
+        return;
+      }
+
+      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
+      const anioCiclo = cicloObj?.anio || new Date().getFullYear();
+      const localTpMap = getLocalActTpMap();
+
+      const criterio = document.getElementById('matriz-criterio-select')?.value || 'registro';
+      const filtroVal = document.getElementById('matriz-filtro-valor')?.value || 'ALL';
+      const subtituloFiltro = (modoControlMatriz === 'filtrar' && criterio !== 'registro' && filtroVal !== 'ALL')
+        ? `Filtro aplicado (${criterio.toUpperCase()}): ${filtroVal}`
+        : 'Consolidado Institucional Completo';
+
+      const filasHTML = listaExport.map((a, idx) => {
+        const acum = calcularAcumuladoReal(a);
+        const metadatos = construirSubtituloMetadatos(a, localTpMap);
+        const fmtTrim = (p, r) => `
+          <td class="num-cell">
+            <div class="prog-val">${p ?? 0}%</div>
+            <div class="real-val">${r !== null && r !== undefined ? r : '-'}</div>
+          </td>
+        `;
+
+        return `
+          <tr>
+            <td class="idx-cell">${idx + 1}</td>
+            <td class="act-cell">
+              <div class="act-title">${a.actividad}</div>
+              <div class="act-meta">${metadatos}</div>
+            </td>
+            <td class="ind-cell">${a.indicador || '-'}</td>
+            ${fmtTrim(a.prog_t1, a.real_t1)}
+            ${fmtTrim(a.prog_t2, a.real_t2)}
+            ${fmtTrim(a.prog_t3, a.real_t3)}
+            ${fmtTrim(a.prog_t4, a.real_t4)}
+            <td class="acum-cell">${acum.toFixed(1)}%</td>
+          </tr>
+        `;
+      }).join('');
+
+      const printWin = window.open('', '_blank', 'width=1150,height=800');
+      if (!printWin) {
+        alert('Tu navegador bloqueó la ventana emergente de impresión. Por favor permite ventanas emergentes para este sitio.');
+        return;
+      }
+
+      printWin.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8" />
+          <title>Anexo PAO ${anioCiclo} - Instituto Nacional de Salud</title>
+          <style>
+            @page {
+              size: letter landscape;
+              margin: 8mm 10mm;
+            }
+            * { box-sizing: border-box; }
+            body {
+              font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+              color: #0f172a;
+              margin: 0;
+              padding: 0;
+              background: #fff;
+            }
+            .header-box {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-end;
+              border-bottom: 2px solid #0c4a6e;
+              padding-bottom: 6px;
+              margin-bottom: 8px;
+            }
+            .header-left h1 {
+              font-size: 13px;
+              margin: 0;
+              color: #0c4a6e;
+              text-transform: uppercase;
+              letter-spacing: 0.3px;
+            }
+            .header-left p {
+              font-size: 10px;
+              margin: 2px 0 0 0;
+              color: #475569;
+            }
+            .header-right {
+              text-align: right;
+              font-size: 9px;
+              color: #64748b;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              table-layout: fixed;
+            }
+            thead th {
+              background-color: #0f172a;
+              color: #ffffff;
+              font-size: 8.5px;
+              text-transform: uppercase;
+              padding: 5px 4px;
+              border: 1px solid #0f172a;
+              text-align: center;
+              line-height: 1.15;
+            }
+            thead th.th-left { text-align: left; padding-left: 6px; }
+            tbody tr { page-break-inside: avoid; }
+            tbody tr:nth-child(even) { background-color: #f8fafc; }
+            td {
+              border: 1px solid #cbd5e1;
+              padding: 4px 5px;
+              vertical-align: middle;
+              word-wrap: break-word;
+            }
+            .idx-cell {
+              width: 24px;
+              text-align: center;
+              font-size: 8.5px;
+              color: #64748b;
+              font-weight: 600;
+            }
+            .act-cell { width: 41%; }
+            .act-title {
+              font-size: 9.2px;
+              font-weight: 600;
+              color: #0f172a;
+              line-height: 1.25;
+            }
+            .act-meta {
+              font-size: 7.8px;
+              color: #64748b;
+              margin-top: 2px;
+              line-height: 1.2;
+            }
+            .ind-cell {
+              width: 23%;
+              font-size: 8.8px;
+              color: #1e293b;
+              line-height: 1.25;
+            }
+            .num-cell {
+              width: 6.2%;
+              text-align: center;
+              padding: 3px 2px;
+            }
+            .prog-val {
+              font-size: 8px;
+              color: #64748b;
+              border-bottom: 1px solid #e2e8f0;
+              padding-bottom: 1px;
+            }
+            .real-val {
+              font-size: 9px;
+              font-weight: 700;
+              color: #0f172a;
+              padding-top: 1px;
+            }
+            .acum-cell {
+              width: 7.5%;
+              text-align: right;
+              font-size: 9.5px;
+              font-weight: 700;
+              color: #0c4a6e;
+              background-color: #f0f9ff;
+              padding-right: 6px;
+            }
+            .no-print-bar {
+              background: #0c4a6e;
+              color: white;
+              padding: 8px 14px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              font-size: 12px;
+              margin-bottom: 10px;
+            }
+            .no-print-bar button {
+              background: #ffffff;
+              color: #0c4a6e;
+              border: none;
+              padding: 5px 12px;
+              border-radius: 6px;
+              font-weight: 700;
+              cursor: pointer;
+            }
+            @media print {
+              .no-print-bar { display: none !important; }
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="no-print-bar">
+            <span>Vista previa configurada en <b>Carta Horizontal (Landscape)</b> para anexo de informe gerencial.</span>
+            <button onclick="window.print()">Imprimir / Guardar PDF</button>
+          </div>
+
+          <div class="header-box">
+            <div class="header-left">
+              <h1>Instituto Nacional de Salud (INS) — Seguimiento Plan Anual Operativo ${anioCiclo}</h1>
+              <p>${subtituloFiltro} • Total actividades mostradas: ${listaExport.length}</p>
+            </div>
+            <div class="header-right">
+              Unidad de Planificación y Calidad INS - MINSAL<br/>
+              Fecha de emisión: ${new Date().toLocaleDateString('es-SV')}
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width:24px;">#</th>
+                <th class="th-left" style="width:41%;">Actividad INS</th>
+                <th class="th-left" style="width:23%;">Indicador</th>
+                <th style="width:6.2%;">T1<br/><span style="font-weight:400;font-size:7px;">P / R</span></th>
+                <th style="width:6.2%;">T2<br/><span style="font-weight:400;font-size:7px;">P / R</span></th>
+                <th style="width:6.2%;">T3<br/><span style="font-weight:400;font-size:7px;">P / R</span></th>
+                <th style="width:6.2%;">T4<br/><span style="font-weight:400;font-size:7px;">P / R</span></th>
+                <th style="width:7.5%;">Acum.</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filasHTML}
+            </tbody>
+          </table>
+
+          <script>
+            window.onload = function() {
+              setTimeout(function() { window.print(); }, 250);
+            };
+          <\/script>
+        </body>
+        </html>
+      `);
+      printWin.document.close();
+    }
 
     // =========================================================================
     // 9. BÓVEDA DE EVIDENCIAS Y JUSTIFICACIONES

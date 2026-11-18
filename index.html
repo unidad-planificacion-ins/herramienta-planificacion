@@ -60,11 +60,11 @@
     </div>
   </div>
 
-  <!-- APLICACIÓN PRINCIPAL -->
+  <!-- APLICACIÓN PRINCIPAL (ANCHO COMPLETO FULL-WIDTH) -->
   <div id="app-shell" class="hidden min-h-screen flex flex-col">
     <!-- Barra Superior -->
     <header class="ins-gradient text-white shadow-md sticky top-0 z-30">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center space-x-3">
           <div class="bg-white/15 backdrop-blur px-2.5 py-1 rounded-lg font-bold tracking-tight text-lg border border-white/20">
             INS
@@ -99,7 +99,7 @@
 
       <!-- Menú de Navegación -->
       <nav class="bg-sky-950/40 border-t border-white/10 overflow-x-auto scrollbar-thin">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 py-1.5 text-xs font-medium whitespace-nowrap" id="main-nav">
+        <div class="w-full px-4 sm:px-6 lg:px-8 flex space-x-1 py-1.5 text-xs font-medium whitespace-nowrap" id="main-nav">
           <button data-tab="dash-anual" class="nav-btn px-3 py-2 rounded-lg bg-white text-sky-900 font-semibold flex items-center gap-1.5">
             <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Dashboard Anual
           </button>
@@ -128,8 +128,8 @@
       </nav>
     </header>
 
-    <!-- Contenedor Principal -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Contenedor Principal (Ancho Total) -->
+    <main class="flex-1 w-full px-4 sm:px-6 lg:px-8 py-5">
 
       <!-- =================================================================== -->
       <!-- TAB 1: DASHBOARD OPERATIVO ANUAL                                    -->
@@ -252,23 +252,23 @@
           </div>
         </div>
 
-        <!-- Tabla Principal (MEJORAS v1.3: Encabezados limpios, Eje Estratégico completo y Semáforo homologado) -->
-        <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
+        <!-- Tabla Principal v1.3: Ancho completo, Alineación Estratégica con globo de consulta y Semáforo corregido -->
+        <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-visible">
           <div class="overflow-x-auto scrollbar-thin">
             <table class="w-full text-left text-xs">
               <thead class="bg-slate-800 text-white uppercase text-[11px]">
                 <tr>
-                  <th class="px-3 py-3 min-w-[190px]">Eje Estratégico</th>
-                  <th class="px-3 py-3 min-w-[240px]">Actividad INS</th>
-                  <th class="px-3 py-3">Unidad</th>
-                  <th class="px-3 py-3 text-center">Modo</th>
-                  <th class="px-3 py-3 text-center">T1 (P/R)</th>
-                  <th class="px-3 py-3 text-center">T2 (P/R)</th>
-                  <th class="px-3 py-3 text-center">T3 (P/R)</th>
-                  <th class="px-3 py-3 text-center">T4 (P/R)</th>
-                  <th class="px-3 py-3 text-right">Acum.</th>
-                  <th class="px-3 py-3 text-center">Semáforo</th>
-                  <th class="px-3 py-3 text-center">Acciones</th>
+                  <th class="px-3 py-3 text-center w-36 whitespace-nowrap">Alineación Estratégica</th>
+                  <th class="px-3 py-3 min-w-[320px]">Actividad INS</th>
+                  <th class="px-3 py-3 whitespace-nowrap">Unidad</th>
+                  <th class="px-3 py-3 text-center whitespace-nowrap">Modo</th>
+                  <th class="px-3 py-3 text-center whitespace-nowrap">T1 (P/R)</th>
+                  <th class="px-3 py-3 text-center whitespace-nowrap">T2 (P/R)</th>
+                  <th class="px-3 py-3 text-center whitespace-nowrap">T3 (P/R)</th>
+                  <th class="px-3 py-3 text-center whitespace-nowrap">T4 (P/R)</th>
+                  <th class="px-3 py-3 text-right whitespace-nowrap">Acum.</th>
+                  <th class="px-3 py-3 text-center whitespace-nowrap">Semáforo</th>
+                  <th class="px-3 py-3 text-center whitespace-nowrap">Acciones</th>
                 </tr>
               </thead>
               <tbody id="tabla-actividades-poa" class="divide-y divide-slate-100"></tbody>
@@ -504,7 +504,7 @@
       <!-- =================================================================== -->
       <section id="tab-configuracion" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Catálogo de Tipos de Producto INS (Con Categoría/Área y Edición directa) -->
+          <!-- Catálogo de Tipos de Producto INS -->
           <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 lg:col-span-2">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
               <div>
@@ -558,7 +558,6 @@
 
           <!-- Columna Derecha: Ciclos Anuales y Directorio de Referentes -->
           <div class="space-y-6">
-            <!-- Gestión de Planes Estratégicos y Ciclos Anuales -->
             <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 space-y-4">
               <h3 class="text-sm font-bold text-slate-800">Planes Estratégicos y Ciclos Anuales</h3>
               <form id="form-nuevo-ciclo" class="grid grid-cols-3 gap-2 text-xs">
@@ -569,7 +568,6 @@
               <div id="lista-ciclos-admin" class="space-y-2 text-xs"></div>
             </div>
 
-            <!-- Directorio de Referentes / Responsables INS -->
             <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 space-y-3">
               <div>
                 <h3 class="text-sm font-bold text-slate-800">Directorio de Referentes INS (Col U)</h3>
@@ -590,6 +588,35 @@
       </section>
 
     </main>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- POPOVER / GLOBO FLOTANTE DE ALINEACIÓN ESTRATÉGICA (CATÁLOGO MINSAL)    -->
+  <!-- ======================================================================= -->
+  <div id="popover-alineacion" class="hidden fixed z-50 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-sky-200 p-4 text-xs transition-opacity">
+    <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-100">
+      <div class="flex items-center gap-1.5 font-bold text-sky-900">
+        <i data-lucide="compass" class="w-4 h-4 text-sky-600"></i>
+        <span>Alineación Estratégica MINSAL</span>
+      </div>
+      <button type="button" onclick="cerrarPopoverAlineacion()" class="text-slate-400 hover:text-slate-700 p-0.5 rounded">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <div class="space-y-2.5">
+      <div class="bg-sky-50/70 p-2.5 rounded-lg border border-sky-100">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-sky-700">1. Eje Estratégico</div>
+        <div id="pop-eje-texto" class="font-semibold text-slate-800 mt-0.5 leading-snug">-</div>
+      </div>
+      <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200/70">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">2. Estrategia</div>
+        <div id="pop-estrategia-texto" class="font-medium text-slate-800 mt-0.5 leading-snug">-</div>
+      </div>
+      <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200/70">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500">3. Línea de Acción</div>
+        <div id="pop-linea-texto" class="font-medium text-slate-800 mt-0.5 leading-snug">-</div>
+      </div>
+    </div>
   </div>
 
   <!-- ======================================================================= -->
@@ -778,7 +805,7 @@
         <button onclick="cerrarModal('modal-productos')" class="text-slate-400 hover:text-slate-700"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <!-- Sección A: Captura Directa (si no consolida por productos) -->
+      <!-- Sección A: Captura Directa -->
       <div id="seccion-avance-directo" class="hidden space-y-4 text-xs">
         <p class="text-slate-500">Ingresa el porcentaje realizado en cada trimestre (deja vacío si el trimestre aún no ha sido evaluado):</p>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -808,7 +835,7 @@
         </div>
       </div>
 
-      <!-- Sección B: Desglose por Productos INS (Roll-up automático + Edición de Programados) -->
+      <!-- Sección B: Desglose por Productos INS -->
       <div id="seccion-productos-hijos" class="hidden space-y-4 text-xs">
         <form id="form-nuevo-producto" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
           <div class="font-bold text-slate-700">Agregar Producto / Entregable Específico del INS</div>
@@ -983,19 +1010,95 @@
     }
 
     // =========================================================================
+    // CONTROLADOR DEL GLOBO DE CONSULTA: ALINEACIÓN ESTRATÉGICA MINSAL
+    // =========================================================================
+    let activePopoverBtn = null;
+
+    function togglePopoverAlineacion(event, actId) {
+      event.stopPropagation();
+      const pop = document.getElementById('popover-alineacion');
+      const btn = event.currentTarget;
+
+      if (!pop.classList.contains('hidden') && activePopoverBtn === btn) {
+        cerrarPopoverAlineacion();
+        return;
+      }
+
+      const act = actividadesCache.find(x => x.id === actId);
+      if (!act) return;
+
+      const linObj = act.pei_lineas_accion;
+      const estObj = linObj?.pei_estrategias;
+      const ejeObj = estObj?.pei_ejes;
+
+      document.getElementById('pop-eje-texto').textContent = ejeObj
+        ? `Eje ${ejeObj.numero_orden}. ${ejeObj.nombre}`
+        : 'No definido';
+      document.getElementById('pop-estrategia-texto').textContent = estObj
+        ? `${estObj.numero_orden ? estObj.numero_orden + '. ' : ''}${estObj.nombre}`
+        : 'No definida';
+      document.getElementById('pop-linea-texto').textContent = linObj
+        ? `${linObj.numero_orden ? linObj.numero_orden + '. ' : ''}${linObj.nombre}`
+        : 'No definida';
+
+      activePopoverBtn = btn;
+      pop.classList.remove('hidden');
+
+      const rect = btn.getBoundingClientRect();
+      const popRect = pop.getBoundingClientRect();
+      let top = rect.bottom + 6;
+      let left = rect.left;
+
+      if (left + popRect.width > window.innerWidth - 16) {
+        left = window.innerWidth - popRect.width - 16;
+      }
+      if (top + popRect.height > window.innerHeight - 16) {
+        top = rect.top - popRect.height - 6;
+      }
+
+      pop.style.top = `${Math.max(12, top)}px`;
+      pop.style.left = `${Math.max(12, left)}px`;
+    }
+
+    function cerrarPopoverAlineacion() {
+      const pop = document.getElementById('popover-alineacion');
+      if (pop) pop.classList.add('hidden');
+      activePopoverBtn = null;
+    }
+
+    document.addEventListener('click', (e) => {
+      const pop = document.getElementById('popover-alineacion');
+      if (pop && !pop.classList.contains('hidden') && !pop.contains(e.target)) {
+        cerrarPopoverAlineacion();
+      }
+    });
+
+    window.addEventListener('scroll', cerrarPopoverAlineacion, true);
+
+    // =========================================================================
     // REGLA DE NEGOCIO HOMOLOGADA: SEMÁFORO Y ESTADO DE AVANCE (COL T)
     // =========================================================================
+    function calcularAcumuladoReal(a) {
+      const acumDb = Number(a.acumulado_anual || 0);
+      const totalProg = (Number(a.prog_t1) || 0) + (Number(a.prog_t2) || 0) + (Number(a.prog_t3) || 0) + (Number(a.prog_t4) || 0);
+      const totalReal = (Number(a.real_t1) || 0) + (Number(a.real_t2) || 0) + (Number(a.real_t3) || 0) + (Number(a.real_t4) || 0);
+      const acumCalc = totalProg > 0 ? (totalReal / totalProg) * 100 : 0;
+      return Math.max(acumDb, acumCalc);
+    }
+
     function calcularSemaforoYEstado(a) {
-      const acum = Number(a.acumulado_anual || 0);
-      if (acum >= 100) {
+      const acum = calcularAcumuladoReal(a);
+
+      // Prioridad absoluta: si el acumulado anual llega al 100% (con tolerancia decimal 99.95%), siempre es Finalizada (Verde)
+      if (acum >= 99.95) {
         return {
           label: 'Finalizada',
-          badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+          badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
           pctCorte: acum
         };
       }
 
-      // Determinar el último trimestre con dato realizado o ya evaluable
+      // Determinar el último trimestre con dato realizado
       let ultimoTrimConReal = 0;
       for (let t = 4; t >= 1; t--) {
         if (a['real_t' + t] !== null && a['real_t' + t] !== undefined && a['real_t' + t] !== '') {
@@ -1004,7 +1107,6 @@
         }
       }
 
-      // Calcular programación y ejecución acumulada hasta el trimestre evaluado
       let progCorte = 0;
       let realCorte = 0;
       if (ultimoTrimConReal > 0) {
@@ -1043,7 +1145,7 @@
         }
       }
 
-      // Sin datos realizados aún: verificar si ya debió iniciar según el mes actual del año del ciclo
+      // Sin datos realizados aún
       const cicloObj = ciclosList.find(c => c.id === activeCicloId);
       const anioCiclo = cicloObj?.anio || new Date().getFullYear();
       const hoy = new Date();
@@ -1069,7 +1171,7 @@
 
       return {
         label: 'Pendiente',
-        badgeClass: 'bg-slate-100 text-slate-600 border border-slate-200',
+        badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
         pctCorte: 0
       };
     }
@@ -1079,8 +1181,12 @@
       const { data: act } = await sb.from('actividades_poa').select('*').eq('id', actId).maybeSingle();
       if (!act) return;
       const sem = calcularSemaforoYEstado(act);
-      if (act.estado_avance !== sem.label) {
-        await sb.from('actividades_poa').update({ estado_avance: sem.label }).eq('id', actId);
+      const acum = calcularAcumuladoReal(act);
+      const updates = {};
+      if (act.estado_avance !== sem.label) updates.estado_avance = sem.label;
+      if (acum >= 99.95 && Number(act.acumulado_anual || 0) < 100) updates.acumulado_anual = 100;
+      if (Object.keys(updates).length > 0) {
+        await sb.from('actividades_poa').update(updates).eq('id', actId);
       }
     }
 
@@ -1421,8 +1527,8 @@
       const avgAcotado = validas.length ? (validas.reduce((acc, r) => acc + Number(r.pct_cumplimiento_corte_acotado), 0) / validas.length) : 0;
       const avgBruto = validas.length ? (validas.reduce((acc, r) => acc + Number(r.pct_cumplimiento_corte), 0) / validas.length) : 0;
 
-      const finalizadas = dashDataCache.filter(d => d.semaforo_calculado === 'Finalizada').length;
-      const enCurso = dashDataCache.filter(d => ['En curso', 'En atención'].includes(d.semaforo_calculado)).length;
+      const finalizadas = dashDataCache.filter(d => d.semaforo_calculado === 'Finalizada' || Number(d.pct_cumplimiento_corte_acotado) >= 99.95).length;
+      const enCurso = dashDataCache.filter(d => ['En curso', 'En atención'].includes(d.semaforo_calculado) && Number(d.pct_cumplimiento_corte_acotado) < 99.95).length;
       const retraso = dashDataCache.filter(d => d.semaforo_calculado === 'Con retraso').length;
       const sinReg = dashDataCache.filter(d => d.semaforo_calculado === 'Sin registro').length;
 
@@ -1690,7 +1796,7 @@
         .select(`
           *,
           unidades_ins(nombre, siglas),
-          pei_lineas_accion(nombre, pei_estrategias(nombre, pei_ejes(numero_orden, nombre)))
+          pei_lineas_accion(numero_orden, nombre, pei_estrategias(numero_orden, nombre, pei_ejes(numero_orden, nombre)))
         `)
         .eq('ciclo_id', activeCicloId)
         .order('created_at', { ascending: true });
@@ -1703,34 +1809,37 @@
       } else {
         tbody.innerHTML = actividadesCache.map(a => {
           const ejeObj = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
-          const ejeTexto = ejeObj
-            ? `${ejeObj.numero_orden}. ${ejeObj.nombre}`
-            : '-';
+          const ejeNum = ejeObj ? `Eje ${ejeObj.numero_orden}` : 'Ver';
 
           const badgeModo = a.consolida_desde_productos
-            ? `<span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-[10px]">Productos (${a.meta_numerica_anual || 0})</span>`
-            : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px]">Directo</span>`;
+            ? `<span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-[10px] whitespace-nowrap">Productos (${a.meta_numerica_anual || 0})</span>`
+            : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] whitespace-nowrap">Directo</span>`;
 
-          const acum = Number(a.acumulado_anual || 0);
+          const acum = calcularAcumuladoReal(a);
           const sem = calcularSemaforoYEstado(a);
 
           return `
             <tr class="hover:bg-slate-50">
-              <td class="px-3 py-2.5 text-slate-700 align-top">
-                <div class="font-semibold text-[11px] leading-snug text-slate-800">${ejeTexto}</div>
+              <td class="px-3 py-2.5 text-center align-middle whitespace-nowrap">
+                <button type="button" onclick="togglePopoverAlineacion(event, '${a.id}')"
+                  title="Consultar Eje Estratégico, Estrategia y Línea de Acción (MINSAL)"
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 font-semibold text-[11px] transition shadow-2xs">
+                  <i data-lucide="info" class="w-3.5 h-3.5 text-sky-600"></i>
+                  <span>${ejeNum}</span>
+                </button>
               </td>
-              <td class="px-3 py-2.5 align-top">
-                <div class="font-medium text-slate-900">${a.actividad}</div>
+              <td class="px-3 py-2.5 align-middle">
+                <div class="font-medium text-slate-900 leading-snug">${a.actividad}</div>
                 <div class="text-[11px] text-slate-400 mt-0.5">Resp: ${a.responsable_nombre} • Pond: ${a.ponderacion}</div>
               </td>
-              <td class="px-3 py-2.5 text-slate-600">${a.unidades_ins?.siglas || a.unidades_ins?.nombre || '-'}</td>
+              <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap">${a.unidades_ins?.siglas || a.unidades_ins?.nombre || '-'}</td>
               <td class="px-3 py-2.5 text-center">${badgeModo}</td>
-              <td class="px-3 py-2.5 text-center">${a.prog_t1}% / <b>${a.real_t1 ?? '-'}</b></td>
-              <td class="px-3 py-2.5 text-center">${a.prog_t2}% / <b>${a.real_t2 ?? '-'}</b></td>
-              <td class="px-3 py-2.5 text-center">${a.prog_t3}% / <b>${a.real_t3 ?? '-'}</b></td>
-              <td class="px-3 py-2.5 text-center">${a.prog_t4}% / <b>${a.real_t4 ?? '-'}</b></td>
-              <td class="px-3 py-2.5 text-right font-bold text-slate-800">${acum.toFixed(1)}%</td>
-              <td class="px-3 py-2.5 text-center">
+              <td class="px-3 py-2.5 text-center whitespace-nowrap">${a.prog_t1}% / <b>${a.real_t1 ?? '-'}</b></td>
+              <td class="px-3 py-2.5 text-center whitespace-nowrap">${a.prog_t2}% / <b>${a.real_t2 ?? '-'}</b></td>
+              <td class="px-3 py-2.5 text-center whitespace-nowrap">${a.prog_t3}% / <b>${a.real_t3 ?? '-'}</b></td>
+              <td class="px-3 py-2.5 text-center whitespace-nowrap">${a.prog_t4}% / <b>${a.real_t4 ?? '-'}</b></td>
+              <td class="px-3 py-2.5 text-right font-bold text-slate-800 whitespace-nowrap">${acum.toFixed(1)}%</td>
+              <td class="px-3 py-2.5 text-center whitespace-nowrap">
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap ${sem.badgeClass}">${sem.label}</span>
               </td>
               <td class="px-3 py-2.5 text-center whitespace-nowrap">
@@ -1752,6 +1861,7 @@
             </tr>
           `;
         }).join('');
+        lucide.createIcons();
       }
 
       document.getElementById('ev-actividad-id').innerHTML = actividadesCache.map(a =>
@@ -1937,6 +2047,7 @@
       if (!actividadesCache.length) return alert('No hay actividades para exportar en este ciclo.');
       const rowsExcel = actividadesCache.map(a => {
         const sem = calcularSemaforoYEstado(a);
+        const acum = calcularAcumuladoReal(a);
         return {
           'A. Eje Estratégico': a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.nombre || '',
           'B. Estrategia': a.pei_lineas_accion?.pei_estrategias?.nombre || '',
@@ -1956,7 +2067,7 @@
           'P. Prog. Trimestre 4': a.prog_t4,
           'Q. Realizado Trimestre 4': a.real_t4 ?? '',
           'R. % Ejecución Trimestre 4': a.ejec_t4 ?? '',
-          'S. % Ejecución Acumulado': a.acumulado_anual,
+          'S. % Ejecución Acumulado': Number(acum.toFixed(1)),
           'T. Estado de avance': sem.label,
           'U. Responsable': a.responsable_nombre,
           'V. Fecha de inicio': a.fecha_inicio,

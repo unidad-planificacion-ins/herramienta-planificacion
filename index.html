@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica v1.3 | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v1.4 | INS El Salvador</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS SDK v2 -->
@@ -33,7 +33,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.3</span></p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.4</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -55,7 +55,7 @@
         </button>
       </div>
       <div class="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-400">
-        Unidad de Planificación y Calidad • MINSAL El Salvador
+        Unidad de Planificación y Calidad INS - MINSAL
       </div>
     </div>
   </div>
@@ -72,9 +72,9 @@
           <div>
             <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
               Planificación Operativa y Estratégica
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.3</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.4</span>
             </div>
-            <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad • MINSAL</div>
+            <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad INS - MINSAL</div>
           </div>
         </div>
 
@@ -237,12 +237,24 @@
       <!-- TAB 3: MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS                     -->
       <!-- =================================================================== -->
       <section id="tab-matriz-poa" class="tab-content hidden space-y-4">
-        <div class="bg-white p-4 rounded-xl card-shadow border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+        <div class="bg-white p-4 rounded-xl card-shadow border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
           <div>
             <h2 class="text-lg font-bold text-slate-800">Matriz Operativa PAO y Productos INS</h2>
-            <p class="text-xs text-slate-500">Programa, edita o elimina actividades MINSAL y desagrega productos específicos del INS con consolidación automática.</p>
+            <p class="text-xs text-slate-500">Programa, edita o elimina actividades y desagrega productos específicos del INS con consolidación automática.</p>
           </div>
-          <div class="flex flex-wrap gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Selector de Ordenamiento -->
+            <div class="flex items-center bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs">
+              <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-500 mr-1.5 shrink-0"></i>
+              <label for="matriz-orden-select" class="text-slate-600 font-medium mr-1.5 whitespace-nowrap">Ordenar por:</label>
+              <select id="matriz-orden-select" onchange="renderTablaActividadesPOA()" class="bg-transparent font-semibold text-slate-800 focus:outline-none cursor-pointer">
+                <option value="registro">Orden de registro</option>
+                <option value="alineacion">Alineación Estratégica (Eje / Est. / Línea)</option>
+                <option value="unidad">Unidad (Unidades primero, luego Oficinas)</option>
+                <option value="responsable">Responsable (A - Z)</option>
+              </select>
+            </div>
+
             <button id="btn-nueva-actividad" class="px-3.5 py-2 bg-sky-700 hover:bg-sky-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
               <i data-lucide="plus" class="w-4 h-4"></i> Nueva Actividad PAO
             </button>
@@ -252,7 +264,7 @@
           </div>
         </div>
 
-        <!-- Tabla Principal v1.3: Vista compacta sin scroll horizontal, columna 3 = Indicador, Unidad con nombre completo integrada en metadatos -->
+        <!-- Tabla Principal v1.4: Incluye indicador de validación de suma 100% programada -->
         <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
           <div class="w-full">
             <table class="w-full lg:table-fixed text-left text-xs border-collapse">
@@ -263,7 +275,7 @@
                     <div class="text-sky-300">Estratégica</div>
                   </th>
                   <th class="px-2.5 py-2.5">Actividad INS</th>
-                  <th class="px-2.5 py-2.5 w-48">Indicador</th>
+                  <th class="px-2.5 py-2.5 w-44">Indicador</th>
                   <th class="px-1.5 py-2.5 text-center w-24">Modo</th>
                   <th class="px-1 py-2.5 text-center w-14">
                     <div>T1</div>
@@ -281,7 +293,11 @@
                     <div>T4</div>
                     <div class="text-[9px] text-slate-300 font-normal">P / R</div>
                   </th>
-                  <th class="px-1.5 py-2.5 text-right w-16">Acum.</th>
+                  <th class="px-1.5 py-2.5 text-right w-14">Acum.</th>
+                  <th class="px-1.5 py-2.5 text-center w-20" title="Validación de suma programada T1+T2+T3+T4 = 100%">
+                    <div>Prog.</div>
+                    <div class="text-[9px] text-sky-300 font-normal">Meta 100%</div>
+                  </th>
                   <th class="px-1.5 py-2.5 text-center w-24">Semáforo</th>
                   <th class="px-2 py-2.5 text-center w-36">Acciones</th>
                 </tr>
@@ -975,7 +991,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.3            -->
+  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.4            -->
   <!-- ======================================================================= -->
   <script>
     // 1. INICIALIZACIÓN DE SUPABASE
@@ -1091,11 +1107,15 @@
     window.addEventListener('scroll', cerrarPopoverAlineacion, true);
 
     // =========================================================================
-    // REGLA DE NEGOCIO HOMOLOGADA: SEMÁFORO Y ESTADO DE AVANCE (COL T)
+    // REGLA DE NEGOCIO HOMOLOGADA: SEMÁFORO, ESTADO Y VALIDACIÓN 100%
     // =========================================================================
+    function calcularSumaProgramada(a) {
+      return (Number(a.prog_t1) || 0) + (Number(a.prog_t2) || 0) + (Number(a.prog_t3) || 0) + (Number(a.prog_t4) || 0);
+    }
+
     function calcularAcumuladoReal(a) {
       const acumDb = Number(a.acumulado_anual || 0);
-      const totalProg = (Number(a.prog_t1) || 0) + (Number(a.prog_t2) || 0) + (Number(a.prog_t3) || 0) + (Number(a.prog_t4) || 0);
+      const totalProg = calcularSumaProgramada(a);
       const totalReal = (Number(a.real_t1) || 0) + (Number(a.real_t2) || 0) + (Number(a.real_t3) || 0) + (Number(a.real_t4) || 0);
       const acumCalc = totalProg > 0 ? (totalReal / totalProg) * 100 : 0;
       return Math.max(acumDb, acumCalc);
@@ -1647,7 +1667,7 @@
     }
 
     // =========================================================================
-    // 8. MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS (CREAR, EDITAR, ELIMINAR)
+    // 8. MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS (CREAR, EDITAR, ELIMINAR, ORDENAR)
     // =========================================================================
     function abrirNuevaActividadModal() {
       document.getElementById('act-edit-id').value = '';
@@ -1805,19 +1825,60 @@
       }
     });
 
-    async function loadActividadesPOA() {
-      if (!activeCicloId) return;
-      const { data } = await sb.from('actividades_poa')
-        .select(`
-          *,
-          unidades_ins(nombre, siglas),
-          pei_lineas_accion(numero_orden, nombre, pei_estrategias(numero_orden, nombre, pei_ejes(numero_orden, nombre)))
-        `)
-        .eq('ciclo_id', activeCicloId)
-        .order('created_at', { ascending: true });
+    // Función de ordenamiento según criterio seleccionado en la barra superior
+    function obtenerActividadesOrdenadas() {
+      const criterio = document.getElementById('matriz-orden-select')?.value || 'registro';
+      const lista = [...actividadesCache];
 
-      actividadesCache = data || [];
+      if (criterio === 'alineacion') {
+        lista.sort((a, b) => {
+          const linA = a.pei_lineas_accion;
+          const estA = linA?.pei_estrategias;
+          const ejeA = estA?.pei_ejes;
+
+          const linB = b.pei_lineas_accion;
+          const estB = linB?.pei_estrategias;
+          const ejeB = estB?.pei_ejes;
+
+          const ejeDiff = (Number(ejeA?.numero_orden) || 999) - (Number(ejeB?.numero_orden) || 999);
+          if (ejeDiff !== 0) return ejeDiff;
+
+          const estComp = String(estA?.numero_orden || '').localeCompare(String(estB?.numero_orden || ''), 'es', { numeric: true });
+          if (estComp !== 0) return estComp;
+
+          return String(linA?.numero_orden || '').localeCompare(String(linB?.numero_orden || ''), 'es', { numeric: true });
+        });
+      } else if (criterio === 'unidad') {
+        // Prioridad 1: Unidades ("Unidad ..."), Prioridad 2: Oficinas ("Oficina ...") y otras dependencias
+        const getPrioridadUnidad = (nombre) => {
+          const n = (nombre || '').trim().toLowerCase();
+          if (n.startsWith('unidad')) return 1;
+          if (n.startsWith('oficina')) return 2;
+          return 3;
+        };
+
+        lista.sort((a, b) => {
+          const nomA = a.unidades_ins?.nombre || '';
+          const nomB = b.unidades_ins?.nombre || '';
+          const prioA = getPrioridadUnidad(nomA);
+          const prioB = getPrioridadUnidad(nomB);
+          if (prioA !== prioB) return prioA - prioB;
+          return nomA.localeCompare(nomB, 'es', { sensitivity: 'base' });
+        });
+      } else if (criterio === 'responsable') {
+        lista.sort((a, b) => {
+          const respA = (a.responsable_nombre || '').trim();
+          const respB = (b.responsable_nombre || '').trim();
+          return respA.localeCompare(respB, 'es', { sensitivity: 'base' });
+        });
+      }
+
+      return lista;
+    }
+
+    function renderTablaActividadesPOA() {
       const tbody = document.getElementById('tabla-actividades-poa');
+      const listaOrdenada = obtenerActividadesOrdenadas();
 
       const renderCeldaTrimestre = (prog, real) => `
         <td class="px-1 py-2 text-center align-middle leading-tight">
@@ -1826,10 +1887,10 @@
         </td>
       `;
 
-      if (actividadesCache.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-400">No hay actividades registradas en este ciclo PAO. Haz clic en "+ Nueva Actividad PAO".</td></tr>`;
+      if (listaOrdenada.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-400">No hay actividades registradas en este ciclo PAO. Haz clic en "+ Nueva Actividad PAO".</td></tr>`;
       } else {
-        tbody.innerHTML = actividadesCache.map(a => {
+        tbody.innerHTML = listaOrdenada.map(a => {
           const ejeObj = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
           const ejeNum = ejeObj ? `Eje ${ejeObj.numero_orden}` : 'Ver';
           const unidadNombre = a.unidades_ins?.nombre || '-';
@@ -1840,6 +1901,14 @@
 
           const acum = calcularAcumuladoReal(a);
           const sem = calcularSemaforoYEstado(a);
+
+          // Validación de suma programada T1 + T2 + T3 + T4 = 100%
+          const sumaProg = calcularSumaProgramada(a);
+          const esCienExacto = Math.abs(sumaProg - 100) <= 0.05;
+          const sumaFormateada = Number.isInteger(sumaProg) ? `${sumaProg}%` : `${sumaProg.toFixed(2)}%`;
+          const badgeProg100 = esCienExacto
+            ? `<span title="Programación trimestral válida: suma ${sumaFormateada}" class="inline-flex items-center justify-center gap-0.5 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold text-[10px]">✓ 100%</span>`
+            : `<span title="Requiere corrección: la suma programada de los 4 trimestres es ${sumaFormateada} (debe ser exactamente 100%)" class="inline-flex items-center justify-center gap-0.5 px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-300 font-bold text-[10px] cursor-help">⚠ ${Number(sumaProg.toFixed(1))}%</span>`;
 
           return `
             <tr class="hover:bg-slate-50/90 transition-colors">
@@ -1862,6 +1931,7 @@
               ${renderCeldaTrimestre(a.prog_t3, a.real_t3)}
               ${renderCeldaTrimestre(a.prog_t4, a.real_t4)}
               <td class="px-1.5 py-2 text-right font-bold text-slate-800 align-middle text-[11px]">${acum.toFixed(1)}%</td>
+              <td class="px-1 py-2 text-center align-middle">${badgeProg100}</td>
               <td class="px-1.5 py-2 text-center align-middle">
                 <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold leading-tight ${sem.badgeClass}">${sem.label}</span>
               </td>
@@ -1886,6 +1956,21 @@
         }).join('');
         lucide.createIcons();
       }
+    }
+
+    async function loadActividadesPOA() {
+      if (!activeCicloId) return;
+      const { data } = await sb.from('actividades_poa')
+        .select(`
+          *,
+          unidades_ins(nombre, siglas),
+          pei_lineas_accion(numero_orden, nombre, pei_estrategias(numero_orden, nombre, pei_ejes(numero_orden, nombre)))
+        `)
+        .eq('ciclo_id', activeCicloId)
+        .order('created_at', { ascending: true });
+
+      actividadesCache = data || [];
+      renderTablaActividadesPOA();
 
       document.getElementById('ev-actividad-id').innerHTML = actividadesCache.map(a =>
         `<option value="${a.id}">${a.actividad.substring(0, 75)}...</option>`
@@ -2065,10 +2150,11 @@
       }
     }
 
-    // EXPORTADOR EXCEL OFICIAL MINSAL (25 COLUMNAS A-Y)
+    // EXPORTADOR EXCEL OFICIAL MINSAL (25 COLUMNAS A-Y) - Respeta el orden visual seleccionado
     document.getElementById('btn-exportar-excel').addEventListener('click', () => {
-      if (!actividadesCache.length) return alert('No hay actividades para exportar en este ciclo.');
-      const rowsExcel = actividadesCache.map(a => {
+      const listaExport = obtenerActividadesOrdenadas();
+      if (!listaExport.length) return alert('No hay actividades para exportar en este ciclo.');
+      const rowsExcel = listaExport.map(a => {
         const sem = calcularSemaforoYEstado(a);
         const acum = calcularAcumuladoReal(a);
         return {
@@ -2393,7 +2479,7 @@
 
       let texto = `INSTITUTO NACIONAL DE SALUD (INS)\n`;
       texto += `EVALUACIÓN DEL PLAN ANUAL OPERATIVO ${anio} — TRIMESTRE ${trim}\n`;
-      texto += `Presenta: Ing. Roberto Iván Rodas (Coordinador Unidad de Planificación y Calidad)\n`;
+      texto += `Presenta: Ing. Roberto Iván Rodas (Coordinador Unidad de Planificación y Calidad INS - MINSAL)\n`;
       texto += `Visto Bueno: Dirección del Instituto Nacional de Salud\n`;
       texto += `========================================================================\n\n`;
       texto += `1. INTRODUCCIÓN Y RESUMEN EJECUTIVO\n`;

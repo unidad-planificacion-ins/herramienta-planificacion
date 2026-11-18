@@ -237,21 +237,35 @@
       <!-- TAB 3: MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS                     -->
       <!-- =================================================================== -->
       <section id="tab-matriz-poa" class="tab-content hidden space-y-4">
-        <div class="bg-white p-4 rounded-xl card-shadow border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
+        <div class="bg-white p-4 rounded-xl card-shadow border border-slate-200 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3">
           <div>
             <h2 class="text-lg font-bold text-slate-800">Matriz Operativa PAO y Productos INS</h2>
             <p class="text-xs text-slate-500">Programa, edita o elimina actividades y desagrega productos específicos del INS con consolidación automática.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <!-- Selector de Ordenamiento -->
-            <div class="flex items-center bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs">
-              <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-500 mr-1.5 shrink-0"></i>
-              <label for="matriz-orden-select" class="text-slate-600 font-medium mr-1.5 whitespace-nowrap">Ordenar por:</label>
-              <select id="matriz-orden-select" onchange="renderTablaActividadesPOA()" class="bg-transparent font-semibold text-slate-800 focus:outline-none cursor-pointer">
+            <!-- Control Unificado de Ordenamiento y Filtrado -->
+            <div class="flex flex-wrap items-center bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs gap-1.5">
+              <div class="inline-flex rounded-md bg-slate-200/80 p-0.5">
+                <button type="button" id="btn-modo-ordenar" onclick="cambiarModoControlMatriz('ordenar')"
+                  class="px-2 py-0.5 rounded bg-white text-sky-900 font-semibold shadow-2xs transition flex items-center gap-1">
+                  <i data-lucide="arrow-up-down" class="w-3 h-3"></i> Ordenar
+                </button>
+                <button type="button" id="btn-modo-filtrar" onclick="cambiarModoControlMatriz('filtrar')"
+                  class="px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 font-medium transition flex items-center gap-1">
+                  <i data-lucide="filter" class="w-3 h-3"></i> Filtrar
+                </button>
+              </div>
+
+              <select id="matriz-criterio-select" onchange="alCambiarCriterioMatriz()" class="bg-transparent font-semibold text-slate-800 focus:outline-none cursor-pointer pr-1">
                 <option value="registro">Orden de registro</option>
                 <option value="alineacion">Alineación Estratégica (Eje / Est. / Línea)</option>
                 <option value="unidad">Unidad (Unidades primero, luego Oficinas)</option>
                 <option value="responsable">Responsable (A - Z)</option>
+              </select>
+
+              <!-- Selector dinámico de valor cuando está activo el modo Filtrar -->
+              <select id="matriz-filtro-valor" onchange="renderTablaActividadesPOA()" class="hidden max-w-[210px] pl-2 border-l border-slate-300 bg-transparent font-semibold text-sky-800 focus:outline-none cursor-pointer">
+                <option value="ALL">Todos</option>
               </select>
             </div>
 
@@ -264,7 +278,7 @@
           </div>
         </div>
 
-        <!-- Tabla Principal v1.4: Incluye indicador de validación de suma 100% programada -->
+        <!-- Tabla Principal v1.4: Columna Prog. (Meta 100%) antes de Acum. -->
         <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
           <div class="w-full">
             <table class="w-full lg:table-fixed text-left text-xs border-collapse">
@@ -293,11 +307,11 @@
                     <div>T4</div>
                     <div class="text-[9px] text-slate-300 font-normal">P / R</div>
                   </th>
-                  <th class="px-1.5 py-2.5 text-right w-14">Acum.</th>
                   <th class="px-1.5 py-2.5 text-center w-20" title="Validación de suma programada T1+T2+T3+T4 = 100%">
                     <div>Prog.</div>
                     <div class="text-[9px] text-sky-300 font-normal">Meta 100%</div>
                   </th>
+                  <th class="px-1.5 py-2.5 text-right w-14">Acum.</th>
                   <th class="px-1.5 py-2.5 text-center w-24">Semáforo</th>
                   <th class="px-2 py-2.5 text-center w-36">Acciones</th>
                 </tr>
@@ -726,19 +740,25 @@
 
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="block font-semibold text-slate-700">Descripción de la Actividad (Verbo en infinitivo)</label>
+            <label class="block font-semibold text-slate-700">Descripción de la Actividad (Estilo MINSAL / SMART)</label>
             <button type="button" onclick="mejorarRedaccionActividadIA()"
               class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-[11px] border border-indigo-200 flex items-center gap-1 transition">
               <i data-lucide="sparkles" class="w-3 h-3"></i> Mejorar redacción con IA
             </button>
           </div>
-          <textarea id="act-descripcion" rows="2" required placeholder="Escribe tu idea libre (ej. hacer 128 sesiones de teleclínicas echo sobre varios temas para capacitar médicos)..." class="w-full px-3 py-2 rounded-lg border border-slate-300 resize-y"></textarea>
+          <textarea id="act-descripcion" rows="2" required placeholder="Ej. Elaboración de guías clínicas de atención materna / Capacitación en lactancia materna..." class="w-full px-3 py-2 rounded-lg border border-slate-300 resize-y"></textarea>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div class="md:col-span-2">
-            <label class="block font-semibold text-slate-700 mb-1">Indicador de Medición (Col E)</label>
-            <input type="text" id="act-indicador" required placeholder="Ej. Porcentaje de sesiones de teleclínicas realizadas" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
+            <div class="flex items-center justify-between mb-1">
+              <label class="block font-semibold text-slate-700">Indicador de Medición (Col E)</label>
+              <button type="button" onclick="sugerirIndicadorIA()"
+                class="px-2.5 py-0.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold text-[11px] border border-sky-200 flex items-center gap-1 transition">
+                <i data-lucide="wand-2" class="w-3 h-3"></i> Sugerir indicador con IA
+              </button>
+            </div>
+            <input type="text" id="act-indicador" required placeholder="Ej. Porcentaje de guías clínicas elaboradas" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
           </div>
           <div>
             <div class="flex items-center gap-1 mb-1">
@@ -762,26 +782,33 @@
         <div class="bg-sky-50 p-3 rounded-xl border border-sky-200">
           <label class="flex items-center gap-2 font-semibold text-sky-900 cursor-pointer">
             <input type="checkbox" id="act-consolida-productos" class="rounded text-sky-700" />
-            <span>Consolidar automáticamente desde Productos INS (permite desglosar temáticas o entregables hijos)</span>
+            <span>Consolidar automáticamente desde Productos INS (permite desglosar múltiples temáticas o entregables hijos)</span>
           </label>
         </div>
 
-        <div id="bloque-prog-directa" class="grid grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+        <!-- Bloque de programación directa + selección de Tipo de Producto INS -->
+        <div id="bloque-prog-directa" class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">Prog. T1 (%)</label>
-            <input type="number" step="0.01" id="act-p1" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300" />
+            <label class="block font-semibold text-slate-700 mb-1">Tipo de Producto INS (Catálogo institucional)</label>
+            <select id="act-tipo-producto-directo" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"></select>
           </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Prog. T2 (%)</label>
-            <input type="number" step="0.01" id="act-p2" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300" />
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Prog. T3 (%)</label>
-            <input type="number" step="0.01" id="act-p3" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300" />
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Prog. T4 (%)</label>
-            <input type="number" step="0.01" id="act-p4" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300" />
+          <div class="grid grid-cols-4 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Prog. T1 (%)</label>
+              <input type="number" step="0.01" id="act-p1" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Prog. T2 (%)</label>
+              <input type="number" step="0.01" id="act-p2" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Prog. T3 (%)</label>
+              <input type="number" step="0.01" id="act-p3" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Prog. T4 (%)</label>
+              <input type="number" step="0.01" id="act-p4" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
+            </div>
           </div>
         </div>
 
@@ -811,7 +838,7 @@
               <i data-lucide="sparkles" class="w-3 h-3"></i> Sugerir / Complementar con IA
             </button>
           </div>
-          <textarea id="act-supuestos" rows="3" required placeholder="Ej. Disponibilidad presupuestaria, participación activa de personal de las RIIS, aprobación ética oportuna..."
+          <textarea id="act-supuestos" rows="3" required placeholder="Ej. Disponibilidad de insumos, equipamiento, horas de talento humano, participación de las RIIS o estabilidad epidemiológica..."
             class="w-full px-3 py-2 rounded-lg border border-slate-300 resize-y leading-relaxed"></textarea>
         </div>
 
@@ -1014,10 +1041,12 @@
     let actividadesCache = [];
     let dashDataCache = [];
     let charts = {};
+    let modoControlMatriz = 'ordenar'; // 'ordenar' | 'filtrar'
 
     // Metadatos locales complementarios
     const LOCAL_TP_CAT_KEY = 'ins_tp_categorias_v11';
     const LOCAL_REF_KEY = 'ins_directorio_referentes_v11';
+    const LOCAL_ACT_TP_KEY = 'ins_actividad_tipo_producto_v14';
 
     function getLocalTpCats() {
       try { return JSON.parse(localStorage.getItem(LOCAL_TP_CAT_KEY) || '{}'); } catch { return {}; }
@@ -1026,6 +1055,15 @@
       const map = getLocalTpCats();
       if (cat) map[id] = cat; else delete map[id];
       localStorage.setItem(LOCAL_TP_CAT_KEY, JSON.stringify(map));
+    }
+
+    function getLocalActTpMap() {
+      try { return JSON.parse(localStorage.getItem(LOCAL_ACT_TP_KEY) || '{}'); } catch { return {}; }
+    }
+    function setLocalActTp(actId, tpId) {
+      const map = getLocalActTpMap();
+      if (tpId) map[actId] = tpId; else delete map[actId];
+      localStorage.setItem(LOCAL_ACT_TP_KEY, JSON.stringify(map));
     }
 
     function inferirCategoriaProducto(tp) {
@@ -1038,6 +1076,26 @@
       if (txt.includes('echo') || txt.includes('teleclínica') || txt.includes('curso') || txt.includes('taller') || txt.includes('capacitaci')) return 'Educación Continua / ECHO';
       if (txt.includes('vigilancia') || txt.includes('boletín') || txt.includes('observatorio')) return 'Vigilancia y Observatorio';
       return 'General INS';
+    }
+
+    function construirOpcionesTiposProductoHTML() {
+      const activos = tiposProductoList.filter(t => t.activo).map(t => ({
+        ...t,
+        _cat: inferirCategoriaProducto(t)
+      })).sort((a, b) => a._cat.localeCompare(b._cat) || a.nombre.localeCompare(b.nombre));
+
+      const grupos = {};
+      activos.forEach(t => {
+        if (!grupos[t._cat]) grupos[t._cat] = [];
+        grupos[t._cat].push(t);
+      });
+
+      return `<option value="">-- Seleccione el tipo de producto INS --</option>` +
+        Object.keys(grupos).map(cat => `
+          <optgroup label="${cat}">
+            ${grupos[cat].map(t => `<option value="${t.id}">${t.nombre}</option>`).join('')}
+          </optgroup>
+        `).join('');
     }
 
     // =========================================================================
@@ -1124,7 +1182,6 @@
     function calcularSemaforoYEstado(a) {
       const acum = calcularAcumuladoReal(a);
 
-      // Prioridad absoluta: si el acumulado anual llega al 100% (tolerancia decimal 99.95%), siempre es Finalizada (Verde)
       if (acum >= 99.95) {
         return {
           label: 'Finalizada',
@@ -1133,7 +1190,6 @@
         };
       }
 
-      // Determinar el último trimestre con dato realizado
       let ultimoTrimConReal = 0;
       for (let t = 4; t >= 1; t--) {
         if (a['real_t' + t] !== null && a['real_t' + t] !== undefined && a['real_t' + t] !== '') {
@@ -1180,7 +1236,6 @@
         }
       }
 
-      // Sin datos realizados aún
       const cicloObj = ciclosList.find(c => c.id === activeCicloId);
       const anioCiclo = cicloObj?.anio || new Date().getFullYear();
       const hoy = new Date();
@@ -1225,7 +1280,6 @@
       }
     }
 
-    // Inicializar iconos
     lucide.createIcons();
 
     // 2. AUTENTICACIÓN Y SESIÓN
@@ -1432,17 +1486,29 @@
       const estSel = document.getElementById('act-estrategia');
       const linSel = document.getElementById('act-linea');
 
-      ejeSel.innerHTML = ejesList.map(e => `<option value="${e.id}">Eje ${e.numero_orden}. ${e.nombre}</option>`).join('');
+      ejeSel.innerHTML = `<option value="">-- Seleccione Eje Estratégico --</option>` +
+        ejesList.map(e => `<option value="${e.id}">Eje ${e.numero_orden}. ${e.nombre}</option>`).join('');
 
       const updateEst = () => {
+        if (!ejeSel.value) {
+          estSel.innerHTML = `<option value="">-- Seleccione Estrategia --</option>`;
+          linSel.innerHTML = `<option value="">-- Seleccione Línea de Acción --</option>`;
+          return;
+        }
         const filteredEst = estrategiasList.filter(s => s.eje_id === ejeSel.value);
-        estSel.innerHTML = filteredEst.map(s => `<option value="${s.id}">${s.numero_orden}. ${s.nombre}</option>`).join('');
+        estSel.innerHTML = `<option value="">-- Seleccione Estrategia --</option>` +
+          filteredEst.map(s => `<option value="${s.id}">${s.numero_orden}. ${s.nombre}</option>`).join('');
         updateLin();
       };
 
       const updateLin = () => {
+        if (!estSel.value) {
+          linSel.innerHTML = `<option value="">-- Seleccione Línea de Acción --</option>`;
+          return;
+        }
         const filteredLin = lineasList.filter(l => l.estrategia_id === estSel.value);
-        linSel.innerHTML = filteredLin.map(l => `<option value="${l.id}">${l.numero_orden}. ${l.nombre}</option>`).join('');
+        linSel.innerHTML = `<option value="">-- Seleccione Línea de Acción --</option>` +
+          filteredLin.map(l => `<option value="${l.id}">${l.numero_orden}. ${l.nombre}</option>`).join('');
       };
 
       ejeSel.addEventListener('change', updateEst);
@@ -1472,40 +1538,131 @@
     }
 
     // =========================================================================
-    // 5. ASISTENTES IA EN FORMULARIO DE ACTIVIDADES (COL D Y COL X)
+    // 5. ASISTENTES IA EN FORMULARIO DE ACTIVIDADES (REGLAS MINSAL / SMART / INS)
     // =========================================================================
     function mejorarRedaccionActividadIA() {
       const field = document.getElementById('act-descripcion');
+      const consolida = document.getElementById('act-consolida-productos').checked;
       let texto = field.value.trim();
       if (!texto) {
-        alert('Escribe primero una idea general de lo que deseas realizar en la actividad (por ejemplo: "hacer 128 teleclínicas echo sobre salud").');
+        alert('Escribe primero una idea general de lo que deseas realizar en la actividad (por ejemplo: "hacer 31 cursos de entrenamiento especializado en reanimación neonatal para fortalecer competencias").');
         field.focus();
         return;
       }
 
+      // 1. Limpieza de muletillas burocráticas y errores comunes
       texto = texto
         .replace(/\b(almenos|al menos)\b/gi, 'al menos')
-        .replace(/\b(llevar a cabo|realizar la ejecución de|proceder a realizar|hacer)\b/gi, 'Ejecutar')
-        .replace(/\b(con el objetivo de poder|con la finalidad de lograr|a fin de poder)\b/gi, 'para')
+        .replace(/^(llevar a cabo la ejecuci[oó]n de|llevar a cabo|proceder a realizar|realizar la ejecuci[oó]n de|se realizar[aá]n?|hacer)\s+/i, '')
         .replace(/\b(distintas y variadas|diferentes y diversas)\b/gi, 'diversas')
         .replace(/\s+/g, ' ')
         .trim();
 
-      const verbosInfinitivo = /^(desarrollar|ejecutar|implementar|realizar|elaborar|fortalecer|gestionar|publicar|evaluar|coordinar|efectuar|brindar|analizar|diseñar|establecer|conducir)/i;
-      if (!verbosInfinitivo.test(texto)) {
-        texto = 'Desarrollar ' + texto.charAt(0).toLowerCase() + texto.slice(1);
+      // 2. Si consolida productos hijos, evitar incrustar cifras rígidas al inicio del objeto
+      if (consolida) {
+        texto = texto
+          .replace(/^([A-Za-zÁÉÍÓÚáéíóúñÑ]+\s+)(?:al menos\s+)?\d+\s+/i, '$1')
+          .replace(/\bdistribuid[oa]s en \d+ tem[aá]ticas\b/gi, 'en temáticas');
+      }
+
+      // 3. Estandarización sintáctica por ámbito (Normalización, Capacitación, Investigación, Vigilancia)
+      if (/^(gu[ií]as?\s+cl[ií]nicas?|instructivos?|protocolos?|lineamientos?|manual(es)?|normativa)/i.test(texto)) {
+        texto = 'Elaboración de ' + texto.charAt(0).toLowerCase() + texto.slice(1);
+      } else if (/^capacitaci[oó]n\b/i.test(texto)) {
+        texto = 'Capacitación' + texto.slice(12);
+      } else if (/^capacitar\s+(a|al|en)\b/i.test(texto)) {
+        texto = texto.replace(/^capacitar\s+(?:a|al)\s+(.+?)\s+en\s+(.+)$/i, 'Capacitación en $2 dirigida a $1');
+        if (/^capacitar\s+en\b/i.test(texto)) {
+          texto = texto.replace(/^capacitar\s+en\b/i, 'Capacitación en');
+        }
+      } else if (/^(investigaci[oó]n|investigaciones|estudios?)\b/i.test(texto)) {
+        texto = 'Desarrollo de ' + texto.charAt(0).toLowerCase() + texto.slice(1);
+      } else if (/^vigilancia\b/i.test(texto)) {
+        texto = 'Ejecución de ' + texto.charAt(0).toLowerCase() + texto.slice(1);
       } else {
-        texto = texto.charAt(0).toUpperCase() + texto.slice(1);
+        const iniciosValidos = /^(elaborar|desarrollar|ejecutar|implementar|realizar|fortalecer|gestionar|publicar|evaluar|coordinar|efectuar|brindar|analizar|diseñar|establecer|conducir|vigilar|elaboración|desarrollo|ejecución|implementación|capacitación|publicación|evaluación|fortalecimiento|vigilancia)\b/i;
+        if (!iniciosValidos.test(texto)) {
+          texto = 'Desarrollar ' + texto.charAt(0).toLowerCase() + texto.slice(1);
+        } else {
+          texto = texto.charAt(0).toUpperCase() + texto.slice(1);
+        }
       }
 
-      if (!texto.endsWith('.')) texto += '.';
+      // 4. Eliminar justificaciones largas ("para fortalecer...", "con el objetivo de...") si excede 18 palabras
+      const palabras = texto.split(/\s+/);
+      if (palabras.length > 18) {
+        const corteFinalidad = texto.search(/\s+(para\s+(fortalecer|mejorar|contribuir|garantizar|asegurar|impulsar)|con\s+el\s+(objetivo|fin|prop[oó]sito)\s+de|a\s+fin\s+de)\b/i);
+        if (corteFinalidad > 25) {
+          texto = texto.substring(0, corteFinalidad).trim();
+        }
+      }
+
+      // 5. Cierre limpio estilo MINSAL (sin punto final)
+      texto = texto.replace(/[,;:.]+$/, '').trim();
       field.value = texto;
+    }
 
+    function sugerirIndicadorIA() {
+      const actRaw = document.getElementById('act-descripcion').value.trim();
       const indField = document.getElementById('act-indicador');
-      if (!indField.value.trim()) {
-        const cleanBase = texto.replace(/^[A-Za-zÁÉÍÓÚáéíóúñÑ]+\s+/, '').replace(/\.$/, '');
-        indField.value = 'Porcentaje de avance en ' + cleanBase.charAt(0).toLowerCase() + cleanBase.slice(1);
+
+      if (!actRaw) {
+        alert('Escribe primero la descripción de la actividad para que la IA identifique el producto principal y sugiera un indicador sintético.');
+        document.getElementById('act-descripcion').focus();
+        return;
       }
+
+      if (indField.value.trim()) {
+        const reemplazar = confirm('El campo Indicador de Medición ya contiene texto. ¿Deseas reemplazarlo con una sugerencia sintética?');
+        if (!reemplazar) return;
+      }
+
+      const txt = actRaw.toLowerCase();
+      let indicadorSugerido = '';
+
+      // Mapeo sintético por núcleo del entregable (6 a 10 palabras máximo)
+      if (txt.includes('teleclínica') || txt.includes('teleclinica') || txt.includes('echo')) {
+        indicadorSugerido = 'Porcentaje de sesiones de teleclínicas realizadas';
+      } else if (txt.includes('guía clínica') || txt.includes('guías clínicas') || txt.includes('guias clinicas')) {
+        indicadorSugerido = 'Porcentaje de guías clínicas elaboradas';
+      } else if (txt.includes('instructivo')) {
+        indicadorSugerido = 'Porcentaje de instructivos elaborados';
+      } else if (txt.includes('protocolo') && !txt.includes('investigación')) {
+        indicadorSugerido = 'Porcentaje de protocolos técnicos elaborados';
+      } else if (txt.includes('lineamiento') || txt.includes('manual') || txt.includes('normativa')) {
+        indicadorSugerido = 'Porcentaje de documentos normativos elaborados';
+      } else if (txt.includes('curso') && txt.includes('entrenamiento')) {
+        indicadorSugerido = 'Porcentaje de cursos de entrenamiento realizados';
+      } else if (txt.includes('curso')) {
+        indicadorSugerido = 'Porcentaje de cursos realizados';
+      } else if (txt.includes('capacitación') || txt.includes('capacitacion') || txt.includes('taller')) {
+        indicadorSugerido = 'Porcentaje de capacitaciones realizadas';
+      } else if (txt.includes('revisión sistemática') || txt.includes('revisiones sistemáticas')) {
+        indicadorSugerido = 'Porcentaje de revisiones sistemáticas finalizadas';
+      } else if (txt.includes('investigación') || txt.includes('investigaciones') || txt.includes('estudio')) {
+        indicadorSugerido = 'Porcentaje de investigaciones finalizadas respecto de las programadas';
+      } else if (txt.includes('artículo') || txt.includes('revista') || txt.includes('publicación') || txt.includes('boletín')) {
+        indicadorSugerido = 'Porcentaje de publicaciones científicas realizadas';
+      } else if (txt.includes('vigilancia') || txt.includes('ensayo') || txt.includes('muestra') || txt.includes('diagnóstico')) {
+        indicadorSugerido = 'Porcentaje de análisis de vigilancia laboratorial ejecutados';
+      } else if (txt.includes('informe') || txt.includes('evaluación')) {
+        indicadorSugerido = 'Porcentaje de informes técnicos elaborados';
+      } else {
+        // Extracción genérica sintética de las primeras palabras clave del objeto
+        let limpio = actRaw
+          .replace(/^(elaborar|desarrollar|ejecutar|implementar|realizar|fortalecer|gestionar|publicar|evaluar|coordinar|efectuar|brindar|analizar|diseñar|establecer|conducir|vigilar|elaboración de|desarrollo de|ejecución de|implementación de|capacitación en|publicación de|evaluación de)\s+/i, '')
+          .replace(/^(el|la|los|las|un|una|unos|unas)\s+/i, '')
+          .replace(/\b(para|con|dirigid[oa]s?|mediante|a trav[eé]s|en el marco)\b.*$/i, '')
+          .replace(/[,;:.]+$/, '')
+          .trim();
+
+        const palabrasObj = limpio.split(/\s+/).slice(0, 4).join(' ').toLowerCase();
+        indicadorSugerido = palabrasObj
+          ? `Porcentaje de ${palabrasObj} realizados`
+          : 'Porcentaje de cumplimiento de la actividad programada';
+      }
+
+      indField.value = indicadorSugerido;
     }
 
     function sugerirSupuestosIA() {
@@ -1513,25 +1670,28 @@
       const supField = document.getElementById('act-supuestos');
       const actual = supField.value.trim();
 
-      let sugerencias = [];
+      // Supuestos externos adaptados exclusivamente al INS (sin gestión presupuestaria propia)
+      let sugerencia = '';
       if (act.includes('echo') || act.includes('teleclínica') || act.includes('capacita') || act.includes('curso')) {
-        sugerencias.push('Disponibilidad de conectividad tecnológica, participación activa del personal de salud de las RIIS y confirmación oportuna de ponentes especialistas.');
+        sugerencia = 'Disponibilidad de conectividad y equipamiento audiovisual, asignación de horas protegidas del talento humano y participación activa del personal de las RIIS.';
       } else if (act.includes('investigaci') || act.includes('estudio') || act.includes('protocolo') || act.includes('revisi')) {
-        sugerencias.push('Aprobación oportuna por el Comité Nacional de Ética de Investigación en Salud (CNEIS), acceso a fuentes de información y disponibilidad presupuestaria.');
+        sugerencia = 'Aprobación oportuna por el Comité Nacional de Ética de Investigación en Salud (CNEIS), acceso a bases de datos y disponibilidad de horas del equipo investigador.';
       } else if (act.includes('laboratorio') || act.includes('muestra') || act.includes('vigilancia') || act.includes('diagnóstico')) {
-        sugerencias.push('Abastecimiento continuo de reactivos e insumos críticos, envío oportuno de muestras desde la red de establecimientos y estabilidad epidemiológica.');
+        sugerencia = 'Dotación oportuna de reactivos, insumos y equipamiento de laboratorio por el nivel central o cooperación, envío regular de muestras desde las RIIS y ausencia de emergencias epidemiológicas extraordinarias.';
       } else if (act.includes('publica') || act.includes('revista') || act.includes('alerta') || act.includes('artículo')) {
-        sugerencias.push('Recepción oportuna de manuscritos científicos y cumplimiento de tiempos de evaluación por pares externos.');
+        sugerencia = 'Recepción oportuna de manuscritos científicos, disponibilidad de revisores pares externos y continuidad de plataformas editoriales.';
+      } else if (act.includes('guía') || act.includes('instructivo') || act.includes('lineamiento') || act.includes('normativa')) {
+        sugerencia = 'Conformación oportuna de mesas técnicas interdisciplinarias, disponibilidad de talento humano especialista y validación dentro del marco legal institucional vigente.';
       } else {
-        sugerencias.push('Disponibilidad oportuna de recursos financieros y logísticos, así como articulación efectiva con las dependencias técnicas del MINSAL.');
+        sugerencia = 'Disponibilidad oportuna de recursos materiales, equipamiento e insumos físicos, asignación de horas de talento humano técnico y estabilidad del entorno sanitario y normativo.';
       }
 
       if (actual && !actual.endsWith('.')) {
-        supField.value = actual + '; ' + sugerencias[0].charAt(0).toLowerCase() + sugerencias[0].slice(1);
+        supField.value = actual + '; ' + sugerencia.charAt(0).toLowerCase() + sugerencia.slice(1);
       } else if (actual) {
-        supField.value = actual + ' ' + sugerencias[0];
+        supField.value = actual + ' ' + sugerencia;
       } else {
-        supField.value = sugerencias[0];
+        supField.value = sugerencia;
       }
     }
 
@@ -1667,7 +1827,7 @@
     }
 
     // =========================================================================
-    // 8. MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS (CREAR, EDITAR, ELIMINAR, ORDENAR)
+    // 8. MATRIZ PAO (25 COLUMNAS) Y PRODUCTOS INS (CREAR, EDITAR, ELIMINAR, ORDENAR/FILTRAR)
     // =========================================================================
     function abrirNuevaActividadModal() {
       document.getElementById('act-edit-id').value = '';
@@ -1681,15 +1841,18 @@
       document.getElementById('act-p4').value = '25';
       document.getElementById('act-responsable-cargo-hint').textContent = '';
 
+      // Poblar selector de Tipo de Producto para actividad directa
+      document.getElementById('act-tipo-producto-directo').innerHTML = construirOpcionesTiposProductoHTML();
+
       const cicloObj = ciclosList.find(c => c.id === activeCicloId);
       const anioCiclo = cicloObj?.anio || new Date().getFullYear();
       document.getElementById('act-inicio').value = `${anioCiclo}-01-01`;
       document.getElementById('act-fin').value = `${anioCiclo}-12-31`;
 
-      if (ejesList.length > 0) {
-        document.getElementById('act-eje').value = ejesList[0].id;
-        document.getElementById('act-eje').dispatchEvent(new Event('change'));
-      }
+      // Limpiar campos 1, 2 y 3 (Eje, Estrategia, Línea de Acción) en blanco para registro nuevo
+      document.getElementById('act-eje').value = '';
+      document.getElementById('act-eje').dispatchEvent(new Event('change'));
+
       document.getElementById('bloque-prog-directa').classList.remove('hidden');
       document.getElementById('modal-actividad').classList.remove('hidden');
       actualizarDatalistResponsables();
@@ -1703,6 +1866,12 @@
       document.getElementById('modal-act-titulo').textContent = 'Editar Actividad Registrada en Matriz PAO';
       document.getElementById('btn-submit-actividad').textContent = 'Guardar Cambios';
 
+      // Poblar selector de Tipo de Producto directo
+      const tpSelDirecto = document.getElementById('act-tipo-producto-directo');
+      tpSelDirecto.innerHTML = construirOpcionesTiposProductoHTML();
+      const localTpMap = getLocalActTpMap();
+      tpSelDirecto.value = act.tipo_producto_id || localTpMap[act.id] || '';
+
       const linObj = lineasList.find(l => l.id === act.linea_accion_id);
       const estObj = linObj ? estrategiasList.find(s => s.id === linObj.estrategia_id) : null;
       if (estObj) {
@@ -1711,6 +1880,9 @@
         document.getElementById('act-estrategia').value = estObj.id;
         document.getElementById('act-estrategia').dispatchEvent(new Event('change'));
         document.getElementById('act-linea').value = linObj.id;
+      } else {
+        document.getElementById('act-eje').value = '';
+        document.getElementById('act-eje').dispatchEvent(new Event('change'));
       }
 
       document.getElementById('act-unidad').value = act.unidad_ins_id || '';
@@ -1755,6 +1927,7 @@
       if (error) {
         alert('Error al eliminar la actividad: ' + error.message);
       } else {
+        setLocalActTp(actId, null);
         await reloadAllCycleData();
       }
     }
@@ -1769,6 +1942,7 @@
       e.preventDefault();
       const editId = document.getElementById('act-edit-id').value;
       const consolida = document.getElementById('act-consolida-productos').checked;
+      const tpDirectoId = !consolida ? (document.getElementById('act-tipo-producto-directo').value || null) : null;
 
       const payload = {
         ciclo_id: activeCicloId,
@@ -1799,20 +1973,31 @@
       }
 
       if (editId) {
-        const { error } = await sb.from('actividades_poa').update(payload).eq('id', editId);
+        let { error } = await sb.from('actividades_poa').update({ ...payload, tipo_producto_id: tpDirectoId }).eq('id', editId);
+        if (error && error.message && error.message.includes('tipo_producto_id')) {
+          const retry = await sb.from('actividades_poa').update(payload).eq('id', editId);
+          error = retry.error;
+        }
         if (error) {
           alert('Error al actualizar actividad: ' + error.message);
         } else {
+          setLocalActTp(editId, tpDirectoId);
           await sincronizarEstadoActividadDB(editId);
           cerrarModal('modal-actividad');
           document.getElementById('act-edit-id').value = '';
           await reloadAllCycleData();
         }
       } else {
-        const { data: inserted, error } = await sb.from('actividades_poa').insert(payload).select().single();
+        let { data: inserted, error } = await sb.from('actividades_poa').insert({ ...payload, tipo_producto_id: tpDirectoId }).select().single();
+        if (error && error.message && error.message.includes('tipo_producto_id')) {
+          const retry = await sb.from('actividades_poa').insert(payload).select().single();
+          inserted = retry.data;
+          error = retry.error;
+        }
         if (error) {
           alert('Error al guardar actividad: ' + error.message);
         } else {
+          if (inserted?.id) setLocalActTp(inserted.id, tpDirectoId);
           cerrarModal('modal-actividad');
           e.target.reset();
           document.getElementById('bloque-prog-directa').classList.remove('hidden');
@@ -1825,11 +2010,100 @@
       }
     });
 
-    // Función de ordenamiento según criterio seleccionado en la barra superior
-    function obtenerActividadesOrdenadas() {
-      const criterio = document.getElementById('matriz-orden-select')?.value || 'registro';
-      const lista = [...actividadesCache];
+    // =========================================================================
+    // CONTROL UNIFICADO DE ORDENAMIENTO Y FILTRADO EN MATRIZ PAO
+    // =========================================================================
+    function cambiarModoControlMatriz(nuevoModo) {
+      modoControlMatriz = nuevoModo;
+      const btnOrd = document.getElementById('btn-modo-ordenar');
+      const btnFil = document.getElementById('btn-modo-filtrar');
+      const critSel = document.getElementById('matriz-criterio-select');
+      const valSel = document.getElementById('matriz-filtro-valor');
 
+      if (nuevoModo === 'ordenar') {
+        btnOrd.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+        btnOrd.classList.remove('text-slate-600', 'font-medium');
+        btnFil.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+        btnFil.classList.add('text-slate-600', 'font-medium');
+
+        critSel.options[0].text = 'Orden de registro';
+        valSel.classList.add('hidden');
+      } else {
+        btnFil.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+        btnFil.classList.remove('text-slate-600', 'font-medium');
+        btnOrd.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+        btnOrd.classList.add('text-slate-600', 'font-medium');
+
+        critSel.options[0].text = 'Mostrar todas';
+        if (critSel.value === 'registro') {
+          critSel.value = 'unidad';
+        }
+        poblarOpcionesFiltroMatriz();
+      }
+      renderTablaActividadesPOA();
+    }
+
+    function alCambiarCriterioMatriz() {
+      if (modoControlMatriz === 'filtrar') {
+        poblarOpcionesFiltroMatriz();
+      }
+      renderTablaActividadesPOA();
+    }
+
+    function poblarOpcionesFiltroMatriz() {
+      const crit = document.getElementById('matriz-criterio-select').value;
+      const valSel = document.getElementById('matriz-filtro-valor');
+
+      if (modoControlMatriz !== 'filtrar' || crit === 'registro') {
+        valSel.classList.add('hidden');
+        valSel.innerHTML = `<option value="ALL">Todas</option>`;
+        return;
+      }
+
+      let opciones = [];
+      if (crit === 'alineacion') {
+        const mapEjes = new Map();
+        actividadesCache.forEach(a => {
+          const eje = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
+          if (eje) mapEjes.set(String(eje.numero_orden), `Eje ${eje.numero_orden}. ${eje.nombre}`);
+        });
+        opciones = [...mapEjes.entries()]
+          .sort((a, b) => Number(a[0]) - Number(b[0]))
+          .map(([val, label]) => ({ val, label }));
+      } else if (crit === 'unidad') {
+        const setU = new Set(actividadesCache.map(a => a.unidades_ins?.nombre).filter(Boolean));
+        opciones = [...setU]
+          .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
+          .map(u => ({ val: u, label: u }));
+      } else if (crit === 'responsable') {
+        const setR = new Set(actividadesCache.map(a => (a.responsable_nombre || '').trim()).filter(Boolean));
+        opciones = [...setR]
+          .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
+          .map(r => ({ val: r, label: r }));
+      }
+
+      valSel.innerHTML = `<option value="ALL">Todos (${opciones.length})</option>` +
+        opciones.map(o => `<option value="${o.val.replace(/"/g, '&quot;')}">${o.label}</option>`).join('');
+      valSel.classList.remove('hidden');
+    }
+
+    function obtenerActividadesProcesadas() {
+      const criterio = document.getElementById('matriz-criterio-select')?.value || 'registro';
+      const filtroVal = document.getElementById('matriz-filtro-valor')?.value || 'ALL';
+      let lista = [...actividadesCache];
+
+      // 1. Aplicar filtro si el modo Filtrar está activo
+      if (modoControlMatriz === 'filtrar' && criterio !== 'registro' && filtroVal !== 'ALL') {
+        if (criterio === 'alineacion') {
+          lista = lista.filter(a => String(a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.numero_orden) === filtroVal);
+        } else if (criterio === 'unidad') {
+          lista = lista.filter(a => (a.unidades_ins?.nombre || '') === filtroVal);
+        } else if (criterio === 'responsable') {
+          lista = lista.filter(a => (a.responsable_nombre || '').trim() === filtroVal);
+        }
+      }
+
+      // 2. Aplicar ordenamiento según criterio activo
       if (criterio === 'alineacion') {
         lista.sort((a, b) => {
           const linA = a.pei_lineas_accion;
@@ -1849,7 +2123,6 @@
           return String(linA?.numero_orden || '').localeCompare(String(linB?.numero_orden || ''), 'es', { numeric: true });
         });
       } else if (criterio === 'unidad') {
-        // Prioridad 1: Unidades ("Unidad ..."), Prioridad 2: Oficinas ("Oficina ...") y otras dependencias
         const getPrioridadUnidad = (nombre) => {
           const n = (nombre || '').trim().toLowerCase();
           if (n.startsWith('unidad')) return 1;
@@ -1878,7 +2151,8 @@
 
     function renderTablaActividadesPOA() {
       const tbody = document.getElementById('tabla-actividades-poa');
-      const listaOrdenada = obtenerActividadesOrdenadas();
+      const listaProcesada = obtenerActividadesProcesadas();
+      const localTpMap = getLocalActTpMap();
 
       const renderCeldaTrimestre = (prog, real) => `
         <td class="px-1 py-2 text-center align-middle leading-tight">
@@ -1887,17 +2161,21 @@
         </td>
       `;
 
-      if (listaOrdenada.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-400">No hay actividades registradas en este ciclo PAO. Haz clic en "+ Nueva Actividad PAO".</td></tr>`;
+      if (listaProcesada.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-400">No hay actividades que coincidan con la vista o filtro seleccionado.</td></tr>`;
       } else {
-        tbody.innerHTML = listaOrdenada.map(a => {
+        tbody.innerHTML = listaProcesada.map(a => {
           const ejeObj = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
           const ejeNum = ejeObj ? `Eje ${ejeObj.numero_orden}` : 'Ver';
           const unidadNombre = a.unidades_ins?.nombre || '-';
 
+          // Resolver nombre de producto si es actividad directa
+          const tpIdDirecto = a.tipo_producto_id || localTpMap[a.id];
+          const tpObjDirecto = tpIdDirecto ? tiposProductoList.find(t => t.id === tpIdDirecto) : null;
+
           const badgeModo = a.consolida_desde_productos
             ? `<span class="inline-block px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-[10px] leading-tight">Productos<br/>(${a.meta_numerica_anual || 0})</span>`
-            : `<span class="inline-block px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px]">Directo</span>`;
+            : `<span title="${tpObjDirecto ? 'Producto: ' + tpObjDirecto.nombre : 'Actividad directa'}" class="inline-block px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px]">Directo</span>`;
 
           const acum = calcularAcumuladoReal(a);
           const sem = calcularSemaforoYEstado(a);
@@ -1922,7 +2200,9 @@
               </td>
               <td class="px-2.5 py-2 align-middle">
                 <div class="font-medium text-slate-900 leading-snug break-words">${a.actividad}</div>
-                <div class="text-[11px] text-slate-400 mt-0.5 leading-snug break-words">Unidad: ${unidadNombre} • Resp: ${a.responsable_nombre} • Pond: ${a.ponderacion}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5 leading-snug break-words">
+                  Unidad: ${unidadNombre} • Resp: ${a.responsable_nombre} • Pond: ${a.ponderacion}${tpObjDirecto && !a.consolida_desde_productos ? ` • Prod: <span class="text-slate-600 font-medium">${tpObjDirecto.nombre}</span>` : ''}
+                </div>
               </td>
               <td class="px-2.5 py-2 text-slate-700 align-middle text-[11px] leading-snug break-words">${a.indicador || '-'}</td>
               <td class="px-1.5 py-2 text-center align-middle">${badgeModo}</td>
@@ -1930,8 +2210,8 @@
               ${renderCeldaTrimestre(a.prog_t2, a.real_t2)}
               ${renderCeldaTrimestre(a.prog_t3, a.real_t3)}
               ${renderCeldaTrimestre(a.prog_t4, a.real_t4)}
-              <td class="px-1.5 py-2 text-right font-bold text-slate-800 align-middle text-[11px]">${acum.toFixed(1)}%</td>
               <td class="px-1 py-2 text-center align-middle">${badgeProg100}</td>
+              <td class="px-1.5 py-2 text-right font-bold text-slate-800 align-middle text-[11px]">${acum.toFixed(1)}%</td>
               <td class="px-1.5 py-2 text-center align-middle">
                 <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold leading-tight ${sem.badgeClass}">${sem.label}</span>
               </td>
@@ -1970,6 +2250,9 @@
         .order('created_at', { ascending: true });
 
       actividadesCache = data || [];
+      if (modoControlMatriz === 'filtrar') {
+        poblarOpcionesFiltroMatriz();
+      }
       renderTablaActividadesPOA();
 
       document.getElementById('ev-actividad-id').innerHTML = actividadesCache.map(a =>
@@ -2150,10 +2433,10 @@
       }
     }
 
-    // EXPORTADOR EXCEL OFICIAL MINSAL (25 COLUMNAS A-Y) - Respeta el orden visual seleccionado
+    // EXPORTADOR EXCEL OFICIAL MINSAL (25 COLUMNAS A-Y) - Respeta el orden/filtro visual seleccionado
     document.getElementById('btn-exportar-excel').addEventListener('click', () => {
-      const listaExport = obtenerActividadesOrdenadas();
-      if (!listaExport.length) return alert('No hay actividades para exportar en este ciclo.');
+      const listaExport = obtenerActividadesProcesadas();
+      if (!listaExport.length) return alert('No hay actividades para exportar en la vista actual.');
       const rowsExcel = listaExport.map(a => {
         const sem = calcularSemaforoYEstado(a);
         const acum = calcularAcumuladoReal(a);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica v1.5 | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v1.6 | INS El Salvador</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS SDK v2 -->
@@ -33,7 +33,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.5</span></p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.6</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -72,7 +72,7 @@
           <div>
             <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
               Planificación Operativa y Estratégica
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.5</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.6</span>
             </div>
             <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad INS - MINSAL</div>
           </div>
@@ -289,7 +289,7 @@
               </button>
               <div class="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute right-0 top-full mt-2 w-64 p-2.5 rounded-lg bg-slate-900 text-white text-[11px] leading-snug shadow-xl z-40">
                 <div class="font-bold text-emerald-300 mb-0.5">Exportar Matriz PAO a Excel</div>
-                Genera el archivo oficial con las <b>25 columnas requeridas por el MINSAL</b> y el formato institucional de colores.
+                Genera el archivo oficial con las <b>25 columnas requeridas por el MINSAL</b> y el formato institucional de colores suaves.
               </div>
             </div>
 
@@ -301,13 +301,13 @@
               </button>
               <div class="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute right-0 top-full mt-2 w-64 p-2.5 rounded-lg bg-slate-900 text-white text-[11px] leading-snug shadow-xl z-40">
                 <div class="font-bold text-sky-300 mb-0.5">Versión Imprimible (Anexo Informe)</div>
-                Prepara una vista compacta (Actividad, Indicador, T1–T4 y Acumulado) ajustada a <b>1 página Carta horizontal</b> para imprimir o guardar en PDF.
+                Prepara una vista compacta en negro puro con margen superior de encuadernación (2 cm) ajustada a <b>Carta horizontal</b> para imprimir o guardar en PDF.
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Tabla Principal v1.5: Columna Prog. (Meta 100%) antes de Acum. -->
+        <!-- Tabla Principal v1.6 -->
         <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
           <div class="w-full">
             <table class="w-full lg:table-fixed text-left text-xs border-collapse">
@@ -1047,7 +1047,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.5            -->
+  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.6            -->
   <!-- ======================================================================= -->
   <script>
     // 1. INICIALIZACIÓN DE SUPABASE
@@ -2601,7 +2601,7 @@
 
         const row = sheet.getRow(rowNum);
 
-        // Calcular altura dinámica según longitud de textos largos (Actividad o Supuestos)
+        // Calcular altura dinámica según longitud de textos largos
         const maxLen = Math.max(
           (a.actividad || '').length / 40,
           (a.supuestos_externos || '').length / 38,
@@ -2613,7 +2613,7 @@
           const colNumber = cIdx + 1;
           const cell = row.getCell(colNumber);
           cell.value = val;
-          cell.font = { name: 'Calibri', size: 9, color: { argb: 'FF0F172A' } };
+          cell.font = { name: 'Calibri', size: 9, color: { argb: 'FF000000' } };
           cell.border = {
             top: { style: 'thin', color: { argb: 'FF000000' } },
             left: { style: 'thin', color: { argb: 'FF000000' } },
@@ -2625,15 +2625,21 @@
           if ([1, 2, 3, 4, 5, 24].includes(colNumber)) {
             cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
           } else if (colNumber === 20) {
-            // Col T: Estado de avance arriba a la izquierda como en captura MINSAL
             cell.alignment = { horizontal: 'left', vertical: 'top', wrapText: true };
           } else {
             cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
           }
 
-          // Colores institucionales MINSAL (Verde #6AA84F en Meta Anual F y Realizados H, K, N, Q)
-          if ([6, 8, 11, 14, 17].includes(colNumber)) {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF6AA84F' } };
+          // Columna F (Meta Anual) y Columna S (Acumulado a la fecha) en Azul Pastel Claro (#9FC5E8)
+          if ([6, 19].includes(colNumber)) {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF9FC5E8' } };
+            cell.font = { name: 'Calibri', size: 9, bold: colNumber === 19, color: { argb: 'FF000000' } };
+            cell.numFmt = colNumber === 19 ? '0.00%' : '0.00';
+          }
+
+          // Columnas de Realizado (H, K, N, Q) en Verde Pastel Claro (#B6D7A8)
+          if ([8, 11, 14, 17].includes(colNumber)) {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFB6D7A8' } };
             cell.numFmt = '0.00';
           }
 
@@ -2644,20 +2650,13 @@
 
           // Columnas % Ejecución Trimestral (I, L, O, R)
           if ([9, 12, 15, 18].includes(colNumber)) {
-            cell.font = { name: 'Calibri', size: 9, bold: true };
-            cell.numFmt = '0.00%';
-          }
-
-          // Columna S: Acumulado a la fecha en Azul (#3C78D8)
-          if (colNumber === 19) {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3C78D8' } };
             cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF000000' } };
             cell.numFmt = '0.00%';
           }
 
           // Columna U: Responsable en negrita
           if (colNumber === 21) {
-            cell.font = { name: 'Calibri', size: 9, bold: true };
+            cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF000000' } };
           }
         });
       });
@@ -2673,7 +2672,7 @@
     });
 
     // =========================================================================
-    // VERSIÓN IMPRIMIBLE PARA ANEXO DE INFORME GERENCIAL (1 PÁGINA CARTA HORIZONTAL)
+    // VERSIÓN IMPRIMIBLE PARA ANEXO DE INFORME GERENCIAL (CARTA HORIZONTAL + MARGEN ENCUADERNACIÓN)
     // =========================================================================
     function generarVersionImprimibleAnexo() {
       const listaExport = obtenerActividadesProcesadas();
@@ -2732,42 +2731,44 @@
           <meta charset="UTF-8" />
           <title>Anexo PAO ${anioCiclo} - Instituto Nacional de Salud</title>
           <style>
+            /* Margen superior de 20mm (2.0 cm) estándar para encuadernación superior en hoja Carta horizontal */
             @page {
               size: letter landscape;
-              margin: 8mm 10mm;
+              margin: 20mm 10mm 8mm 10mm;
             }
             * { box-sizing: border-box; }
             body {
               font-family: 'Segoe UI', Calibri, Arial, sans-serif;
-              color: #0f172a;
+              color: #000000;
               margin: 0;
               padding: 0;
-              background: #fff;
+              background: #ffffff;
             }
             .header-box {
               display: flex;
               justify-content: space-between;
               align-items: flex-end;
-              border-bottom: 2px solid #0c4a6e;
-              padding-bottom: 6px;
-              margin-bottom: 8px;
+              border-bottom: 1.5px solid #000000;
+              padding-bottom: 5px;
+              margin-bottom: 7px;
             }
             .header-left h1 {
-              font-size: 13px;
+              font-size: 12.5px;
               margin: 0;
-              color: #0c4a6e;
+              color: #000000;
               text-transform: uppercase;
-              letter-spacing: 0.3px;
+              letter-spacing: 0.2px;
             }
             .header-left p {
-              font-size: 10px;
+              font-size: 9.5px;
               margin: 2px 0 0 0;
-              color: #475569;
+              color: #000000;
+              font-style: italic;
             }
             .header-right {
               text-align: right;
-              font-size: 9px;
-              color: #64748b;
+              font-size: 8.5px;
+              color: #000000;
             }
             table {
               width: 100%;
@@ -2775,48 +2776,50 @@
               table-layout: fixed;
             }
             thead th {
-              background-color: #0f172a;
+              background-color: #1e293b;
               color: #ffffff;
               font-size: 8.5px;
               text-transform: uppercase;
               padding: 5px 4px;
-              border: 1px solid #0f172a;
+              border: 1px solid #000000;
               text-align: center;
               line-height: 1.15;
             }
             thead th.th-left { text-align: left; padding-left: 6px; }
             tbody tr { page-break-inside: avoid; }
-            tbody tr:nth-child(even) { background-color: #f8fafc; }
             td {
-              border: 1px solid #cbd5e1;
+              border: 1px solid #475569;
               padding: 4px 5px;
               vertical-align: middle;
               word-wrap: break-word;
+              color: #000000;
             }
             .idx-cell {
               width: 24px;
               text-align: center;
               font-size: 8.5px;
-              color: #64748b;
+              color: #000000;
               font-weight: 600;
             }
             .act-cell { width: 41%; }
             .act-title {
               font-size: 9.2px;
               font-weight: 600;
-              color: #0f172a;
+              color: #000000;
               line-height: 1.25;
             }
+            /* Metadatos en negro puro, cursiva y tamaño pequeño para óptima legibilidad en impresión */
             .act-meta {
               font-size: 7.8px;
-              color: #64748b;
+              font-style: italic;
+              color: #000000;
               margin-top: 2px;
               line-height: 1.2;
             }
             .ind-cell {
               width: 23%;
               font-size: 8.8px;
-              color: #1e293b;
+              color: #000000;
               line-height: 1.25;
             }
             .num-cell {
@@ -2826,14 +2829,15 @@
             }
             .prog-val {
               font-size: 8px;
-              color: #64748b;
-              border-bottom: 1px solid #e2e8f0;
+              font-style: italic;
+              color: #000000;
+              border-bottom: 1px solid #94a3b8;
               padding-bottom: 1px;
             }
             .real-val {
               font-size: 9px;
               font-weight: 700;
-              color: #0f172a;
+              color: #000000;
               padding-top: 1px;
             }
             .acum-cell {
@@ -2841,8 +2845,8 @@
               text-align: right;
               font-size: 9.5px;
               font-weight: 700;
-              color: #0c4a6e;
-              background-color: #f0f9ff;
+              color: #000000;
+              background-color: #e2e8f0;
               padding-right: 6px;
             }
             .no-print-bar {
@@ -2872,7 +2876,7 @@
         </head>
         <body>
           <div class="no-print-bar">
-            <span>Vista previa configurada en <b>Carta Horizontal (Landscape)</b> para anexo de informe gerencial.</span>
+            <span>Vista previa en <b>Negro Puro / Cursiva</b> con <b>margen superior de 2.0 cm para encuadernación</b> (Carta Horizontal).</span>
             <button onclick="window.print()">Imprimir / Guardar PDF</button>
           </div>
 
@@ -2893,588 +2897,8 @@
                 <th style="width:24px;">#</th>
                 <th class="th-left" style="width:41%;">Actividad INS</th>
                 <th class="th-left" style="width:23%;">Indicador</th>
-                <th style="width:6.2%;">T1<br/><span style="font-weight:400;font-size:7px;">P / R</span></th>
-                <th style="width:6.2%;">T2<br/><span style="font-weight:400;font-size:7px;">P / R</span></th>
-                <th style="width:6.2%;">T3<br/><span style="font-weight:400;font-size:7px;">P / R</span></th>
-                <th style="width:6.2%;">T4<br/><span style="font-weight:400;font-size:7px;">P / R</span></th>
-                <th style="width:7.5%;">Acum.</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filasHTML}
-            </tbody>
-          </table>
-
-          <script>
-            window.onload = function() {
-              setTimeout(function() { window.print(); }, 250);
-            };
-          <\/script>
-        </body>
-        </html>
-      `);
-      printWin.document.close();
-    }
-
-    // =========================================================================
-    // 9. BÓVEDA DE EVIDENCIAS Y JUSTIFICACIONES
-    // =========================================================================
-    document.getElementById('form-evidencia').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fileInput = document.getElementById('ev-archivo');
-      let storagePath = null;
-
-      if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        const fileName = `${activeCicloId}/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-        const { error: upErr } = await sb.storage.from('evidencias-ins').upload(fileName, file);
-        if (upErr) return alert('Error subiendo archivo: ' + upErr.message);
-        storagePath = fileName;
-      }
-
-      const { error } = await sb.from('evidencias_poa').insert({
-        ciclo_id: activeCicloId,
-        actividad_poa_id: document.getElementById('ev-actividad-id').value,
-        trimestre: parseInt(document.getElementById('ev-trimestre').value),
-        categoria: document.getElementById('ev-categoria').value,
-        titulo: document.getElementById('ev-titulo').value,
-        causa_retraso_tipificada: document.getElementById('ev-causa').value || null,
-        descripcion_narrativa: document.getElementById('ev-descripcion').value,
-        archivo_storage_path: storagePath,
-        url_externa_drive: document.getElementById('ev-url').value || null,
-        subido_por: currentUser.id
-      });
-
-      if (error) alert(error.message);
-      else {
-        e.target.reset();
-        await loadEvidencias();
-        alert('Documento registrado en el expediente de auditoría.');
-      }
-    });
-
-    async function loadEvidencias() {
-      if (!activeCicloId) return;
-      const { data } = await sb.from('evidencias_poa')
-        .select('*, actividades_poa(actividad)')
-        .eq('ciclo_id', activeCicloId)
-        .order('created_at', { ascending: false });
-
-      const cont = document.getElementById('lista-evidencias');
-      if (!data || data.length === 0) {
-        cont.innerHTML = `<div class="text-xs text-slate-400 text-center py-8">No hay evidencias ni justificaciones registradas aún en este ciclo.</div>`;
-        return;
-      }
-
-      cont.innerHTML = data.map(ev => {
-        const isRetraso = ev.categoria === 'justificacion_retraso';
-        const badge = isRetraso
-          ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-semibold text-[10px]">Justificación Retraso</span>`
-          : `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Evidencia Cumplimiento</span>`;
-
-        return `
-          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs space-y-1.5">
-            <div class="flex justify-between items-start gap-2">
-              <div class="font-bold text-slate-800">${ev.titulo} <span class="text-slate-400 font-normal">(T${ev.trimestre})</span></div>
-              ${badge}
-            </div>
-            <div class="text-[11px] text-sky-800 font-medium">${ev.actividades_poa?.actividad || ''}</div>
-            <p class="text-slate-600">${ev.descripcion_narrativa}</p>
-            <div class="flex flex-wrap gap-3 pt-1 text-[11px]">
-              ${ev.archivo_storage_path ? `<button onclick="descargarEvidencia('${ev.archivo_storage_path}')" class="text-sky-700 font-semibold hover:underline">Descargar Archivo Adjunto</button>` : ''}
-              ${ev.url_externa_drive ? `<a href="${ev.url_externa_drive}" target="_blank" class="text-indigo-700 font-semibold hover:underline">Abrir Enlace Drive</a>` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function descargarEvidencia(path) {
-      const { data, error } = await sb.storage.from('evidencias-ins').createSignedUrl(path, 60);
-      if (error) alert(error.message);
-      else window.open(data.signedUrl, '_blank');
-    }
-
-    // =========================================================================
-    // 10. MATRIZ DE RIESGOS (13 COLUMNAS)
-    // =========================================================================
-    document.getElementById('btn-nuevo-riesgo').addEventListener('click', () => {
-      document.getElementById('modal-riesgo').classList.remove('hidden');
-    });
-
-    document.getElementById('form-riesgo').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const { error } = await sb.from('matriz_riesgos').insert({
-        ciclo_id: activeCicloId,
-        codigo_proceso: document.getElementById('rk-codigo').value,
-        unidad_ins_id: document.getElementById('rk-unidad').value,
-        nombre_proceso: document.getElementById('rk-proceso').value,
-        tipo_riesgo: document.getElementById('rk-tipo').value,
-        probabilidad_f: parseInt(document.getElementById('rk-f').value),
-        impacto_i: parseInt(document.getElementById('rk-i').value),
-        descripcion_riesgo: document.getElementById('rk-descripcion').value,
-        acciones_control: document.getElementById('rk-controles').value,
-        responsable_nombre: document.getElementById('rk-responsable').value
-      });
-
-      if (error) alert(error.message);
-      else {
-        cerrarModal('modal-riesgo');
-        e.target.reset();
-        await loadRiesgos();
-      }
-    });
-
-    async function loadRiesgos() {
-      if (!activeCicloId) return;
-      const { data } = await sb.from('matriz_riesgos').select('*').eq('ciclo_id', activeCicloId).order('created_at');
-      const tbody = document.getElementById('tabla-riesgos');
-
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">No hay riesgos registrados en este ciclo.</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = data.map(r => {
-        const expColor = r.exposicion_fxi >= 7 ? 'bg-rose-100 text-rose-800' : r.exposicion_fxi >= 4 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
-        return `
-          <tr class="hover:bg-slate-50">
-            <td class="px-3 py-2.5 font-medium">${r.codigo_proceso ? `<b>${r.codigo_proceso}</b> ` : ''}${r.nombre_proceso}</td>
-            <td class="px-3 py-2.5">${r.descripcion_riesgo}</td>
-            <td class="px-3 py-2.5 text-center">${r.probabilidad_f}</td>
-            <td class="px-3 py-2.5 text-center">${r.impacto_i}</td>
-            <td class="px-3 py-2.5 text-center"><span class="px-2 py-0.5 rounded font-bold ${expColor}">${r.exposicion_fxi}</span></td>
-            <td class="px-3 py-2.5">${r.acciones_control}</td>
-            <td class="px-3 py-2.5">${r.responsable_nombre}</td>
-            <td class="px-3 py-2.5 text-center whitespace-nowrap">
-              ${[1,2,3,4].map(t => `
-                <label class="inline-flex items-center mr-1.5 cursor-pointer">
-                  <input type="checkbox" ${r['materializado_t'+t] ? 'checked' : ''} onchange="toggleRiesgoMat('${r.id}', ${t}, this.checked)" />
-                  <span class="ml-0.5 text-[10px]">T${t}</span>
-                </label>
-              `).join('')}
-            </td>
-            <td class="px-3 py-2.5">
-              <input type="text" value="${r.acciones_tomadas_contingencia || ''}" placeholder="Si materializó, describir..."
-                onblur="guardarContingenciaRiesgo('${r.id}', this.value)"
-                class="w-full px-2 py-1 border rounded text-xs" />
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    async function toggleRiesgoMat(id, trim, val) {
-      await sb.from('matriz_riesgos').update({ [`materializado_t${trim}`]: val }).eq('id', id);
-      if (val) alert('Has marcado que el riesgo se materializó. Por favor describe la acción tomada en la columna 13 y adjunta el atestado en Evidencias.');
-    }
-
-    async function guardarContingenciaRiesgo(id, texto) {
-      await sb.from('matriz_riesgos').update({ acciones_tomadas_contingencia: texto }).eq('id', id);
-    }
-
-    // =========================================================================
-    // 11. ANÁLISIS FODA PARTICIPATIVO CON SÍNTESIS IA
-    // =========================================================================
-    document.getElementById('form-aporte-foda').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const { error } = await sb.from('foda_aportes_participantes').insert({
-        ciclo_id: activeCicloId,
-        unidad_ins_id: currentProfile?.unidad_id || null,
-        usuario_id: currentUser.id,
-        cuadrante: document.getElementById('foda-cuadrante').value,
-        idea_bruta: document.getElementById('foda-idea').value
-      });
-      if (error) alert(error.message);
-      else {
-        e.target.reset();
-        await loadFoda();
-      }
-    });
-
-    async function loadFoda() {
-      if (!activeCicloId) return;
-      const [apRes, matRes, ejRes] = await Promise.all([
-        sb.from('foda_aportes_participantes').select('*, unidades_ins(siglas)').eq('ciclo_id', activeCicloId).order('created_at', { ascending: false }),
-        sb.from('matriz_foda').select('*').eq('ciclo_id', activeCicloId).order('codigo_factor'),
-        sb.from('foda_analisis_ejecutivo').select('*').eq('ciclo_id', activeCicloId).maybeSingle()
-      ]);
-
-      const aportes = apRes.data || [];
-      document.getElementById('count-aportes-foda').textContent = aportes.length;
-      document.getElementById('lista-aportes-foda').innerHTML = aportes.map(a => `
-        <div class="p-2 bg-slate-50 rounded border border-slate-200">
-          <span class="font-bold uppercase text-[10px] text-sky-700">[${a.cuadrante}]</span>
-          <span class="text-slate-700">${a.idea_bruta}</span>
-        </div>
-      `).join('');
-
-      const factores = matRes.data || [];
-      ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(c => {
-        const items = factores.filter(f => f.cuadrante === c);
-        document.getElementById('foda-list-' + c).innerHTML = items.length
-          ? items.map(i => `<li><b>${i.codigo_factor}:</b> ${i.descripcion_consolidada}</li>`).join('')
-          : `<li class="text-slate-400 italic">Sin factores consolidados</li>`;
-      });
-
-      if (ejRes.data?.resumen_situacional) {
-        document.getElementById('foda-resumen-ejecutivo').textContent = ejRes.data.resumen_situacional;
-      }
-    }
-
-    document.getElementById('btn-sintetizar-foda').addEventListener('click', async () => {
-      const { data: aportes } = await sb.from('foda_aportes_participantes').select('*').eq('ciclo_id', activeCicloId);
-      if (!aportes || aportes.length === 0) return alert('Primero ingresa aportes en el buzón FODA.');
-
-      const prefijos = { fortaleza: 'F', oportunidad: 'O', debilidad: 'D', amenaza: 'A' };
-      await sb.from('matriz_foda').delete().eq('ciclo_id', activeCicloId);
-
-      const nuevosFactores = [];
-      ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(cuad => {
-        const unicos = [...new Set(aportes.filter(a => a.cuadrante === cuad).map(a => a.idea_bruta.trim()))];
-        unicos.forEach((texto, idx) => {
-          nuevosFactores.push({
-            ciclo_id: activeCicloId,
-            cuadrante: cuad,
-            codigo_factor: `${prefijos[cuad]}${idx + 1}`,
-            descripcion_consolidada: texto.charAt(0).toUpperCase() + texto.slice(1),
-            generado_con_ia: true,
-            aprobado: true
-          });
-        });
-      });
-
-      if (nuevosFactores.length > 0) {
-        await sb.from('matriz_foda').insert(nuevosFactores);
-      }
-
-      const fCount = nuevosFactores.filter(x => x.cuadrante === 'fortaleza').length;
-      const oCount = nuevosFactores.filter(x => x.cuadrante === 'oportunidad').length;
-      const dCount = nuevosFactores.filter(x => x.cuadrante === 'debilidad').length;
-      const aCount = nuevosFactores.filter(x => x.cuadrante === 'amenaza').length;
-
-      const resumenTexto = `DIAGNÓSTICO SITUACIONAL CONSOLIDADO DEL INS:\n` +
-        `Se integraron ${aportes.length} aportes técnicos de las unidades organizativas, consolidándose en ${fCount} Fortalezas, ${oCount} Oportunidades, ${dCount} Debilidades y ${aCount} Amenazas.\n\n` +
-        `• Estrategia Ofensiva (FO): Capitalizar las capacidades técnicas del Laboratorio Nacional de Salud Pública, Investigación y Educación Continua (ECHO) para aprovechar alianzas internacionales y cooperación técnica.\n` +
-        `• Estrategia de Reorientación (DO): Programar actividades en el PAO orientadas a cerrar las brechas internas identificadas en tiempos de respuesta, articulación de procesos y disponibilidad de insumos.\n` +
-        `• Estrategia Defensiva (FA): Utilizar el rigor científico y los sistemas de gestión de calidad/antisoborno (ISO 37001) para mitigar brotes epidemiológicos y riesgos externos.\n` +
-        `• Estrategia de Supervivencia (DA): Incorporar controles preventivos en la Matriz de Valoración de Riesgos para evitar la materialización de vulnerabilidades críticas.`;
-
-      await sb.from('foda_analisis_ejecutivo').upsert({
-        ciclo_id: activeCicloId,
-        resumen_situacional: resumenTexto,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'ciclo_id' });
-
-      await loadFoda();
-      alert('Síntesis FODA y análisis CAME generados exitosamente.');
-    });
-
-    // =========================================================================
-    // 12. GENERADOR DE INFORMES GERENCIALES (CON DESGLOSE POR TIPO DE PRODUCTO)
-    // =========================================================================
-    document.getElementById('btn-generar-informe').addEventListener('click', async () => {
-      const trim = parseInt(document.getElementById('inf-trimestre').value);
-      const { data: evalData } = await sb.from('vw_dashboard_operativo_anual')
-        .select('*')
-        .eq('ciclo_id', activeCicloId)
-        .eq('trimestre_corte', trim);
-
-      const { data: evData } = await sb.from('evidencias_poa')
-        .select('*, actividades_poa(actividad)')
-        .eq('ciclo_id', activeCicloId)
-        .eq('trimestre', trim);
-
-      const actIds = actividadesCache.map(a => a.id);
-      let productosCiclo = [];
-      if (actIds.length > 0) {
-        const { data: prodData } = await sb.from('productos_poa')
-          .select('*, catalogo_tipos_producto(id, codigo, nombre, unidad_medida_default)')
-          .in('actividad_poa_id', actIds);
-        productosCiclo = prodData || [];
-      }
-
-      const rows = evalData || [];
-      const anio = rows[0]?.anio || '2026';
-      const validas = rows.filter(r => r.pct_cumplimiento_corte !== null);
-      const avgAcotado = validas.length ? (validas.reduce((a, b) => a + Number(b.pct_cumplimiento_corte_acotado), 0) / validas.length).toFixed(1) : '0.0';
-      const cumplidas = rows.filter(r => ['Finalizada', 'En curso'].includes(r.semaforo_calculado));
-      const retrasadas = rows.filter(r => ['Con retraso', 'En atención'].includes(r.semaforo_calculado));
-
-      let texto = `INSTITUTO NACIONAL DE SALUD (INS)\n`;
-      texto += `EVALUACIÓN DEL PLAN ANUAL OPERATIVO ${anio} — TRIMESTRE ${trim}\n`;
-      texto += `Presenta: Ing. Roberto Iván Rodas (Coordinador Unidad de Planificación y Calidad INS - MINSAL)\n`;
-      texto += `Visto Bueno: Dirección del Instituto Nacional de Salud\n`;
-      texto += `========================================================================\n\n`;
-      texto += `1. INTRODUCCIÓN Y RESUMEN EJECUTIVO\n`;
-      texto += `Durante el Trimestre ${trim} de ${anio}, el Instituto Nacional de Salud (INS) dio seguimiento a ${rows.length} actividades estratégicas y operativas alineadas al PEI MINSAL 2026–2030. El índice de ejecución promedio acotado (evitando distorsiones por sobre-demanda epidemiológica) alcanzó el ${avgAcotado}%, con ${cumplidas.length} actividades en rango de cumplimiento satisfactorio y ${retrasadas.length} en seguimiento por ajuste o reprogramación.\n\n`;
-
-      texto += `2. PRINCIPALES AVANCES POR UNIDAD ORGANIZATIVA\n`;
-      const unidadesUnicas = [...new Set(rows.map(r => r.unidad_ins))];
-      unidadesUnicas.forEach(u => {
-        const actsU = rows.filter(r => r.unidad_ins === u);
-        texto += `• ${u} (${actsU.length} actividades):\n`;
-        actsU.forEach(a => {
-          texto += `  - ${a.actividad}: Ejecución acumulada al corte de ${a.pct_cumplimiento_corte ?? 0}% (${a.semaforo_calculado}).\n`;
-        });
-      });
-
-      texto += `\n3. DESGLOSE TÉCNICO DE ENTREGABLES POR ÁREA Y TIPO DE PRODUCTO\n`;
-      if (productosCiclo.length > 0) {
-        const mapArea = {};
-        productosCiclo.forEach(p => {
-          const tp = p.catalogo_tipos_producto || { nombre: 'Producto General INS', unidad_medida_default: 'unidades' };
-          const area = inferirCategoriaProducto(tp);
-          const tipoNombre = tp.nombre;
-          if (!mapArea[area]) mapArea[area] = {};
-          if (!mapArea[area][tipoNombre]) {
-            mapArea[area][tipoNombre] = { progAcum: 0, realAcum: 0, progAnual: 0, unidad: tp.unidad_medida_default || 'entregables', count: 0 };
-          }
-          for (let t = 1; t <= trim; t++) {
-            mapArea[area][tipoNombre].progAcum += Number(p['prog_num_t' + t] || 0);
-            mapArea[area][tipoNombre].realAcum += Number(p['real_num_t' + t] || 0);
-          }
-          mapArea[area][tipoNombre].progAnual += (Number(p.prog_num_t1)||0) + (Number(p.prog_num_t2)||0) + (Number(p.prog_num_t3)||0) + (Number(p.prog_num_t4)||0);
-          mapArea[area][tipoNombre].count += 1;
-        });
-
-        Object.keys(mapArea).sort().forEach(area => {
-          texto += `• Área: ${area}\n`;
-          Object.keys(mapArea[area]).sort().forEach(tipo => {
-            const st = mapArea[area][tipo];
-            const pct = st.progAcum > 0 ? ((st.realAcum / st.progAcum) * 100).toFixed(1) : '0.0';
-            texto += `  - ${tipo}: ${st.realAcum} realizados de ${st.progAcum} programados al T${trim} (${pct}% de ejecución al corte; meta anual: ${st.progAnual} ${st.unidad}).\n`;
-          });
-        });
-      } else {
-        texto += `• No se registraron productos desagregados en las actividades del ciclo actual.\n`;
-      }
-
-      texto += `\n4. GESTIÓN DE DESVIACIONES, JUSTIFICACIONES Y ACCIONES CORRECTIVAS (AUDITORÍA)\n`;
-      const justificaciones = (evData || []).filter(e => e.categoria !== 'evidencia_cumplimiento');
-      if (justificaciones.length > 0) {
-        justificaciones.forEach(j => {
-          texto += `• Actividad: ${j.actividades_poa?.actividad}\n`;
-          texto += `  - Causa tipificada: ${j.causa_retraso_tipificada || 'Ajuste operativo'}\n`;
-          texto += `  - Justificación técnica: ${j.descripcion_narrativa}\n`;
-        });
-      } else {
-        texto += `• No se registraron desviaciones críticas sin justificación documental en el expediente del período.\n`;
-      }
-
-      texto += `\n5. CONCLUSIONES\n`;
-      texto += `El INS mantiene trazabilidad documental sobre sus metas operativas y desglose técnico por producto, asegurando el respaldo verificable ante auditorías internas y del Nivel Superior del MINSAL.`;
-
-      document.getElementById('informe-editor').value = texto;
-
-      await sb.from('historial_informes_gerenciales').insert({
-        ciclo_id: activeCicloId,
-        trimestre: trim,
-        titulo: `Informe Gerencial PAO ${anio} - Trimestre ${trim}`,
-        contenido_markdown: texto,
-        generado_por: currentUser.id
-      });
-    });
-
-    document.getElementById('btn-descargar-word').addEventListener('click', () => {
-      const contenido = document.getElementById('informe-editor').value;
-      if (!contenido) return alert('Primero genera el borrador del informe.');
-      const htmlDoc = `<html><head><meta charset="utf-8"></head><body style="font-family: Calibri, sans-serif; line-height: 1.5; white-space: pre-wrap;">${contenido}</body></html>`;
-      const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Informe_Gerencial_PAO_INS.doc`;
-      a.click();
-    });
-
-    // =========================================================================
-    // 13. PARAMETRIZACIÓN (ADMIN)
-    // =========================================================================
-    function renderConfigTables() {
-      const enriquecidos = tiposProductoList.map(tp => ({
-        ...tp,
-        _cat: inferirCategoriaProducto(tp)
-      }));
-
-      const catsUnicas = [...new Set(enriquecidos.map(x => x._cat))].sort();
-      const filtroSel = document.getElementById('filtro-cat-tp');
-      const valActualFiltro = filtroSel.value || 'ALL';
-      filtroSel.innerHTML = `<option value="ALL">Todas las Categorías (${enriquecidos.length})</option>` +
-        catsUnicas.map(c => `<option value="${c}">${c}</option>`).join('');
-      if ([...filtroSel.options].some(o => o.value === valActualFiltro)) {
-        filtroSel.value = valActualFiltro;
-      }
-
-      const filtrados = enriquecidos
-        .filter(tp => filtroSel.value === 'ALL' || tp._cat === filtroSel.value)
-        .sort((a, b) => a._cat.localeCompare(b._cat) || a.nombre.localeCompare(b.nombre));
-
-      const tbody = document.getElementById('tabla-tipos-producto');
-      tbody.innerHTML = filtrados.map(tp => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-2 px-2">
-            <span class="px-2 py-0.5 rounded bg-sky-50 text-sky-800 font-semibold text-[10px] border border-sky-100">${tp._cat}</span>
-          </td>
-          <td class="py-2 px-2 font-mono text-[11px] text-slate-600">${tp.codigo}</td>
-          <td class="py-2 px-2 font-medium text-slate-900">${tp.nombre}</td>
-          <td class="py-2 px-2 text-slate-500">${tp.unidad_medida_default}</td>
-          <td class="py-2 px-2 text-center">
-            <button onclick="toggleTipoProducto('${tp.id}', ${!tp.activo})"
-              class="px-2 py-0.5 rounded text-[10px] font-semibold ${tp.activo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
-              ${tp.activo ? 'Activo' : 'Inactivo'}
-            </button>
-          </td>
-          <td class="py-2 px-2 text-center">
-            <button onclick="abrirModalEditarTp('${tp.id}')" title="Editar producto"
-              class="px-2 py-1 rounded bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-800 font-semibold text-[11px]">
-              Editar
-            </button>
-          </td>
-        </tr>
-      `).join('');
-
-      document.getElementById('lista-ciclos-admin').innerHTML = ciclosList.map(c => `
-        <div class="p-3 rounded-lg border bg-slate-50 flex justify-between items-center">
-          <div><b>PAO ${c.anio}</b> • Estado: <span class="uppercase text-sky-700 font-semibold">${c.estado}</span></div>
-          <select onchange="cambiarEstadoCiclo('${c.id}', this.value)" class="px-2 py-1 border rounded text-xs bg-white">
-            <option value="formulacion" ${c.estado === 'formulacion' ? 'selected' : ''}>Formulación</option>
-            <option value="en_ejecucion" ${c.estado === 'en_ejecucion' ? 'selected' : ''}>En Ejecución</option>
-            <option value="cerrado" ${c.estado === 'cerrado' ? 'selected' : ''}>Cerrado</option>
-          </select>
-        </div>
-      `).join('');
-
-      const refCont = document.getElementById('lista-referentes-admin');
-      if (referentesList.length === 0) {
-        refCont.innerHTML = `<div class="py-3 text-slate-400 text-center">No hay referentes registrados.</div>`;
-      } else {
-        refCont.innerHTML = referentesList.map((r, idx) => {
-          const u = unidadesList.find(x => x.id === r.unidad_id);
-          return `
-            <div class="py-2 flex items-center justify-between gap-2">
-              <div>
-                <div class="font-semibold text-slate-800">${r.nombre}</div>
-                <div class="text-[10px] text-slate-500">${u ? u.nombre : 'INS'} • ${r.cargo || 'Referente Técnico'}</div>
-              </div>
-              ${r.origen === 'local' ? `<button onclick="eliminarReferenteLocal(${idx})" class="text-rose-500 hover:text-rose-700 text-[11px] font-semibold">Quitar</button>` : `<span class="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Usuario</span>`}
-            </div>
-          `;
-        }).join('');
-      }
-    }
-
-    function abrirModalEditarTp(id) {
-      const tp = tiposProductoList.find(x => x.id === id);
-      if (!tp) return;
-      document.getElementById('edit-tp-id').value = tp.id;
-      document.getElementById('edit-tp-categoria').value = inferirCategoriaProducto(tp);
-      document.getElementById('edit-tp-codigo').value = tp.codigo;
-      document.getElementById('edit-tp-nombre').value = tp.nombre;
-      document.getElementById('edit-tp-unidad').value = tp.unidad_medida_default;
-      document.getElementById('modal-editar-tp').classList.remove('hidden');
-    }
-
-    document.getElementById('form-editar-tp').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('edit-tp-id').value;
-      const cat = document.getElementById('edit-tp-categoria').value.trim();
-      const payload = {
-        codigo: document.getElementById('edit-tp-codigo').value.trim().toUpperCase(),
-        nombre: document.getElementById('edit-tp-nombre').value.trim(),
-        unidad_medida_default: document.getElementById('edit-tp-unidad').value.trim()
-      };
-
-      const { error } = await sb.from('catalogo_tipos_producto').update(payload).eq('id', id);
-      if (error) {
-        alert('Error al actualizar tipo de producto: ' + error.message);
-      } else {
-        setLocalTpCat(id, cat);
-        const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
-        tiposProductoList = data || [];
-        cerrarModal('modal-editar-tp');
-        renderConfigTables();
-      }
-    });
-
-    document.getElementById('form-nuevo-tipo-producto').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const cat = document.getElementById('tp-categoria').value.trim();
-      const { data: inserted, error } = await sb.from('catalogo_tipos_producto').insert({
-        codigo: document.getElementById('tp-codigo').value.trim().toUpperCase(),
-        nombre: document.getElementById('tp-nombre').value.trim(),
-        unidad_medida_default: document.getElementById('tp-unidad').value.trim()
-      }).select().single();
-
-      if (error) alert(error.message);
-      else {
-        if (inserted?.id && cat) setLocalTpCat(inserted.id, cat);
-        e.target.reset();
-        const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
-        tiposProductoList = data || [];
-        renderConfigTables();
-      }
-    });
-
-    async function toggleTipoProducto(id, nuevoEstado) {
-      await sb.from('catalogo_tipos_producto').update({ activo: nuevoEstado }).eq('id', id);
-      const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
-      tiposProductoList = data || [];
-      renderConfigTables();
-    }
-
-    document.getElementById('form-nuevo-referente').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const nuevo = {
-        id: 'local-' + Date.now(),
-        nombre: document.getElementById('ref-nombre').value.trim(),
-        unidad_id: document.getElementById('ref-unidad').value,
-        cargo: document.getElementById('ref-cargo').value.trim() || 'Referente Técnico',
-        origen: 'local'
-      };
-      let locales = [];
-      try { locales = JSON.parse(localStorage.getItem(LOCAL_REF_KEY) || '[]'); } catch { locales = []; }
-      locales.push(nuevo);
-      localStorage.setItem(LOCAL_REF_KEY, JSON.stringify(locales));
-      referentesList.push(nuevo);
-      e.target.reset();
-      actualizarDatalistResponsables();
-      renderConfigTables();
-    });
-
-    function eliminarReferenteLocal(idx) {
-      const target = referentesList[idx];
-      if (!target || target.origen !== 'local') return;
-      let locales = [];
-      try { locales = JSON.parse(localStorage.getItem(LOCAL_REF_KEY) || '[]'); } catch { locales = []; }
-      locales = locales.filter(x => x.id !== target.id);
-      localStorage.setItem(LOCAL_REF_KEY, JSON.stringify(locales));
-      referentesList.splice(idx, 1);
-      actualizarDatalistResponsables();
-      renderConfigTables();
-    }
-
-    document.getElementById('form-nuevo-ciclo').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const { error } = await sb.from('ciclos_anuales').insert({
-        anio: parseInt(document.getElementById('ciclo-anio').value),
-        plan_estrategico_id: document.getElementById('ciclo-plan-id').value,
-        estado: 'formulacion'
-      });
-      if (error) alert(error.message);
-      else {
-        e.target.reset();
-        await initMasterData();
-      }
-    });
-
-    async function cambiarEstadoCiclo(id, estado) {
-      await sb.from('ciclos_anuales').update({ estado }).eq('id', id);
-      await initMasterData();
-    }
-
-    // Arrancar aplicación
-    checkSession();
-  </script>
-</body>
-</html>
+                <th style="width:6.2%;">T1<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>
+                <th style="width:6.2%;">T2<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>
+                <th style="width:6.2%;">T3<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>
+                <th style="width:6.2%;">T4<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>
+                <th style="width:7

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica v1.6 | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v1.6.1 | INS El Salvador</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS SDK v2 -->
@@ -33,7 +33,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.6</span></p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.6.1</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -50,7 +50,7 @@
         </div>
         <div id="login-error" class="hidden text-xs text-red-600 bg-red-50 p-3 rounded-lg border border-red-200 break-words"></div>
         <button type="button" id="login-btn" onclick="ejecutarLogin()"
-          class="w-full py-2.5 px-4 bg-sky-700 hover:bg-sky-800 disabled:opacity-60 text-white font-semibold rounded-lg text-sm transition shadow-sm">
+          class="w-full py-2.5 px-4 bg-sky-700 hover:bg-sky-800 disabled:opacity-60 text-white font-semibold rounded-lg text-sm transition shadow-sm cursor-pointer">
           Ingresar al Sistema
         </button>
       </div>
@@ -72,7 +72,7 @@
           <div>
             <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
               Planificación Operativa y Estratégica
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.6</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.6.1</span>
             </div>
             <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad INS - MINSAL</div>
           </div>
@@ -307,7 +307,7 @@
           </div>
         </div>
 
-        <!-- Tabla Principal v1.6 -->
+        <!-- Tabla Principal -->
         <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
           <div class="w-full">
             <table class="w-full lg:table-fixed text-left text-xs border-collapse">
@@ -1047,13 +1047,23 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.6            -->
+  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.6.1          -->
   <!-- ======================================================================= -->
   <script>
+    function renderIconsSafe() {
+      try {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
+      } catch (e) {
+        console.warn('Aviso cargando iconos:', e);
+      }
+    }
+
     // 1. INICIALIZACIÓN DE SUPABASE
     const SUPABASE_URL = 'https://bobaevnmobediajszsuh.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_yeRD5fOfDgF4D1Jxla4Otg_gBGPnMnM';
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
     // Estado Global
     let currentUser = null;
@@ -1309,10 +1319,16 @@
       }
     }
 
-    lucide.createIcons();
+    renderIconsSafe();
 
     // 2. AUTENTICACIÓN Y SESIÓN
     async function checkSession() {
+      if (!sb) {
+        const errBox = document.getElementById('login-error');
+        errBox.textContent = 'No se pudo cargar la librería de conexión a base de datos. Verifica tu conexión a internet y recarga (Ctrl + F5).';
+        errBox.classList.remove('hidden');
+        return;
+      }
       try {
         const { data: { session } } = await sb.auth.getSession();
         if (session) {
@@ -1352,6 +1368,7 @@
 
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app-shell').classList.remove('hidden');
+        renderIconsSafe();
         await initMasterData();
       } catch (err) {
         const errBox = document.getElementById('login-error');
@@ -1365,6 +1382,12 @@
       const password = document.getElementById('login-password').value;
       const errBox = document.getElementById('login-error');
       const btn = document.getElementById('login-btn');
+
+      if (!sb) {
+        errBox.textContent = 'Error de inicialización de Supabase. Recarga la página con Ctrl + F5.';
+        errBox.classList.remove('hidden');
+        return;
+      }
 
       if (!email || !password) {
         errBox.textContent = 'Por favor ingresa tu correo institucional y contraseña.';
@@ -1397,7 +1420,7 @@
     }
 
     document.getElementById('logout-btn').addEventListener('click', async () => {
-      await sb.auth.signOut();
+      if (sb) await sb.auth.signOut();
       location.reload();
     });
 
@@ -1760,6 +1783,7 @@
     }
 
     function renderChartsAnual(rows) {
+      if (!window.Chart) return;
       const estados = ['Finalizada', 'En curso', 'En atención', 'Con retraso', 'Sin registro', 'Sin programación al corte'];
       const colores = ['#059669', '#0284c7', '#f59e0b', '#e11d48', '#64748b', '#cbd5e1'];
       const conteos = estados.map(e => rows.filter(r => r.semaforo_calculado === e).length);
@@ -1821,6 +1845,7 @@
         </tr>
       `).join('');
 
+      if (!window.Chart) return;
       const ejesMap = {};
       rows.forEach(r => {
         const key = `Eje ${r.eje_numero}`;
@@ -2255,7 +2280,7 @@
             </tr>
           `;
         }).join('');
-        lucide.createIcons();
+        renderIconsSafe();
       }
     }
 
@@ -2470,7 +2495,7 @@
 
       const sheet = workbook.addWorksheet(`PAO ${anioCiclo}`, {
         pageSetup: {
-          paperSize: 1, // Letter
+          paperSize: 1,
           orientation: 'landscape',
           fitToPage: true,
           fitToWidth: 1,
@@ -2480,7 +2505,6 @@
         views: [{ state: 'frozen', ySplit: 5 }]
       });
 
-      // Encabezado Institucional (Filas 1 a 4)
       sheet.mergeCells('A1:C1');
       sheet.getCell('A1').value = `PROGRAMACIÓN ANUAL OPERATIVA ${anioCiclo}`;
       sheet.getCell('A1').font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF334155' } };
@@ -2495,7 +2519,6 @@
       sheet.getCell('D3').font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF0F172A' } };
       sheet.getCell('D3').alignment = { horizontal: 'center', vertical: 'middle' };
 
-      // Fila 5: Encabezados Oficiales de las 25 Columnas A-Y
       const headers = [
         'A. Eje Estratégico',
         'B. Estrategias',
@@ -2540,18 +2563,16 @@
         };
       });
 
-      // Anchos de columna calibrados según formato MINSAL
       const colWidths = [
-        22, 24, 28, 44, 30, // A-E
-        13, 13, 13, 13,     // F-I
-        13, 13, 13,         // J-L
-        13, 13, 13,         // M-O
-        13, 13, 13,         // P-R
-        15, 16, 24, 14, 14, 42, 12 // S-Y
+        22, 24, 28, 44, 30,
+        13, 13, 13, 13,
+        13, 13, 13,
+        13, 13, 13,
+        13, 13, 13,
+        15, 16, 24, 14, 14, 42, 12
       ];
       colWidths.forEach((w, idx) => { sheet.getColumn(idx + 1).width = w; });
 
-      // Formatear fecha YYYY-MM-DD -> DD/MM/YYYY
       const fmtFecha = (iso) => {
         if (!iso || !iso.includes('-')) return iso || '';
         const [y, m, d] = iso.split('-');
@@ -2565,7 +2586,6 @@
         return p > 0 ? (r / p) : (r > 0 ? 1 : 0);
       };
 
-      // Filas de Datos (desde fila 6)
       listaExport.forEach((a, idx) => {
         const rowNum = 6 + idx;
         const sem = calcularSemaforoYEstado(a);
@@ -2600,8 +2620,6 @@
         ];
 
         const row = sheet.getRow(rowNum);
-
-        // Calcular altura dinámica según longitud de textos largos
         const maxLen = Math.max(
           (a.actividad || '').length / 40,
           (a.supuestos_externos || '').length / 38,
@@ -2621,7 +2639,6 @@
             right: { style: 'thin', color: { argb: 'FF000000' } }
           };
 
-          // Alineaciones
           if ([1, 2, 3, 4, 5, 24].includes(colNumber)) {
             cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
           } else if (colNumber === 20) {
@@ -2643,18 +2660,15 @@
             cell.numFmt = '0.00';
           }
 
-          // Columnas Programadas (G, J, M, P)
           if ([7, 10, 13, 16].includes(colNumber)) {
             cell.numFmt = '0.00';
           }
 
-          // Columnas % Ejecución Trimestral (I, L, O, R)
           if ([9, 12, 15, 18].includes(colNumber)) {
             cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF000000' } };
             cell.numFmt = '0.00%';
           }
 
-          // Columna U: Responsable en negrita
           if (colNumber === 21) {
             cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF000000' } };
           }
@@ -2724,181 +2738,372 @@
         return;
       }
 
-      printWin.document.write(`
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8" />
-          <title>Anexo PAO ${anioCiclo} - Instituto Nacional de Salud</title>
-          <style>
-            /* Margen superior de 20mm (2.0 cm) estándar para encuadernación superior en hoja Carta horizontal */
-            @page {
-              size: letter landscape;
-              margin: 20mm 10mm 8mm 10mm;
-            }
-            * { box-sizing: border-box; }
-            body {
-              font-family: 'Segoe UI', Calibri, Arial, sans-serif;
-              color: #000000;
-              margin: 0;
-              padding: 0;
-              background: #ffffff;
-            }
-            .header-box {
-              display: flex;
-              justify-content: space-between;
-              align-items: flex-end;
-              border-bottom: 1.5px solid #000000;
-              padding-bottom: 5px;
-              margin-bottom: 7px;
-            }
-            .header-left h1 {
-              font-size: 12.5px;
-              margin: 0;
-              color: #000000;
-              text-transform: uppercase;
-              letter-spacing: 0.2px;
-            }
-            .header-left p {
-              font-size: 9.5px;
-              margin: 2px 0 0 0;
-              color: #000000;
-              font-style: italic;
-            }
-            .header-right {
-              text-align: right;
-              font-size: 8.5px;
-              color: #000000;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              table-layout: fixed;
-            }
-            thead th {
-              background-color: #1e293b;
-              color: #ffffff;
-              font-size: 8.5px;
-              text-transform: uppercase;
-              padding: 5px 4px;
-              border: 1px solid #000000;
-              text-align: center;
-              line-height: 1.15;
-            }
-            thead th.th-left { text-align: left; padding-left: 6px; }
-            tbody tr { page-break-inside: avoid; }
-            td {
-              border: 1px solid #475569;
-              padding: 4px 5px;
-              vertical-align: middle;
-              word-wrap: break-word;
-              color: #000000;
-            }
-            .idx-cell {
-              width: 24px;
-              text-align: center;
-              font-size: 8.5px;
-              color: #000000;
-              font-weight: 600;
-            }
-            .act-cell { width: 41%; }
-            .act-title {
-              font-size: 9.2px;
-              font-weight: 600;
-              color: #000000;
-              line-height: 1.25;
-            }
-            /* Metadatos en negro puro, cursiva y tamaño pequeño para óptima legibilidad en impresión */
-            .act-meta {
-              font-size: 7.8px;
-              font-style: italic;
-              color: #000000;
-              margin-top: 2px;
-              line-height: 1.2;
-            }
-            .ind-cell {
-              width: 23%;
-              font-size: 8.8px;
-              color: #000000;
-              line-height: 1.25;
-            }
-            .num-cell {
-              width: 6.2%;
-              text-align: center;
-              padding: 3px 2px;
-            }
-            .prog-val {
-              font-size: 8px;
-              font-style: italic;
-              color: #000000;
-              border-bottom: 1px solid #94a3b8;
-              padding-bottom: 1px;
-            }
-            .real-val {
-              font-size: 9px;
-              font-weight: 700;
-              color: #000000;
-              padding-top: 1px;
-            }
-            .acum-cell {
-              width: 7.5%;
-              text-align: right;
-              font-size: 9.5px;
-              font-weight: 700;
-              color: #000000;
-              background-color: #e2e8f0;
-              padding-right: 6px;
-            }
-            .no-print-bar {
-              background: #0c4a6e;
-              color: white;
-              padding: 8px 14px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              font-size: 12px;
-              margin-bottom: 10px;
-            }
-            .no-print-bar button {
-              background: #ffffff;
-              color: #0c4a6e;
-              border: none;
-              padding: 5px 12px;
-              border-radius: 6px;
-              font-weight: 700;
-              cursor: pointer;
-            }
-            @media print {
-              .no-print-bar { display: none !important; }
-              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="no-print-bar">
-            <span>Vista previa en <b>Negro Puro / Cursiva</b> con <b>margen superior de 2.0 cm para encuadernación</b> (Carta Horizontal).</span>
-            <button onclick="window.print()">Imprimir / Guardar PDF</button>
-          </div>
+      const htmlImpresion = [
+        '<!DOCTYPE html>',
+        '<html lang="es">',
+        '<head>',
+        '<meta charset="UTF-8" />',
+        `<title>Anexo PAO ${anioCiclo} - Instituto Nacional de Salud</title>`,
+        '<style>',
+        '  @page { size: letter landscape; margin: 20mm 10mm 8mm 10mm; }',
+        '  * { box-sizing: border-box; }',
+        '  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: #000000; margin: 0; padding: 0; background: #ffffff; }',
+        '  .header-box { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid #000000; padding-bottom: 5px; margin-bottom: 7px; }',
+        '  .header-left h1 { font-size: 12.5px; margin: 0; color: #000000; text-transform: uppercase; letter-spacing: 0.2px; }',
+        '  .header-left p { font-size: 9.5px; margin: 2px 0 0 0; color: #000000; font-style: italic; }',
+        '  .header-right { text-align: right; font-size: 8.5px; color: #000000; }',
+        '  table { width: 100%; border-collapse: collapse; table-layout: fixed; }',
+        '  thead th { background-color: #1e293b; color: #ffffff; font-size: 8.5px; text-transform: uppercase; padding: 5px 4px; border: 1px solid #000000; text-align: center; line-height: 1.15; }',
+        '  thead th.th-left { text-align: left; padding-left: 6px; }',
+        '  tbody tr { page-break-inside: avoid; }',
+        '  td { border: 1px solid #475569; padding: 4px 5px; vertical-align: middle; word-wrap: break-word; color: #000000; }',
+        '  .idx-cell { width: 24px; text-align: center; font-size: 8.5px; color: #000000; font-weight: 600; }',
+        '  .act-cell { width: 41%; }',
+        '  .act-title { font-size: 9.2px; font-weight: 600; color: #000000; line-height: 1.25; }',
+        '  .act-meta { font-size: 7.8px; font-style: italic; color: #000000; margin-top: 2px; line-height: 1.2; }',
+        '  .ind-cell { width: 23%; font-size: 8.8px; color: #000000; line-height: 1.25; }',
+        '  .num-cell { width: 6.2%; text-align: center; padding: 3px 2px; }',
+        '  .prog-val { font-size: 8px; font-style: italic; color: #000000; border-bottom: 1px solid #94a3b8; padding-bottom: 1px; }',
+        '  .real-val { font-size: 9px; font-weight: 700; color: #000000; padding-top: 1px; }',
+        '  .acum-cell { width: 7.5%; text-align: right; font-size: 9.5px; font-weight: 700; color: #000000; background-color: #e2e8f0; padding-right: 6px; }',
+        '  .no-print-bar { background: #0c4a6e; color: white; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 10px; }',
+        '  .no-print-bar button { background: #ffffff; color: #0c4a6e; border: none; padding: 5px 12px; border-radius: 6px; font-weight: 700; cursor: pointer; }',
+        '  @media print { .no-print-bar { display: none !important; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }',
+        '</style>',
+        '</head>',
+        '<body>',
+        '  <div class="no-print-bar">',
+        '    <span>Vista previa en <b>Negro Puro / Cursiva</b> con <b>margen superior de 2.0 cm para encuadernación</b> (Carta Horizontal).</span>',
+        '    <button onclick="window.print()">Imprimir / Guardar PDF</button>',
+        '  </div>',
+        '  <div class="header-box">',
+        '    <div class="header-left">',
+        `      <h1>Instituto Nacional de Salud (INS) — Seguimiento Plan Anual Operativo ${anioCiclo}</h1>`,
+        `      <p>${subtituloFiltro} • Total actividades mostradas: ${listaExport.length}</p>`,
+        '    </div>',
+        '    <div class="header-right">',
+        '      Unidad de Planificación y Calidad INS - MINSAL<br/>',
+        `      Fecha de emisión: ${new Date().toLocaleDateString('es-SV')}`,
+        '    </div>',
+        '  </div>',
+        '  <table>',
+        '    <thead>',
+        '      <tr>',
+        '        <th style="width:24px;">#</th>',
+        '        <th class="th-left" style="width:41%;">Actividad INS</th>',
+        '        <th class="th-left" style="width:23%;">Indicador</th>',
+        '        <th style="width:6.2%;">T1<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>',
+        '        <th style="width:6.2%;">T2<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>',
+        '        <th style="width:6.2%;">T3<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>',
+        '        <th style="width:6.2%;">T4<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>',
+        '        <th style="width:7.5%;">Acum.</th>',
+        '      </tr>',
+        '    </thead>',
+        `    <tbody>${filasHTML}</tbody>`,
+        '  </table>',
+        '</body>',
+        '</html>'
+      ].join('\n');
 
-          <div class="header-box">
-            <div class="header-left">
-              <h1>Instituto Nacional de Salud (INS) — Seguimiento Plan Anual Operativo ${anioCiclo}</h1>
-              <p>${subtituloFiltro} • Total actividades mostradas: ${listaExport.length}</p>
+      printWin.document.open();
+      printWin.document.write(htmlImpresion);
+      printWin.document.close();
+      setTimeout(() => {
+        try { printWin.focus(); printWin.print(); } catch (e) {}
+      }, 300);
+    }
+
+    // =========================================================================
+    // 9. BÓVEDA DE EVIDENCIAS Y JUSTIFICACIONES
+    // =========================================================================
+    document.getElementById('form-evidencia').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('ev-archivo');
+      let storagePath = null;
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const fileName = `${activeCicloId}/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+        const { error: upErr } = await sb.storage.from('evidencias-ins').upload(fileName, file);
+        if (upErr) return alert('Error subiendo archivo: ' + upErr.message);
+        storagePath = fileName;
+      }
+
+      const { error } = await sb.from('evidencias_poa').insert({
+        ciclo_id: activeCicloId,
+        actividad_poa_id: document.getElementById('ev-actividad-id').value,
+        trimestre: parseInt(document.getElementById('ev-trimestre').value),
+        categoria: document.getElementById('ev-categoria').value,
+        titulo: document.getElementById('ev-titulo').value,
+        causa_retraso_tipificada: document.getElementById('ev-causa').value || null,
+        descripcion_narrativa: document.getElementById('ev-descripcion').value,
+        archivo_storage_path: storagePath,
+        url_externa_drive: document.getElementById('ev-url').value || null,
+        subido_por: currentUser.id
+      });
+
+      if (error) alert(error.message);
+      else {
+        e.target.reset();
+        await loadEvidencias();
+        alert('Documento registrado en el expediente de auditoría.');
+      }
+    });
+
+    async function loadEvidencias() {
+      if (!activeCicloId) return;
+      const { data } = await sb.from('evidencias_poa')
+        .select('*, actividades_poa(actividad)')
+        .eq('ciclo_id', activeCicloId)
+        .order('created_at', { ascending: false });
+
+      const cont = document.getElementById('lista-evidencias');
+      if (!data || data.length === 0) {
+        cont.innerHTML = `<div class="text-xs text-slate-400 text-center py-8">No hay evidencias ni justificaciones registradas aún en este ciclo.</div>`;
+        return;
+      }
+
+      cont.innerHTML = data.map(ev => {
+        const isRetraso = ev.categoria === 'justificacion_retraso';
+        const badge = isRetraso
+          ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-semibold text-[10px]">Justificación Retraso</span>`
+          : `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Evidencia Cumplimiento</span>`;
+
+        return `
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs space-y-1.5">
+            <div class="flex justify-between items-start gap-2">
+              <div class="font-bold text-slate-800">${ev.titulo} <span class="text-slate-400 font-normal">(T${ev.trimestre})</span></div>
+              ${badge}
             </div>
-            <div class="header-right">
-              Unidad de Planificación y Calidad INS - MINSAL<br/>
-              Fecha de emisión: ${new Date().toLocaleDateString('es-SV')}
+            <div class="text-[11px] text-sky-800 font-medium">${ev.actividades_poa?.actividad || ''}</div>
+            <p class="text-slate-600">${ev.descripcion_narrativa}</p>
+            <div class="flex flex-wrap gap-3 pt-1 text-[11px]">
+              ${ev.archivo_storage_path ? `<button onclick="descargarEvidencia('${ev.archivo_storage_path}')" class="text-sky-700 font-semibold hover:underline">Descargar Archivo Adjunto</button>` : ''}
+              ${ev.url_externa_drive ? `<a href="${ev.url_externa_drive}" target="_blank" class="text-indigo-700 font-semibold hover:underline">Abrir Enlace Drive</a>` : ''}
             </div>
           </div>
+        `;
+      }).join('');
+    }
 
-          <table>
-            <thead>
-              <tr>
-                <th style="width:24px;">#</th>
-                <th class="th-left" style="width:41%;">Actividad INS</th>
-                <th class="th-left" style="width:23%;">Indicador</th>
-                <th style="width:6.2%;">T1<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>
-                <th style="width:6.2%;">T2<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>
-                <th style="width:6.2%;">T3<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>
-                <th style="width:6.2%;">T4<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>
-                <th style="width:7
+    async function descargarEvidencia(path) {
+      const { data, error } = await sb.storage.from('evidencias-ins').createSignedUrl(path, 60);
+      if (error) alert(error.message);
+      else window.open(data.signedUrl, '_blank');
+    }
+
+    // =========================================================================
+    // 10. MATRIZ DE RIESGOS (13 COLUMNAS)
+    // =========================================================================
+    document.getElementById('btn-nuevo-riesgo').addEventListener('click', () => {
+      document.getElementById('modal-riesgo').classList.remove('hidden');
+    });
+
+    document.getElementById('form-riesgo').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await sb.from('matriz_riesgos').insert({
+        ciclo_id: activeCicloId,
+        codigo_proceso: document.getElementById('rk-codigo').value,
+        unidad_ins_id: document.getElementById('rk-unidad').value,
+        nombre_proceso: document.getElementById('rk-proceso').value,
+        tipo_riesgo: document.getElementById('rk-tipo').value,
+        probabilidad_f: parseInt(document.getElementById('rk-f').value),
+        impacto_i: parseInt(document.getElementById('rk-i').value),
+        descripcion_riesgo: document.getElementById('rk-descripcion').value,
+        acciones_control: document.getElementById('rk-controles').value,
+        responsable_nombre: document.getElementById('rk-responsable').value
+      });
+
+      if (error) alert(error.message);
+      else {
+        cerrarModal('modal-riesgo');
+        e.target.reset();
+        await loadRiesgos();
+      }
+    });
+
+    async function loadRiesgos() {
+      if (!activeCicloId) return;
+      const { data } = await sb.from('matriz_riesgos').select('*').eq('ciclo_id', activeCicloId).order('created_at');
+      const tbody = document.getElementById('tabla-riesgos');
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">No hay riesgos registrados en este ciclo.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.map(r => {
+        const expColor = r.exposicion_fxi >= 7 ? 'bg-rose-100 text-rose-800' : r.exposicion_fxi >= 4 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="px-3 py-2.5 font-medium">${r.codigo_proceso ? `<b>${r.codigo_proceso}</b> ` : ''}${r.nombre_proceso}</td>
+            <td class="px-3 py-2.5">${r.descripcion_riesgo}</td>
+            <td class="px-3 py-2.5 text-center">${r.probabilidad_f}</td>
+            <td class="px-3 py-2.5 text-center">${r.impacto_i}</td>
+            <td class="px-3 py-2.5 text-center"><span class="px-2 py-0.5 rounded font-bold ${expColor}">${r.exposicion_fxi}</span></td>
+            <td class="px-3 py-2.5">${r.acciones_control}</td>
+            <td class="px-3 py-2.5">${r.responsable_nombre}</td>
+            <td class="px-3 py-2.5 text-center whitespace-nowrap">
+              ${[1,2,3,4].map(t => `
+                <label class="inline-flex items-center mr-1.5 cursor-pointer">
+                  <input type="checkbox" ${r['materializado_t'+t] ? 'checked' : ''} onchange="toggleRiesgoMat('${r.id}', ${t}, this.checked)" />
+                  <span class="ml-0.5 text-[10px]">T${t}</span>
+                </label>
+              `).join('')}
+            </td>
+            <td class="px-3 py-2.5">
+              <input type="text" value="${r.acciones_tomadas_contingencia || ''}" placeholder="Si materializó, describir..."
+                onblur="guardarContingenciaRiesgo('${r.id}', this.value)"
+                class="w-full px-2 py-1 border rounded text-xs" />
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function toggleRiesgoMat(id, trim, val) {
+      await sb.from('matriz_riesgos').update({ [`materializado_t${trim}`]: val }).eq('id', id);
+      if (val) alert('Has marcado que el riesgo se materializó. Por favor describe la acción tomada en la columna 13 y adjunta el atestado en Evidencias.');
+    }
+
+    async function guardarContingenciaRiesgo(id, texto) {
+      await sb.from('matriz_riesgos').update({ acciones_tomadas_contingencia: texto }).eq('id', id);
+    }
+
+    // =========================================================================
+    // 11. ANÁLISIS FODA PARTICIPATIVO CON SÍNTESIS IA
+    // =========================================================================
+    document.getElementById('form-aporte-foda').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await sb.from('foda_aportes_participantes').insert({
+        ciclo_id: activeCicloId,
+        unidad_ins_id: currentProfile?.unidad_id || null,
+        usuario_id: currentUser.id,
+        cuadrante: document.getElementById('foda-cuadrante').value,
+        idea_bruta: document.getElementById('foda-idea').value
+      });
+      if (error) alert(error.message);
+      else {
+        e.target.reset();
+        await loadFoda();
+      }
+    });
+
+    async function loadFoda() {
+      if (!activeCicloId) return;
+      const [apRes, matRes, ejRes] = await Promise.all([
+        sb.from('foda_aportes_participantes').select('*, unidades_ins(siglas)').eq('ciclo_id', activeCicloId).order('created_at', { ascending: false }),
+        sb.from('matriz_foda').select('*').eq('ciclo_id', activeCicloId).order('codigo_factor'),
+        sb.from('foda_analisis_ejecutivo').select('*').eq('ciclo_id', activeCicloId).maybeSingle()
+      ]);
+
+      const aportes = apRes.data || [];
+      document.getElementById('count-aportes-foda').textContent = aportes.length;
+      document.getElementById('lista-aportes-foda').innerHTML = aportes.map(a => `
+        <div class="p-2 bg-slate-50 rounded border border-slate-200">
+          <span class="font-bold uppercase text-[10px] text-sky-700">[${a.cuadrante}]</span>
+          <span class="text-slate-700">${a.idea_bruta}</span>
+        </div>
+      `).join('');
+
+      const factores = matRes.data || [];
+      ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(c => {
+        const items = factores.filter(f => f.cuadrante === c);
+        document.getElementById('foda-list-' + c).innerHTML = items.length
+          ? items.map(i => `<li><b>${i.codigo_factor}:</b> ${i.descripcion_consolidada}</li>`).join('')
+          : `<li class="text-slate-400 italic">Sin factores consolidados</li>`;
+      });
+
+      if (ejRes.data?.resumen_situacional) {
+        document.getElementById('foda-resumen-ejecutivo').textContent = ejRes.data.resumen_situacional;
+      }
+    }
+
+    document.getElementById('btn-sintetizar-foda').addEventListener('click', async () => {
+      const { data: aportes } = await sb.from('foda_aportes_participantes').select('*').eq('ciclo_id', activeCicloId);
+      if (!aportes || aportes.length === 0) return alert('Primero ingresa aportes en el buzón FODA.');
+
+      const prefijos = { fortaleza: 'F', oportunidad: 'O', debilidad: 'D', amenaza: 'A' };
+      await sb.from('matriz_foda').delete().eq('ciclo_id', activeCicloId);
+
+      const nuevosFactores = [];
+      ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(cuad => {
+        const unicos = [...new Set(aportes.filter(a => a.cuadrante === cuad).map(a => a.idea_bruta.trim()))];
+        unicos.forEach((texto, idx) => {
+          nuevosFactores.push({
+            ciclo_id: activeCicloId,
+            cuadrante: cuad,
+            codigo_factor: `${prefijos[cuad]}${idx + 1}`,
+            descripcion_consolidada: texto.charAt(0).toUpperCase() + texto.slice(1),
+            generado_con_ia: true,
+            aprobado: true
+          });
+        });
+      });
+
+      if (nuevosFactores.length > 0) {
+        await sb.from('matriz_foda').insert(nuevosFactores);
+      }
+
+      const fCount = nuevosFactores.filter(x => x.cuadrante === 'fortaleza').length;
+      const oCount = nuevosFactores.filter(x => x.cuadrante === 'oportunidad').length;
+      const dCount = nuevosFactores.filter(x => x.cuadrante === 'debilidad').length;
+      const aCount = nuevosFactores.filter(x => x.cuadrante === 'amenaza').length;
+
+      const resumenTexto = `DIAGNÓSTICO SITUACIONAL CONSOLIDADO DEL INS:\n` +
+        `Se integraron ${aportes.length} aportes técnicos de las unidades organizativas, consolidándose en ${fCount} Fortalezas, ${oCount} Oportunidades, ${dCount} Debilidades y ${aCount} Amenazas.\n\n` +
+        `• Estrategia Ofensiva (FO): Capitalizar las capacidades técnicas del Laboratorio Nacional de Salud Pública, Investigación y Educación Continua (ECHO) para aprovechar alianzas internacionales y cooperación técnica.\n` +
+        `• Estrategia de Reorientación (DO): Programar actividades en el PAO orientadas a cerrar las brechas internas identificadas en tiempos de respuesta, articulación de procesos y disponibilidad de insumos.\n` +
+        `• Estrategia Defensiva (FA): Utilizar el rigor científico y los sistemas de gestión de calidad/antisoborno (ISO 37001) para mitigar brotes epidemiológicos y riesgos externos.\n` +
+        `• Estrategia de Supervivencia (DA): Incorporar controles preventivos en la Matriz de Valoración de Riesgos para evitar la materialización de vulnerabilidades críticas.`;
+
+      await sb.from('foda_analisis_ejecutivo').upsert({
+        ciclo_id: activeCicloId,
+        resumen_situacional: resumenTexto,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'ciclo_id' });
+
+      await loadFoda();
+      alert('Síntesis FODA y análisis CAME generados exitosamente.');
+    });
+
+    // =========================================================================
+    // 12. GENERADOR DE INFORMES GERENCIALES (CON DESGLOSE POR TIPO DE PRODUCTO)
+    // =========================================================================
+    document.getElementById('btn-generar-informe').addEventListener('click', async () => {
+      const trim = parseInt(document.getElementById('inf-trimestre').value);
+      const { data: evalData } = await sb.from('vw_dashboard_operativo_anual')
+        .select('*')
+        .eq('ciclo_id', activeCicloId)
+        .eq('trimestre_corte', trim);
+
+      const { data: evData } = await sb.from('evidencias_poa')
+        .select('*, actividades_poa(actividad)')
+        .eq('ciclo_id', activeCicloId)
+        .eq('trimestre', trim);
+
+      const actIds = actividadesCache.map(a => a.id);
+      let productosCiclo = [];
+      if (actIds.length > 0) {
+        const { data: prodData } = await sb.from('productos_poa')
+          .select('*, catalogo_tipos_producto(id, codigo, nombre, unidad_medida_default)')
+          .in('actividad_poa_id', actIds);
+        productosCiclo = prodData || [];
+      }
+
+      const rows = evalData || [];
+      const anio = rows[0]?.anio || '2026';
+      const validas = rows.filter(r => r.pct_cumplimiento_corte !== null);
+      const avgAcotado = validas.length ? (validas.reduce((a, b) => a + Number(b.pct_cumplimiento_corte_acotado), 0) / validas.length).toFixed(1) : '0.0';
+      const cumplidas = rows.filter(r => ['Finalizada', 'En curso'].includes(r.semaforo_calculado));
+      const retrasadas = rows.filter(r => ['Con retraso', 'En atención'].includes(r.semaforo_calculado));
+
+      let texto = `INSTITUTO NACIONAL DE SALUD (INS)\n`;
+      texto += `EVALUACIÓN DEL PLAN ANUAL OPERATIVO ${anio} — TRIMESTRE ${trim}\n`;
+      texto += `Presenta: Ing. Roberto Iván Rodas (Coordinador Unidad de Planificación y Calidad INS - MINSAL)\n`;
+      texto += `Visto Bueno: Dirección del Instituto Nacional de Salud\n`;
+      texto += `========================================================================\n\n`;
+      texto += `1. INTRODUCCIÓN Y RESUMEN EJECUTIVO\n`;
+      texto += `Durante el Trimestre ${trim} de ${anio}, el Instituto Nacional de Salud (INS) dio seguimiento a ${rows.length} actividades estratégicas y operativas alineadas al PEI MINSAL 2026–2030. El índice de ejecución promedio acotado (evitando distorsiones por sobre-demanda epidemiológica) alcanzó el ${avgAcotado}%, con ${cumplidas.length} actividades en rango de cumplimiento satisfactorio y ${retrasadas.length} en seguimiento por ajuste o reprogramación.\n\n`;
+
+      texto += `2. PRINCIPALES

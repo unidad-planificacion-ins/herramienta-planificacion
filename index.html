@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica v1.2 | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v1.3 | INS El Salvador</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS SDK v2 -->
@@ -33,7 +33,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.2</span></p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.3</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -72,7 +72,7 @@
           <div>
             <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
               Planificación Operativa y Estratégica
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.2</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.3</span>
             </div>
             <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad • MINSAL</div>
           </div>
@@ -252,14 +252,14 @@
           </div>
         </div>
 
-        <!-- Tabla Principal -->
+        <!-- Tabla Principal (MEJORAS v1.3: Encabezados limpios, Eje Estratégico completo y Semáforo homologado) -->
         <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
           <div class="overflow-x-auto scrollbar-thin">
             <table class="w-full text-left text-xs">
               <thead class="bg-slate-800 text-white uppercase text-[11px]">
                 <tr>
-                  <th class="px-3 py-3">Eje / Línea</th>
-                  <th class="px-3 py-3 min-w-[240px]">Actividad INS (Col D)</th>
+                  <th class="px-3 py-3 min-w-[190px]">Eje Estratégico</th>
+                  <th class="px-3 py-3 min-w-[240px]">Actividad INS</th>
                   <th class="px-3 py-3">Unidad</th>
                   <th class="px-3 py-3 text-center">Modo</th>
                   <th class="px-3 py-3 text-center">T1 (P/R)</th>
@@ -668,7 +668,7 @@
 
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="block font-semibold text-slate-700">Descripción de la Actividad (Col D - Verbo en infinitivo)</label>
+            <label class="block font-semibold text-slate-700">Descripción de la Actividad (Verbo en infinitivo)</label>
             <button type="button" onclick="mejorarRedaccionActividadIA()"
               class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-[11px] border border-indigo-200 flex items-center gap-1 transition">
               <i data-lucide="sparkles" class="w-3 h-3"></i> Mejorar redacción con IA
@@ -745,7 +745,6 @@
           </div>
         </div>
 
-        <!-- MEJORA v1.2: Campo amplio y redimensionable para Supuestos Externos (Col X) -->
         <div>
           <div class="flex items-center justify-between mb-1">
             <label class="block font-semibold text-slate-700">Supuestos Externos (Col X - Obligatorio MINSAL)</label>
@@ -934,7 +933,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.2            -->
+  <!-- LÓGICA DE CONEXIÓN SUPABASE Y CONTROLADORES DE INTERFAZ v1.3            -->
   <!-- ======================================================================= -->
   <script>
     // 1. INICIALIZACIÓN DE SUPABASE
@@ -981,6 +980,108 @@
       if (txt.includes('echo') || txt.includes('teleclínica') || txt.includes('curso') || txt.includes('taller') || txt.includes('capacitaci')) return 'Educación Continua / ECHO';
       if (txt.includes('vigilancia') || txt.includes('boletín') || txt.includes('observatorio')) return 'Vigilancia y Observatorio';
       return 'General INS';
+    }
+
+    // =========================================================================
+    // REGLA DE NEGOCIO HOMOLOGADA: SEMÁFORO Y ESTADO DE AVANCE (COL T)
+    // =========================================================================
+    function calcularSemaforoYEstado(a) {
+      const acum = Number(a.acumulado_anual || 0);
+      if (acum >= 100) {
+        return {
+          label: 'Finalizada',
+          badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+          pctCorte: acum
+        };
+      }
+
+      // Determinar el último trimestre con dato realizado o ya evaluable
+      let ultimoTrimConReal = 0;
+      for (let t = 4; t >= 1; t--) {
+        if (a['real_t' + t] !== null && a['real_t' + t] !== undefined && a['real_t' + t] !== '') {
+          ultimoTrimConReal = t;
+          break;
+        }
+      }
+
+      // Calcular programación y ejecución acumulada hasta el trimestre evaluado
+      let progCorte = 0;
+      let realCorte = 0;
+      if (ultimoTrimConReal > 0) {
+        for (let t = 1; t <= ultimoTrimConReal; t++) {
+          progCorte += Number(a['prog_t' + t] || 0);
+          realCorte += Number(a['real_t' + t] || 0);
+        }
+
+        if (progCorte > 0) {
+          const pctCorte = (realCorte / progCorte) * 100;
+          if (pctCorte >= 90) {
+            return {
+              label: 'En curso',
+              badgeClass: 'bg-sky-100 text-sky-800 border border-sky-200',
+              pctCorte
+            };
+          }
+          if (pctCorte >= 75) {
+            return {
+              label: 'En atención',
+              badgeClass: 'bg-amber-100 text-amber-800 border border-amber-200',
+              pctCorte
+            };
+          }
+          return {
+            label: 'Con retraso',
+            badgeClass: 'bg-rose-100 text-rose-800 border border-rose-200',
+            pctCorte
+          };
+        } else if (realCorte > 0) {
+          return {
+            label: 'En curso',
+            badgeClass: 'bg-sky-100 text-sky-800 border border-sky-200',
+            pctCorte: 100
+          };
+        }
+      }
+
+      // Sin datos realizados aún: verificar si ya debió iniciar según el mes actual del año del ciclo
+      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
+      const anioCiclo = cicloObj?.anio || new Date().getFullYear();
+      const hoy = new Date();
+      let trimActualSistema = 0;
+      if (hoy.getFullYear() > anioCiclo) {
+        trimActualSistema = 4;
+      } else if (hoy.getFullYear() === anioCiclo) {
+        trimActualSistema = Math.floor(hoy.getMonth() / 3) + 1;
+      }
+
+      let progVencida = 0;
+      for (let t = 1; t <= trimActualSistema; t++) {
+        progVencida += Number(a['prog_t' + t] || 0);
+      }
+
+      if (progVencida > 0 && trimActualSistema > 1) {
+        return {
+          label: 'Sin registro',
+          badgeClass: 'bg-slate-200 text-slate-700 border border-slate-300',
+          pctCorte: 0
+        };
+      }
+
+      return {
+        label: 'Pendiente',
+        badgeClass: 'bg-slate-100 text-slate-600 border border-slate-200',
+        pctCorte: 0
+      };
+    }
+
+    async function sincronizarEstadoActividadDB(actId) {
+      if (!actId) return;
+      const { data: act } = await sb.from('actividades_poa').select('*').eq('id', actId).maybeSingle();
+      if (!act) return;
+      const sem = calcularSemaforoYEstado(act);
+      if (act.estado_avance !== sem.label) {
+        await sb.from('actividades_poa').update({ estado_avance: sem.label }).eq('id', actId);
+      }
     }
 
     // Inicializar iconos
@@ -1439,7 +1540,6 @@
       document.getElementById('act-p4').value = '25';
       document.getElementById('act-responsable-cargo-hint').textContent = '';
 
-      // Sincronizar fechas por defecto con el año del ciclo activo
       const cicloObj = ciclosList.find(c => c.id === activeCicloId);
       const anioCiclo = cicloObj?.anio || new Date().getFullYear();
       document.getElementById('act-inicio').value = `${anioCiclo}-01-01`;
@@ -1462,7 +1562,6 @@
       document.getElementById('modal-act-titulo').textContent = 'Editar Actividad Registrada en Matriz PAO';
       document.getElementById('btn-submit-actividad').textContent = 'Guardar Cambios';
 
-      // Reconstruir cascada PEI (Eje -> Estrategia -> Línea de Acción)
       const linObj = lineasList.find(l => l.id === act.linea_accion_id);
       const estObj = linObj ? estrategiasList.find(s => s.id === linObj.estrategia_id) : null;
       if (estObj) {
@@ -1502,17 +1601,12 @@
       const act = actividadesCache.find(x => x.id === actId);
       const nombreCorto = act ? act.actividad.substring(0, 90) : 'esta actividad';
       const confirmar = confirm(
-        `¿Estás seguro de eliminar completamente esta actividad del PAO?
-
-` +
-        `"${nombreCorto}${act && act.actividad.length > 90 ? '...' : ''}"
-
-` +
+        `¿Estás seguro de eliminar completamente esta actividad del PAO?\n\n` +
+        `"${nombreCorto}${act && act.actividad.length > 90 ? '...' : ''}"\n\n` +
         `Esta acción también eliminará todos sus productos/entregables hijos y evidencias asociadas, y no se puede deshacer.`
       );
       if (!confirmar) return;
 
-      // Eliminar registros dependientes por seguridad (en caso de que no haya ON DELETE CASCADE)
       await sb.from('productos_poa').delete().eq('actividad_poa_id', actId);
       await sb.from('evidencias_poa').delete().eq('actividad_poa_id', actId);
 
@@ -1551,7 +1645,6 @@
         updated_at: new Date().toISOString()
       };
 
-      // Solo sobrescribir prog_t1..t4 si es modo directo o si es una inserción nueva consolidada
       if (!consolida) {
         payload.prog_t1 = parseFloat(document.getElementById('act-p1').value) || 0;
         payload.prog_t2 = parseFloat(document.getElementById('act-p2').value) || 0;
@@ -1569,6 +1662,7 @@
         if (error) {
           alert('Error al actualizar actividad: ' + error.message);
         } else {
+          await sincronizarEstadoActividadDB(editId);
           cerrarModal('modal-actividad');
           document.getElementById('act-edit-id').value = '';
           await reloadAllCycleData();
@@ -1583,7 +1677,6 @@
           document.getElementById('bloque-prog-directa').classList.remove('hidden');
           await reloadAllCycleData();
 
-          // Flujo continuo: abrir automáticamente desglose de productos al crear actividad consolidada
           if (consolida && inserted?.id) {
             await abrirGestionProductos(inserted.id);
           }
@@ -1609,18 +1702,24 @@
         tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-400">No hay actividades registradas en este ciclo PAO. Haz clic en "+ Nueva Actividad PAO".</td></tr>`;
       } else {
         tbody.innerHTML = actividadesCache.map(a => {
-          const ejeNum = a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.numero_orden || '-';
+          const ejeObj = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
+          const ejeTexto = ejeObj
+            ? `${ejeObj.numero_orden}. ${ejeObj.nombre}`
+            : '-';
+
           const badgeModo = a.consolida_desde_productos
             ? `<span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-[10px]">Productos (${a.meta_numerica_anual || 0})</span>`
             : `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px]">Directo</span>`;
 
           const acum = Number(a.acumulado_anual || 0);
-          const semColor = acum >= 100 ? 'bg-emerald-100 text-emerald-800' : acum >= 75 ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800';
+          const sem = calcularSemaforoYEstado(a);
 
           return `
             <tr class="hover:bg-slate-50">
-              <td class="px-3 py-2.5 font-semibold text-slate-700">Eje ${ejeNum}</td>
-              <td class="px-3 py-2.5">
+              <td class="px-3 py-2.5 text-slate-700 align-top">
+                <div class="font-semibold text-[11px] leading-snug text-slate-800">${ejeTexto}</div>
+              </td>
+              <td class="px-3 py-2.5 align-top">
                 <div class="font-medium text-slate-900">${a.actividad}</div>
                 <div class="text-[11px] text-slate-400 mt-0.5">Resp: ${a.responsable_nombre} • Pond: ${a.ponderacion}</div>
               </td>
@@ -1632,7 +1731,7 @@
               <td class="px-3 py-2.5 text-center">${a.prog_t4}% / <b>${a.real_t4 ?? '-'}</b></td>
               <td class="px-3 py-2.5 text-right font-bold text-slate-800">${acum.toFixed(1)}%</td>
               <td class="px-3 py-2.5 text-center">
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${semColor}">${acum >= 100 ? 'Finalizado' : a.estado_avance}</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold whitespace-nowrap ${sem.badgeClass}">${sem.label}</span>
               </td>
               <td class="px-3 py-2.5 text-center whitespace-nowrap">
                 <div class="inline-flex items-center gap-1">
@@ -1717,6 +1816,7 @@
 
       if (error) alert(error.message);
       else {
+        await sincronizarEstadoActividadDB(currentEditingActId);
         cerrarModal('modal-productos');
         await reloadAllCycleData();
       }
@@ -1788,6 +1888,7 @@
       if (error) alert(error.message);
       else {
         document.getElementById('prod-nombre').value = '';
+        await sincronizarEstadoActividadDB(currentEditingActId);
         await loadProductosHijos(currentEditingActId);
         await reloadAllCycleData();
       }
@@ -1813,6 +1914,7 @@
 
       if (error) alert(error.message);
       else {
+        await sincronizarEstadoActividadDB(currentEditingActId);
         await loadProductosHijos(currentEditingActId);
         await reloadAllCycleData();
         alert('Producto actualizado y consolidado automáticamente en la Matriz MINSAL.');
@@ -1824,6 +1926,7 @@
       const { error } = await sb.from('productos_poa').delete().eq('id', prodId);
       if (error) alert(error.message);
       else {
+        await sincronizarEstadoActividadDB(currentEditingActId);
         await loadProductosHijos(currentEditingActId);
         await reloadAllCycleData();
       }
@@ -1832,33 +1935,36 @@
     // EXPORTADOR EXCEL OFICIAL MINSAL (25 COLUMNAS A-Y)
     document.getElementById('btn-exportar-excel').addEventListener('click', () => {
       if (!actividadesCache.length) return alert('No hay actividades para exportar en este ciclo.');
-      const rowsExcel = actividadesCache.map(a => ({
-        'A. Eje Estratégico': a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.nombre || '',
-        'B. Estrategia': a.pei_lineas_accion?.pei_estrategias?.nombre || '',
-        'C. Línea de Acción': a.pei_lineas_accion?.nombre || '',
-        'D. Actividades INS': a.actividad,
-        'E. Indicadores': a.indicador,
-        'F. Meta Anual': a.meta_anual,
-        'G. Prog. Trimestre 1': a.prog_t1,
-        'H. Realizado Trimestre 1': a.real_t1 ?? '',
-        'I. % Ejecución Trimestre 1': a.ejec_t1 ?? '',
-        'J. Prog. Trimestre 2': a.prog_t2,
-        'K. Realizado Trimestre 2': a.real_t2 ?? '',
-        'L. % Ejecución Trimestre 2': a.ejec_t2 ?? '',
-        'M. Prog. Trimestre 3': a.prog_t3,
-        'N. Realizado Trimestre 3': a.real_t3 ?? '',
-        'O. % Ejecución Trimestre 3': a.ejec_t3 ?? '',
-        'P. Prog. Trimestre 4': a.prog_t4,
-        'Q. Realizado Trimestre 4': a.real_t4 ?? '',
-        'R. % Ejecución Trimestre 4': a.ejec_t4 ?? '',
-        'S. % Ejecución Acumulado': a.acumulado_anual,
-        'T. Estado de avance': a.acumulado_anual >= 100 ? 'Finalizado' : a.estado_avance,
-        'U. Responsable': a.responsable_nombre,
-        'V. Fecha de inicio': a.fecha_inicio,
-        'W. Fecha de finalización': a.fecha_fin,
-        'X. Supuestos externos': a.supuestos_externos,
-        'Y. Pasa a POI': a.pasa_poi ? 'SI' : 'NO'
-      }));
+      const rowsExcel = actividadesCache.map(a => {
+        const sem = calcularSemaforoYEstado(a);
+        return {
+          'A. Eje Estratégico': a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.nombre || '',
+          'B. Estrategia': a.pei_lineas_accion?.pei_estrategias?.nombre || '',
+          'C. Línea de Acción': a.pei_lineas_accion?.nombre || '',
+          'D. Actividades INS': a.actividad,
+          'E. Indicadores': a.indicador,
+          'F. Meta Anual': a.meta_anual,
+          'G. Prog. Trimestre 1': a.prog_t1,
+          'H. Realizado Trimestre 1': a.real_t1 ?? '',
+          'I. % Ejecución Trimestre 1': a.ejec_t1 ?? '',
+          'J. Prog. Trimestre 2': a.prog_t2,
+          'K. Realizado Trimestre 2': a.real_t2 ?? '',
+          'L. % Ejecución Trimestre 2': a.ejec_t2 ?? '',
+          'M. Prog. Trimestre 3': a.prog_t3,
+          'N. Realizado Trimestre 3': a.real_t3 ?? '',
+          'O. % Ejecución Trimestre 3': a.ejec_t3 ?? '',
+          'P. Prog. Trimestre 4': a.prog_t4,
+          'Q. Realizado Trimestre 4': a.real_t4 ?? '',
+          'R. % Ejecución Trimestre 4': a.ejec_t4 ?? '',
+          'S. % Ejecución Acumulado': a.acumulado_anual,
+          'T. Estado de avance': sem.label,
+          'U. Responsable': a.responsable_nombre,
+          'V. Fecha de inicio': a.fecha_inicio,
+          'W. Fecha de finalización': a.fecha_fin,
+          'X. Supuestos externos': a.supuestos_externos,
+          'Y. Pasa a POI': a.pasa_poi ? 'SI' : 'NO'
+        };
+      });
 
       const ws = XLSX.utils.json_to_sheet(rowsExcel);
       const wb = XLSX.utils.book_new();

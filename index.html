@@ -252,7 +252,7 @@
           </div>
         </div>
 
-        <!-- Tabla Principal v1.3: Vista compacta sin scroll horizontal, encabezados de 2 renglones y P/R apilados -->
+        <!-- Tabla Principal v1.3: Vista compacta sin scroll horizontal, columna 3 = Indicador, Unidad integrada en metadatos de Actividad -->
         <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden">
           <div class="w-full">
             <table class="w-full lg:table-fixed text-left text-xs border-collapse">
@@ -263,7 +263,7 @@
                     <div class="text-sky-300">Estratégica</div>
                   </th>
                   <th class="px-2.5 py-2.5">Actividad INS</th>
-                  <th class="px-2 py-2.5 w-24">Unidad</th>
+                  <th class="px-2.5 py-2.5 w-48">Indicador</th>
                   <th class="px-1.5 py-2.5 text-center w-24">Modo</th>
                   <th class="px-1 py-2.5 text-center w-14">
                     <div>T1</div>
@@ -1832,6 +1832,7 @@
         tbody.innerHTML = actividadesCache.map(a => {
           const ejeObj = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
           const ejeNum = ejeObj ? `Eje ${ejeObj.numero_orden}` : 'Ver';
+          const unidadNombre = a.unidades_ins?.siglas || a.unidades_ins?.nombre || '-';
 
           const badgeModo = a.consolida_desde_productos
             ? `<span class="inline-block px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-[10px] leading-tight">Productos<br/>(${a.meta_numerica_anual || 0})</span>`
@@ -1852,9 +1853,9 @@
               </td>
               <td class="px-2.5 py-2 align-middle">
                 <div class="font-medium text-slate-900 leading-snug break-words">${a.actividad}</div>
-                <div class="text-[11px] text-slate-400 mt-0.5 truncate">Resp: ${a.responsable_nombre} • Pond: ${a.ponderacion}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5 leading-snug break-words">Unidad: ${unidadNombre} • Resp: ${a.responsable_nombre} • Pond: ${a.ponderacion}</div>
               </td>
-              <td class="px-2 py-2 text-slate-600 align-middle text-[11px] leading-tight break-words">${a.unidades_ins?.siglas || a.unidades_ins?.nombre || '-'}</td>
+              <td class="px-2.5 py-2 text-slate-700 align-middle text-[11px] leading-snug break-words">${a.indicador || '-'}</td>
               <td class="px-1.5 py-2 text-center align-middle">${badgeModo}</td>
               ${renderCeldaTrimestre(a.prog_t1, a.real_t1)}
               ${renderCeldaTrimestre(a.prog_t2, a.real_t2)}

@@ -4608,8 +4608,7 @@
       cuboResultadosCache.forEach(r => {
         lines.push(`"${r.label.replace(/"/g, '""')}",${r.actsCount},${r.prodsCount},${r.sumaProg.toFixed(2)},${r.sumaReal.toFixed(2)},${r.pctSimpleProm.toFixed(2)},${r.pctPonderadoProm.toFixed(2)}`);
       });
-      const blob = new Blob(['﻿' + lines.join('
-')], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

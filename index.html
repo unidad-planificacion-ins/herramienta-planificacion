@@ -243,7 +243,7 @@
             <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Matriz de Riesgos
           </button>
           <button data-tab="foda" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> FODA Asistido IA
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> FODA Consolidado
           </button>
           <button data-tab="consultas" id="nav-consultas" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
             <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i> Consultas
@@ -680,12 +680,12 @@
       </section>
 
       <!-- =================================================================== -->
-      <!-- TAB 6: ANÁLISIS FODA PARTICIPATIVO CON SÍNTESIS IA (ANEXO 3)        -->
+      <!-- TAB 6: ANÁLISIS FODA PARTICIPATIVO (ANEXO 3)                        -->
       <!-- =================================================================== -->
       <section id="tab-foda" class="tab-content hidden space-y-6">
         <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h2 class="text-lg font-bold text-slate-800">Diagnóstico Situacional FODA Asistido por IA</h2>
+            <h2 class="text-lg font-bold text-slate-800">Diagnóstico Situacional FODA Consolidado</h2>
             <p class="text-xs text-slate-500">Recolecta aportes de todas las unidades del INS, consolídalos automáticamente y genera estrategias cruzadas CAME.</p>
           </div>
           <button id="btn-sintetizar-foda" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
@@ -1172,25 +1172,13 @@
         </div>
 
         <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block font-semibold text-slate-700">Descripción de la Actividad (Estilo MINSAL / SMART)</label>
-            <button type="button" onclick="mejorarRedaccionActividadIA()"
-              class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-[11px] border border-indigo-200 flex items-center gap-1 transition">
-              <i data-lucide="sparkles" class="w-3 h-3"></i> Mejorar redacción con IA
-            </button>
-          </div>
+          <label class="block font-semibold text-slate-700 mb-1">Descripción de la Actividad (Estilo MINSAL / SMART)</label>
           <textarea id="act-descripcion" rows="2" required placeholder="Ej. Elaboración de guías clínicas de atención materna / Capacitación en lactancia materna..." class="w-full px-3 py-2 rounded-lg border border-slate-300 resize-y"></textarea>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div class="md:col-span-2">
-            <div class="flex items-center justify-between mb-1">
-              <label class="block font-semibold text-slate-700">Indicador de Medición (Col E)</label>
-              <button type="button" onclick="sugerirIndicadorIA()"
-                class="px-2.5 py-0.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold text-[11px] border border-sky-200 flex items-center gap-1 transition">
-                <i data-lucide="wand-2" class="w-3 h-3"></i> Sugerir indicador con IA
-              </button>
-            </div>
+            <label class="block font-semibold text-slate-700 mb-1">Indicador de Medición (Col E)</label>
             <input type="text" id="act-indicador" required placeholder="Ej. Porcentaje de guías clínicas elaboradas" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
           </div>
           <div>
@@ -1263,13 +1251,7 @@
         </div>
 
         <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block font-semibold text-slate-700">Supuestos Externos (Col X - Obligatorio MINSAL)</label>
-            <button type="button" onclick="sugerirSupuestosIA()"
-              class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-[11px] border border-indigo-200 flex items-center gap-1 transition">
-              <i data-lucide="sparkles" class="w-3 h-3"></i> Sugerir / Complementar con IA
-            </button>
-          </div>
+          <label class="block font-semibold text-slate-700 mb-1">Supuestos Externos (Col X - Obligatorio MINSAL)</label>
           <textarea id="act-supuestos" rows="3" required placeholder="Ej. Disponibilidad de insumos, equipamiento, horas de talento humano, participación de las RIIS o estabilidad epidemiológica..."
             class="w-full px-3 py-2 rounded-lg border border-slate-300 resize-y leading-relaxed"></textarea>
         </div>
@@ -1996,126 +1978,6 @@
       if (tab === 'riesgos') loadRiesgos();
       if (tab === 'foda') loadFoda();
       if (tab === 'configuracion') renderConfigTables();
-    }
-
-    function obtenerContextoFormularioPOA() {
-      const getSelectedText = (id) => {
-        const el = document.getElementById(id);
-        return el && el.selectedIndex >= 0 ? el.options[el.selectedIndex].text : '';
-      };
-      return {
-        unidad: getSelectedText('act-unidad'),
-        eje: getSelectedText('act-eje'),
-        estrategia: getSelectedText('act-estrategia'),
-        linea: getSelectedText('act-linea'),
-        consolida: document.getElementById('act-consolida-productos')?.checked || false
-      };
-    }
-
-    async function llamarAsistenteGeminiPOA(payload, btnElement, textoOriginalBtn) {
-      if (btnElement) {
-        btnElement.disabled = true;
-        btnElement.innerHTML = `<span class="animate-pulse">Redactando con Gemini...</span>`;
-      }
-      try {
-        const { data, error } = await sb.functions.invoke('asistente-poa-ins', {
-          body: payload
-        });
-        if (error) throw new Error(error.message);
-        if (data?.error) throw new Error(data.error);
-        return data.resultado;
-      } finally {
-        if (btnElement) {
-          btnElement.disabled = false;
-          btnElement.innerHTML = textoOriginalBtn;
-          if (typeof window.renderIconsSafe === 'function') window.renderIconsSafe();
-        }
-      }
-    }
-
-    async function mejorarRedaccionActividadIA() {
-      const field = document.getElementById('act-descripcion');
-      const borrador = field.value.trim();
-      if (!borrador) {
-        alert('Escribe primero tus ideas generales sobre lo que deseas realizar en la actividad.');
-        field.focus();
-        return;
-      }
-
-      const btn = document.querySelector('button[onclick="mejorarRedaccionActividadIA()"]');
-      const htmlOriginal = btn ? btn.innerHTML : '';
-
-      try {
-        const resultado = await llamarAsistenteGeminiPOA({
-          tipo: 'descripcion',
-          borrador,
-          contexto: obtenerContextoFormularioPOA()
-        }, btn, htmlOriginal);
-
-        if (resultado) field.value = resultado;
-      } catch (err) {
-        console.error('Error Gemini Descripción:', err);
-        alert('No se pudo conectar con Gemini (' + err.message + '). Verifica que la Edge Function "asistente-poa-ins" y el secreto GEMINI_API_KEY estén activos en Supabase.');
-      }
-    }
-
-    async function sugerirIndicadorIA() {
-      const actRaw = document.getElementById('act-descripcion').value.trim();
-      const indField = document.getElementById('act-indicador');
-
-      if (!actRaw) {
-        alert('Escribe o mejora primero la descripción de la actividad.');
-        document.getElementById('act-descripcion').focus();
-        return;
-      }
-
-      if (indField.value.trim()) {
-        if (!confirm('El campo Indicador de Medición ya contiene texto. ¿Deseas reemplazarlo?')) return;
-      }
-
-      const btn = document.querySelector('button[onclick="sugerirIndicadorIA()"]');
-      const htmlOriginal = btn ? btn.innerHTML : '';
-
-      try {
-        const resultado = await llamarAsistenteGeminiPOA({
-          tipo: 'indicador',
-          descripcionActividad: actRaw,
-          contexto: obtenerContextoFormularioPOA()
-        }, btn, htmlOriginal);
-
-        if (resultado) indField.value = resultado;
-      } catch (err) {
-        console.error('Error Gemini Indicador:', err);
-        alert('No se pudo conectar con Gemini: ' + err.message);
-      }
-    }
-
-    async function sugerirSupuestosIA() {
-      const actRaw = document.getElementById('act-descripcion').value.trim();
-      const supField = document.getElementById('act-supuestos');
-
-      if (!actRaw) {
-        alert('Escribe primero la descripción de la actividad para contextualizar los supuestos.');
-        document.getElementById('act-descripcion').focus();
-        return;
-      }
-
-      const btn = document.querySelector('button[onclick="sugerirSupuestosIA()"]');
-      const htmlOriginal = btn ? btn.innerHTML : '';
-
-      try {
-        const resultado = await llamarAsistenteGeminiPOA({
-          tipo: 'supuestos',
-          descripcionActividad: actRaw,
-          borrador: supField.value.trim(),
-          contexto: obtenerContextoFormularioPOA()
-        }, btn, htmlOriginal);
-
-        if (resultado) supField.value = resultado;
-      } catch (err) {
-        console.error('Error Gemini Supuestos:', err);
-        alert('No se pudo conectar con Gemini: ' + err.message);
-      }
     }
 
     document.getElementById('dash-trimestre-corte').addEventListener('change', loadDashboardAnual);
@@ -3904,7 +3766,7 @@
             cuadrante: cuad,
             codigo_factor: `${prefijos[cuad]}${idx + 1}`,
             descripcion_consolidada: texto.charAt(0).toUpperCase() + texto.slice(1),
-            generado_con_ia: true,
+            generado_con_ia: false,
             aprobado: true
           });
         });
@@ -4017,224 +3879,35 @@
       const justificaciones = (evData || []).filter(e => e.categoria !== 'evidencia_cumplimiento');
       if (justificaciones.length > 0) {
         justificaciones.forEach(j => {
-          texto += `• Actividad: ${j.actividades_poa?.actividad}\n`;
-          texto += `  - Causa tipificada: ${j.causa_retraso_tipificada || 'Ajuste operativo'}\n`;
-          texto += `  - Justificación técnica: ${j.descripcion_narrativa}\n`;
+          texto += `• [${j.actividades_poa?.actividad || 'Actividad'}] Causa: ${j.causa_retraso_tipificada || 'Técnica'}. ${j.descripcion_narrativa}\n`;
         });
       } else {
-        texto += `• No se registraron desviaciones críticas sin justificación documental en el expediente del período.\n`;
+        texto += `• No se reportaron desviaciones críticas sin respaldo documental en el trimestre evaluado.\n`;
       }
 
-      texto += `\n5. CONCLUSIONES\n`;
-      texto += `El INS mantiene trazabilidad documental sobre sus metas operativas y desglose técnico por producto, asegurando el respaldo verificable ante auditorías internas y del Nivel Superior del MINSAL.`;
+      texto += `\n5. CONCLUSIONES Y RECOMENDACIONES\n`;
+      texto += `• Mantener el monitoreo mensual de productos críticos y asegurar el cierre oportuno de registros antes de los cortes DIRPLAN MINSAL.\n`;
+      texto += `• Documentar en la bóveda institucional toda reprogramación derivada de disposiciones ministeriales o emergencias sanitarias.\n`;
 
       document.getElementById('informe-editor').value = texto;
-
-      await sb.from('historial_informes_gerenciales').insert({
-        ciclo_id: activeCicloId,
-        trimestre: trim,
-        titulo: `Informe Gerencial PAO ${anio} - Trimestre ${trim}`,
-        contenido_markdown: texto,
-        generado_por: currentUser.id
-      });
     });
 
     document.getElementById('btn-descargar-word').addEventListener('click', () => {
       const contenido = document.getElementById('informe-editor').value;
-      if (!contenido) return alert('Primero genera el borrador del informe.');
-      const htmlDoc = `<html><head><meta charset="utf-8"></head><body style="font-family: Calibri, sans-serif; line-height: 1.5; white-space: pre-wrap;">${contenido}</body></html>`;
+      if (!contenido.trim()) return alert('Primero redacta el borrador ejecutivo del informe.');
+      const htmlDoc = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+        <head><meta charset='utf-8'><title>Informe Gerencial INS</title></head>
+        <body style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap;">${contenido}</body>
+        </html>`;
       const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Informe_Gerencial_PAO_INS.doc`;
+      a.download = `Informe_Gerencial_PAO_INS_T${document.getElementById('inf-trimestre').value}.doc`;
       a.click();
     });
 
-    function renderConfigTables() {
-      const enriquecidos = tiposProductoList.map(tp => ({
-        ...tp,
-        _cat: inferirCategoriaProducto(tp)
-      }));
-
-      const catsUnicas = [...new Set(enriquecidos.map(x => x._cat))].sort();
-      const filtroSel = document.getElementById('filtro-cat-tp');
-      const valActualFiltro = filtroSel.value || 'ALL';
-      filtroSel.innerHTML = `<option value="ALL">Todas las Categorías (${enriquecidos.length})</option>` +
-        catsUnicas.map(c => `<option value="${c}">${c}</option>`).join('');
-      if ([...filtroSel.options].some(o => o.value === valActualFiltro)) {
-        filtroSel.value = valActualFiltro;
-      }
-
-      const filtrados = enriquecidos
-        .filter(tp => filtroSel.value === 'ALL' || tp._cat === filtroSel.value)
-        .sort((a, b) => a._cat.localeCompare(b._cat) || a.nombre.localeCompare(b.nombre));
-
-      const tbody = document.getElementById('tabla-tipos-producto');
-      tbody.innerHTML = filtrados.map(tp => `
-        <tr class="hover:bg-slate-50">
-          <td class="py-2 px-2">
-            <span class="px-2 py-0.5 rounded bg-sky-50 text-sky-800 font-semibold text-[10px] border border-sky-100">${tp._cat}</span>
-          </td>
-          <td class="py-2 px-2 font-mono text-[11px] text-slate-600">${tp.codigo}</td>
-          <td class="py-2 px-2 font-medium text-slate-900">${tp.nombre}</td>
-          <td class="py-2 px-2 text-slate-500">${tp.unidad_medida_default}</td>
-          <td class="py-2 px-2 text-center">
-            <button onclick="toggleTipoProducto('${tp.id}', ${!tp.activo})"
-              class="px-2 py-0.5 rounded text-[10px] font-semibold ${tp.activo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
-              ${tp.activo ? 'Activo' : 'Inactivo'}
-            </button>
-          </td>
-          <td class="py-2 px-2 text-center">
-            <button onclick="abrirModalEditarTp('${tp.id}')" title="Editar producto"
-              class="px-2 py-1 rounded bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-800 font-semibold text-[11px]">
-              Editar
-            </button>
-          </td>
-        </tr>
-      `).join('');
-
-      document.getElementById('lista-ciclos-admin').innerHTML = ciclosList.map(c => `
-        <div class="p-3 rounded-lg border bg-slate-50 flex justify-between items-center">
-          <div><b>PAO ${c.anio}</b> • Estado: <span class="uppercase text-sky-700 font-semibold">${c.estado}</span></div>
-          <select onchange="cambiarEstadoCiclo('${c.id}', this.value)" class="px-2 py-1 border rounded text-xs bg-white">
-            <option value="formulacion" ${c.estado === 'formulacion' ? 'selected' : ''}>Formulación</option>
-            <option value="en_ejecucion" ${c.estado === 'en_ejecucion' ? 'selected' : ''}>En Ejecución</option>
-            <option value="cerrado" ${c.estado === 'cerrado' ? 'selected' : ''}>Cerrado</option>
-          </select>
-        </div>
-      `).join('');
-
-      const refCont = document.getElementById('lista-referentes-admin');
-      if (referentesList.length === 0) {
-        refCont.innerHTML = `<div class="py-3 text-slate-400 text-center">No hay referentes registrados.</div>`;
-      } else {
-        refCont.innerHTML = referentesList.map((r, idx) => {
-          const u = unidadesList.find(x => x.id === r.unidad_id);
-          return `
-            <div class="py-2 flex items-center justify-between gap-2">
-              <div>
-                <div class="font-semibold text-slate-800">${r.nombre}</div>
-                <div class="text-[10px] text-slate-500">${u ? u.nombre : 'INS'} • ${r.cargo || 'Referente Técnico'}</div>
-              </div>
-              ${r.origen === 'local' ? `<button onclick="eliminarReferenteLocal(${idx})" class="text-rose-500 hover:text-rose-700 text-[11px] font-semibold">Quitar</button>` : `<span class="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Usuario</span>`}
-            </div>
-          `;
-        }).join('');
-      }
-    }
-
-    function abrirModalEditarTp(id) {
-      const tp = tiposProductoList.find(x => x.id === id);
-      if (!tp) return;
-      document.getElementById('edit-tp-id').value = tp.id;
-      document.getElementById('edit-tp-categoria').value = inferirCategoriaProducto(tp);
-      document.getElementById('edit-tp-codigo').value = tp.codigo;
-      document.getElementById('edit-tp-nombre').value = tp.nombre;
-      document.getElementById('edit-tp-unidad').value = tp.unidad_medida_default;
-      document.getElementById('modal-editar-tp').classList.remove('hidden');
-    }
-
-    document.getElementById('form-editar-tp').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('edit-tp-id').value;
-      const cat = document.getElementById('edit-tp-categoria').value.trim();
-      const payload = {
-        codigo: document.getElementById('edit-tp-codigo').value.trim().toUpperCase(),
-        nombre: document.getElementById('edit-tp-nombre').value.trim(),
-        unidad_medida_default: document.getElementById('edit-tp-unidad').value.trim()
-      };
-
-      const { error } = await sb.from('catalogo_tipos_producto').update(payload).eq('id', id);
-      if (error) {
-        alert('Error al actualizar tipo de producto: ' + error.message);
-      } else {
-        setLocalTpCat(id, cat);
-        const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
-        tiposProductoList = data || [];
-        cerrarModal('modal-editar-tp');
-        renderConfigTables();
-      }
-    });
-
-    document.getElementById('form-nuevo-tipo-producto').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const cat = document.getElementById('tp-categoria').value.trim();
-      const { data: inserted, error } = await sb.from('catalogo_tipos_producto').insert({
-        codigo: document.getElementById('tp-codigo').value.trim().toUpperCase(),
-        nombre: document.getElementById('tp-nombre').value.trim(),
-        unidad_medida_default: document.getElementById('tp-unidad').value.trim()
-      }).select().single();
-
-      if (error) alert(error.message);
-      else {
-        if (inserted?.id && cat) setLocalTpCat(inserted.id, cat);
-        e.target.reset();
-        const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
-        tiposProductoList = data || [];
-        renderConfigTables();
-      }
-    });
-
-    async function toggleTipoProducto(id, nuevoEstado) {
-      await sb.from('catalogo_tipos_producto').update({ activo: nuevoEstado }).eq('id', id);
-      const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
-      tiposProductoList = data || [];
-      renderConfigTables();
-    }
-
-    document.getElementById('form-nuevo-referente').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const nuevo = {
-        id: 'local_' + Date.now(),
-        nombre: document.getElementById('ref-nombre').value.trim(),
-        unidad_id: document.getElementById('ref-unidad').value,
-        cargo: document.getElementById('ref-cargo').value.trim() || 'Referente Operativo',
-        origen: 'local'
-      };
-      let locales = [];
-      try { locales = JSON.parse(localStorage.getItem(LOCAL_REF_KEY) || '[]'); } catch { locales = []; }
-      locales.push(nuevo);
-      localStorage.setItem(LOCAL_REF_KEY, JSON.stringify(locales));
-      referentesList.push(nuevo);
-      e.target.reset();
-      actualizarDatalistResponsables();
-      renderConfigTables();
-    });
-
-    function eliminarReferenteLocal(idx) {
-      const target = referentesList[idx];
-      if (!target || target.origen !== 'local') return;
-      referentesList.splice(idx, 1);
-      const locales = referentesList.filter(r => r.origen === 'local');
-      localStorage.setItem(LOCAL_REF_KEY, JSON.stringify(locales));
-      actualizarDatalistResponsables();
-      renderConfigTables();
-    }
-
-    document.getElementById('form-nuevo-ciclo').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const { error } = await sb.from('ciclos_anuales').insert({
-        anio: parseInt(document.getElementById('ciclo-anio').value),
-        plan_estrategico_id: document.getElementById('ciclo-plan-id').value,
-        estado: 'formulacion'
-      });
-      if (error) alert(error.message);
-      else {
-        e.target.reset();
-        await initMasterData();
-      }
-    });
-
-    async function cambiarEstadoCiclo(id, estado) {
-      await sb.from('ciclos_anuales').update({ estado }).eq('id', id);
-      await initMasterData();
-    }
-
-
-    // =========================================================================
-    // MÓDULO: CUBO ANALÍTICO DINÁMICO (CONSULTAS MULTICRITERIO OLAP LIGERO)
-    // =========================================================================
     function poblarFiltrosPeiCubo() {
       const ejeSel = document.getElementById('cubo-filtro-eje');
       const estSel = document.getElementById('cubo-filtro-estrategia');
@@ -4267,8 +3940,8 @@
     }
 
     function onCuboEstrategiaChange() {
-      const estId = document.getElementById('cubo-filtro-estrategia').value;
       const ejeId = document.getElementById('cubo-filtro-eje').value;
+      const estId = document.getElementById('cubo-filtro-estrategia').value;
       const linSel = document.getElementById('cubo-filtro-linea');
 
       let linFiltradas = lineasList;
@@ -4289,228 +3962,244 @@
       document.getElementById('cubo-agrupar-por').value = 'unidad';
       document.getElementById('cubo-corte').value = '4';
       document.getElementById('cubo-filtro-unidad').value = 'ALL';
-      document.getElementById('cubo-filtro-eje').value = 'ALL';
-      document.getElementById('cubo-filtro-estrategia').value = 'ALL';
-      document.getElementById('cubo-filtro-linea').value = 'ALL';
-      document.getElementById('cubo-filtro-estado').value = 'ALL';
       if (!esAuditorMinsal()) {
         document.getElementById('cubo-filtro-poi').value = 'ALL';
-      } else {
-        document.getElementById('cubo-filtro-poi').value = 'SI';
       }
+      document.getElementById('cubo-filtro-eje').value = 'ALL';
       poblarFiltrosPeiCubo();
+      document.getElementById('cubo-filtro-estado').value = 'ALL';
       ejecutarCuboAnalitico();
     }
 
-    function calcularMetricasActividadAlCorte(act, corte) {
-      let prog = 0;
-      let real = 0;
-      let tieneReal = false;
+    function evaluarActividadAlCorteCubo(a, corte) {
+      let progCorte = 0;
+      let realCorte = 0;
+      let tieneAlgunReal = false;
+
       for (let t = 1; t <= corte; t++) {
-        prog += Number(act['prog_t' + t] || 0);
-        const rVal = act['real_t' + t];
+        progCorte += Number(a['prog_t' + t] || 0);
+        const rVal = a['real_t' + t];
         if (rVal !== null && rVal !== undefined && rVal !== '') {
-          real += Number(rVal);
-          tieneReal = true;
+          realCorte += Number(rVal);
+          tieneAlgunReal = true;
         }
       }
-      let pctAcotado = 0;
-      if (prog > 0) {
-        pctAcotado = Math.min(100, (real / prog) * 100);
-      } else if (real > 0) {
+
+      const sem = calcularSemaforoYEstado(a);
+      let pctAcotado = null;
+      if (progCorte > 0) {
+        pctAcotado = Math.min(100, (realCorte / progCorte) * 100);
+      } else if (realCorte > 0) {
         pctAcotado = 100;
       }
-      return { prog, real, pctAcotado, tieneReal };
+
+      return {
+        progCorte,
+        realCorte,
+        tieneAlgunReal,
+        pctAcotado,
+        estado: sem.label
+      };
     }
 
     function ejecutarCuboAnalitico() {
-      const tablaBody = document.getElementById('cubo-tabla-body');
-      if (!tablaBody) return;
+      const tbody = document.getElementById('cubo-tabla-body');
+      if (!tbody) return;
 
-      const dimension = document.getElementById('cubo-agrupar-por').value;
-      const corte = parseInt(document.getElementById('cubo-corte').value || '4');
-      const unitFilter = document.getElementById('cubo-filtro-unidad').value;
-      const ejeFilter = document.getElementById('cubo-filtro-eje').value;
-      const estFilter = document.getElementById('cubo-filtro-estrategia').value;
-      const linFilter = document.getElementById('cubo-filtro-linea').value;
-      const estSemFilter = document.getElementById('cubo-filtro-estado').value;
-      const poiFilter = esAuditorMinsal() ? 'SI' : document.getElementById('cubo-filtro-poi').value;
+      const agruparPor = document.getElementById('cubo-agrupar-por').value;
+      const corte = parseInt(document.getElementById('cubo-corte').value) || 4;
+      const fUnidad = document.getElementById('cubo-filtro-unidad').value;
+      const fPoi = esAuditorMinsal() ? 'SI' : document.getElementById('cubo-filtro-poi').value;
+      const fEje = document.getElementById('cubo-filtro-eje').value;
+      const fEst = document.getElementById('cubo-filtro-estrategia').value;
+      const fLin = document.getElementById('cubo-filtro-linea').value;
+      const fEstado = document.getElementById('cubo-filtro-estado').value;
+
+      const localTpMap = getLocalActTpMap();
 
       let filtradas = actividadesCache.filter(a => {
-        if (unitFilter !== 'ALL' && a.unidad_ins_id !== unitFilter) return false;
-        if (poiFilter === 'SI' && !a.pasa_poi) return false;
-        if (poiFilter === 'NO' && a.pasa_poi) return false;
+        if (fUnidad !== 'ALL' && a.unidad_ins_id !== fUnidad) return false;
+        if (fPoi === 'SI' && !a.pasa_poi) return false;
+        if (fPoi === 'NO' && a.pasa_poi) return false;
 
         const linObj = lineasList.find(l => l.id === a.linea_accion_id);
         const estObj = linObj ? estrategiasList.find(s => s.id === linObj.estrategia_id) : null;
-        if (ejeFilter !== 'ALL' && estObj?.eje_id !== ejeFilter) return false;
-        if (estFilter !== 'ALL' && linObj?.estrategia_id !== estFilter) return false;
-        if (linFilter !== 'ALL' && a.linea_accion_id !== linFilter) return false;
 
-        const sem = calcularSemaforoYEstado(a);
-        if (estSemFilter !== 'ALL' && sem.label !== estSemFilter) return false;
+        if (fEje !== 'ALL' && (!estObj || estObj.eje_id !== fEje)) return false;
+        if (fEst !== 'ALL' && (!linObj || linObj.estrategia_id !== fEst)) return false;
+        if (fLin !== 'ALL' && a.linea_accion_id !== fLin) return false;
 
+        if (fEstado !== 'ALL') {
+          const ev = evaluarActividadAlCorteCubo(a, corte);
+          if (ev.estado !== fEstado) return false;
+        }
         return true;
       });
 
-      const localTpMap = getLocalActTpMap();
-      const grupos = {};
-
-      const addToGrupo = (key, label, metrica, pond, prodsCount) => {
-        if (!grupos[key]) {
-          grupos[key] = {
-            key,
-            label,
-            actsCount: 0,
+      const gruposMap = new Map();
+      const registrarEnGrupo = (clave, etiqueta, orden, a, ev, prodsCount, progItem, realItem) => {
+        if (!gruposMap.has(clave)) {
+          gruposMap.set(clave, {
+            clave,
+            etiqueta,
+            orden,
+            actIds: new Set(),
             prodsCount: 0,
-            sumaProg: 0,
-            sumaReal: 0,
-            sumaPctSimple: 0,
-            sumaPctPond: 0,
+            progSuma: 0,
+            realSuma: 0,
+            pctsSimple: [],
+            sumaPondPct: 0,
             sumaPesos: 0
-          };
+          });
         }
-        const g = grupos[key];
-        g.actsCount += 1;
+        const g = gruposMap.get(clave);
+        g.actIds.add(a.id);
         g.prodsCount += prodsCount;
-        g.sumaProg += metrica.prog;
-        g.sumaReal += metrica.real;
-        g.sumaPctSimple += metrica.pctAcotado;
-        g.sumaPctPond += metrica.pctAcotado * pond;
-        g.sumaPesos += pond;
+        g.progSuma += progItem;
+        g.realSuma += realItem;
+
+        if (ev.pctAcotado !== null) {
+          const peso = Number(a.ponderacion || 1);
+          g.pctsSimple.push(ev.pctAcotado);
+          g.sumaPondPct += ev.pctAcotado * peso;
+          g.sumaPesos += peso;
+        }
       };
 
       let totalProdsGlobal = 0;
+      let totalProgGlobal = 0;
+      let totalRealGlobal = 0;
+      let pctsGlobal = [];
+      let pondPctGlobal = 0;
+      let pesosGlobal = 0;
 
       filtradas.forEach(a => {
-        const m = calcularMetricasActividadAlCorte(a, corte);
-        const pond = Number(a.ponderacion || 1);
-        const prodsAct = productosCicloCache.filter(p => p.actividad_poa_id === a.id);
-        totalProdsGlobal += prodsAct.length;
+        const ev = evaluarActividadAlCorteCubo(a, corte);
+        const prodsHijos = productosCicloCache.filter(p => p.actividad_poa_id === a.id);
 
-        if (dimension === 'unidad') {
-          const uNom = a.unidades_ins?.nombre || 'Sin Unidad Asignada';
-          addToGrupo(uNom, uNom, m, pond, prodsAct.length);
-        } else if (dimension === 'eje') {
+        totalProdsGlobal += prodsHijos.length;
+        totalProgGlobal += ev.progCorte;
+        totalRealGlobal += ev.realCorte;
+        if (ev.pctAcotado !== null) {
+          const peso = Number(a.ponderacion || 1);
+          pctsGlobal.push(ev.pctAcotado);
+          pondPctGlobal += ev.pctAcotado * peso;
+          pesosGlobal += peso;
+        }
+
+        if (agruparPor === 'unidad') {
+          const nom = a.unidades_ins?.nombre || 'Sin Unidad Asignada';
+          registrarEnGrupo(a.unidad_ins_id || nom, nom, nom, a, ev, prodsHijos.length, ev.progCorte, ev.realCorte);
+        } else if (agruparPor === 'eje') {
           const eje = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
-          const label = eje ? `Eje ${eje.numero_orden}. ${eje.nombre}` : 'Sin Eje PEI';
-          addToGrupo(label, label, m, pond, prodsAct.length);
-        } else if (dimension === 'estrategia') {
+          const label = eje ? `Eje ${eje.numero_orden}. ${eje.nombre}` : 'Sin Eje Asignado';
+          const ord = eje ? Number(eje.numero_orden) : 999;
+          registrarEnGrupo(String(ord), label, ord, a, ev, prodsHijos.length, ev.progCorte, ev.realCorte);
+        } else if (agruparPor === 'estrategia') {
           const est = a.pei_lineas_accion?.pei_estrategias;
-          const label = est ? `${est.numero_orden ? est.numero_orden + '. ' : ''}${est.nombre}` : 'Sin Estrategia PEI';
-          addToGrupo(label, label, m, pond, prodsAct.length);
-        } else if (dimension === 'responsable') {
+          const label = est ? `${est.numero_orden ? est.numero_orden + '. ' : ''}${est.nombre}` : 'Sin Estrategia';
+          registrarEnGrupo(label, label, label, a, ev, prodsHijos.length, ev.progCorte, ev.realCorte);
+        } else if (agruparPor === 'responsable') {
           const resp = (a.responsable_nombre || 'Sin Responsable').trim();
-          addToGrupo(resp, resp, m, pond, prodsAct.length);
-        } else if (dimension === 'estado') {
-          const sem = calcularSemaforoYEstado(a);
-          addToGrupo(sem.label, sem.label, m, pond, prodsAct.length);
-        } else if (dimension === 'tipo_producto') {
-          if (prodsAct.length > 0) {
-            prodsAct.forEach(p => {
-              const tpNom = p.catalogo_tipos_producto?.nombre || 'Producto General INS';
-              let pProg = 0;
-              let pReal = 0;
+          registrarEnGrupo(resp.toLowerCase(), resp, resp, a, ev, prodsHijos.length, ev.progCorte, ev.realCorte);
+        } else if (agruparPor === 'estado') {
+          registrarEnGrupo(ev.estado, ev.estado, ev.estado, a, ev, prodsHijos.length, ev.progCorte, ev.realCorte);
+        } else if (agruparPor === 'tipo_producto') {
+          if (a.consolida_desde_productos && prodsHijos.length > 0) {
+            prodsHijos.forEach(p => {
+              const tp = p.catalogo_tipos_producto || tiposProductoList.find(t => t.id === p.tipo_producto_id);
+              const tpNom = tp ? tp.nombre : 'Producto Específico INS';
+              let pProg = 0, pReal = 0;
               for (let t = 1; t <= corte; t++) {
                 pProg += Number(p['prog_num_t' + t] || 0);
                 pReal += Number(p['real_num_t' + t] || 0);
               }
-              const pPct = pProg > 0 ? Math.min(100, (pReal / pProg) * 100) : (pReal > 0 ? 100 : 0);
-              addToGrupo(tpNom, tpNom, { prog: pProg, real: pReal, pctAcotado: pPct }, pond, 1);
+              const pPct = pProg > 0 ? Math.min(100, (pReal / pProg) * 100) : (pReal > 0 ? 100 : null);
+              registrarEnGrupo(tpNom, tpNom, tpNom, a, { pctAcotado: pPct }, 1, pProg, pReal);
             });
           } else {
             const tpId = a.tipo_producto_id || localTpMap[a.id];
-            const tpObj = tpId ? tiposProductoList.find(t => t.id === tpId) : null;
-            const tpNom = tpObj ? tpObj.nombre : 'Actividad Directa (Sin Tipo Producto)';
-            addToGrupo(tpNom, tpNom, m, pond, 0);
+            const tp = tpId ? tiposProductoList.find(t => t.id === tpId) : null;
+            const tpNom = tp ? tp.nombre : 'Actividad Directa (Sin tipo producto catalogado)';
+            registrarEnGrupo(tpNom, tpNom, tpNom, a, ev, 0, ev.progCorte, ev.realCorte);
           }
         }
       });
 
-      const resultados = Object.values(grupos).map(g => ({
-        ...g,
-        pctSimpleProm: g.actsCount > 0 ? (g.sumaPctSimple / g.actsCount) : 0,
-        pctPonderadoProm: g.sumaPesos > 0 ? (g.sumaPctPond / g.sumaPesos) : 0
-      })).sort((a, b) => b.pctPonderadoProm - a.pctPonderadoProm || b.actsCount - a.actsCount);
+      const filasCubo = [...gruposMap.values()].map(g => {
+        const simple = g.pctsSimple.length ? (g.pctsSimple.reduce((x, y) => x + y, 0) / g.pctsSimple.length) : 0;
+        const pond = g.sumaPesos > 0 ? (g.sumaPondPct / g.sumaPesos) : 0;
+        return {
+          dimension: g.etiqueta,
+          orden: g.orden,
+          actividades: g.actIds.size,
+          productos: g.prodsCount,
+          progSuma: g.progSuma,
+          realSuma: g.realSuma,
+          pctSimple: Number(simple.toFixed(1)),
+          pctPonderado: Number(pond.toFixed(1))
+        };
+      }).sort((a, b) => {
+        if (typeof a.orden === 'number' && typeof b.orden === 'number') return a.orden - b.orden;
+        return String(a.dimension).localeCompare(String(b.dimension), 'es');
+      });
 
-      cuboResultadosCache = resultados;
+      cuboResultadosCache = filasCubo;
 
-      const totActs = filtradas.length;
-      const totProg = resultados.reduce((acc, r) => acc + r.sumaProg, 0);
-      const totReal = resultados.reduce((acc, r) => acc + r.sumaReal, 0);
-      const globalSimple = totActs > 0
-        ? (filtradas.reduce((acc, a) => acc + calcularMetricasActividadAlCorte(a, corte).pctAcotado, 0) / totActs)
-        : 0;
-      const totPesos = filtradas.reduce((acc, a) => acc + Number(a.ponderacion || 1), 0);
-      const globalPond = totPesos > 0
-        ? (filtradas.reduce((acc, a) => acc + calcularMetricasActividadAlCorte(a, corte).pctAcotado * Number(a.ponderacion || 1), 0) / totPesos)
-        : 0;
+      const avgSimpleGlobal = pctsGlobal.length ? (pctsGlobal.reduce((x, y) => x + y, 0) / pctsGlobal.length) : 0;
+      const avgPondGlobal = pesosGlobal > 0 ? (pondPctGlobal / pesosGlobal) : 0;
 
-      document.getElementById('cubo-kpi-acts').textContent = totActs;
-      document.getElementById('cubo-kpi-prods').textContent = `${totalProdsGlobal} productos INS vinculados`;
-      document.getElementById('cubo-kpi-prog').textContent = totProg.toLocaleString('es-SV', { maximumFractionDigits: 1 });
-      document.getElementById('cubo-kpi-real').textContent = totReal.toLocaleString('es-SV', { maximumFractionDigits: 1 });
-      document.getElementById('cubo-kpi-simple').textContent = globalSimple.toFixed(1) + '%';
-      document.getElementById('cubo-kpi-ponderado').textContent = globalPond.toFixed(1) + '%';
+      document.getElementById('cubo-kpi-acts').textContent = filtradas.length;
+      document.getElementById('cubo-kpi-prods').textContent = `${totalProdsGlobal} productos hijos`;
+      document.getElementById('cubo-kpi-prog').textContent = totalProgGlobal.toFixed(1);
+      document.getElementById('cubo-kpi-real').textContent = totalRealGlobal.toFixed(1);
+      document.getElementById('cubo-kpi-simple').textContent = `${avgSimpleGlobal.toFixed(1)}%`;
+      document.getElementById('cubo-kpi-ponderado').textContent = `${avgPondGlobal.toFixed(1)}%`;
 
       const titulosDim = {
         unidad: 'Unidad Organizativa INS',
         eje: 'Eje Estratégico PEI',
         estrategia: 'Estrategia PEI',
         tipo_producto: 'Tipo de Producto INS',
-        responsable: 'Persona Responsable (Col U)',
-        estado: 'Estado de Cumplimiento'
+        responsable: 'Persona Responsable',
+        estado: 'Estado / Semáforo'
       };
-      document.getElementById('cubo-tabla-titulo').textContent = `Cruce Dinámico por ${titulosDim[dimension]}`;
-      document.getElementById('cubo-th-dimension').textContent = titulosDim[dimension];
-      document.getElementById('cubo-grupos-count').textContent = `${resultados.length} grupos`;
+      document.getElementById('cubo-tabla-titulo').textContent = `Resultados Agrupados por ${titulosDim[agruparPor]}`;
+      document.getElementById('cubo-th-dimension').textContent = titulosDim[agruparPor];
+      document.getElementById('cubo-grupos-count').textContent = `${filasCubo.length} grupo(s)`;
 
-      if (resultados.length === 0) {
-        tablaBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No existen registros que coincidan con la combinación de filtros seleccionada.</td></tr>`;
+      if (filasCubo.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No existen actividades que cumplan con la combinación de filtros seleccionada.</td></tr>`;
       } else {
-        tablaBody.innerHTML = resultados.map(r => {
-          const badgeColor = r.pctPonderadoProm >= 90
-            ? 'bg-emerald-100 text-emerald-800'
-            : r.pctPonderadoProm >= 75
-              ? 'bg-amber-100 text-amber-800'
-              : 'bg-rose-100 text-rose-800';
-          return `
-            <tr class="hover:bg-slate-50">
-              <td class="px-3 py-2.5 font-semibold text-slate-800 leading-snug">${r.label}</td>
-              <td class="px-2.5 py-2.5 text-center font-medium text-slate-700">${r.actsCount}</td>
-              <td class="px-2.5 py-2.5 text-center text-slate-500">${r.prodsCount}</td>
-              <td class="px-2.5 py-2.5 text-right text-slate-600">${r.sumaProg.toLocaleString('es-SV', { maximumFractionDigits: 1 })}</td>
-              <td class="px-2.5 py-2.5 text-right font-semibold text-slate-800">${r.sumaReal.toLocaleString('es-SV', { maximumFractionDigits: 1 })}</td>
-              <td class="px-2.5 py-2.5 text-right font-semibold text-sky-700">${r.pctSimpleProm.toFixed(1)}%</td>
-              <td class="px-2.5 py-2.5 text-right">
-                <span class="px-2 py-0.5 rounded-full font-bold text-[11px] ${badgeColor}">${r.pctPonderadoProm.toFixed(1)}%</span>
-              </td>
-            </tr>
-          `;
-        }).join('');
+        tbody.innerHTML = filasCubo.map(r => `
+          <tr class="hover:bg-slate-50">
+            <td class="px-3 py-2.5 font-medium text-slate-800">${r.dimension}</td>
+            <td class="px-2.5 py-2.5 text-center font-semibold text-slate-700">${r.actividades}</td>
+            <td class="px-2.5 py-2.5 text-center text-slate-500">${r.productos}</td>
+            <td class="px-2.5 py-2.5 text-right text-slate-600">${r.progSuma.toFixed(1)}</td>
+            <td class="px-2.5 py-2.5 text-right font-semibold text-emerald-700">${r.realSuma.toFixed(1)}</td>
+            <td class="px-2.5 py-2.5 text-right font-bold text-sky-700">${r.pctSimple.toFixed(1)}%</td>
+            <td class="px-2.5 py-2.5 text-right font-bold text-indigo-700">${r.pctPonderado.toFixed(1)}%</td>
+          </tr>
+        `).join('');
       }
 
-      renderChartCubo(resultados);
+      renderChartCuboDinamico(filasCubo);
     }
 
-    function renderChartCubo(resultados) {
-      if (!window.Chart) return;
+    function renderChartCuboDinamico(rows) {
       const canvas = document.getElementById('chart-cubo-dinamico');
-      if (!canvas) return;
-
-      const top = resultados.slice(0, 12);
-      const labels = top.map(r => r.label.length > 26 ? r.label.substring(0, 26) + '...' : r.label);
-      const dataSimple = top.map(r => Number(r.pctSimpleProm.toFixed(1)));
-      const dataPond = top.map(r => Number(r.pctPonderadoProm.toFixed(1)));
-
+      if (!canvas || !window.Chart) return;
       if (charts.cubo) charts.cubo.destroy();
+
+      const topRows = rows.slice(0, 14);
       charts.cubo = new Chart(canvas, {
         type: 'bar',
         data: {
-          labels,
+          labels: topRows.map(r => r.dimension.length > 26 ? r.dimension.substring(0, 26) + '...' : r.dimension),
           datasets: [
-            { label: '% Simple', data: dataSimple, backgroundColor: '#0284c7', borderRadius: 4 },
-            { label: '% Ponderado', data: dataPond, backgroundColor: '#4f46e5', borderRadius: 4 }
+            { label: '% Simple', data: topRows.map(r => r.pctSimple), backgroundColor: '#0284c7', borderRadius: 4 },
+            { label: '% Ponderado', data: topRows.map(r => r.pctPonderado), backgroundColor: '#4f46e5', borderRadius: 4 }
           ]
         },
         options: {
@@ -4524,75 +4213,262 @@
     }
 
     async function exportarCuboExcel() {
-      if (!cuboResultadosCache.length) return alert('No hay datos agrupados para exportar.');
+      if (!cuboResultadosCache.length) return alert('No hay datos en la consulta actual para exportar.');
       const cicloObj = ciclosList.find(c => c.id === activeCicloId);
       const anioCiclo = cicloObj?.anio || new Date().getFullYear();
-      const dimText = document.getElementById('cubo-th-dimension').textContent;
 
       const wb = new ExcelJS.Workbook();
-      const ws = wb.addWorksheet('Consulta Dinámica PAO');
+      const ws = wb.addWorksheet('Consulta Dinamica INS');
+      ws.addRow([`INSTITUTO NACIONAL DE SALUD (INS) - CONSULTA ANALÍTICA PAO ${anioCiclo}`]);
+      ws.getRow(1).font = { bold: true, size: 12 };
+      ws.addRow([`Fecha de exportación: ${new Date().toLocaleDateString('es-SV')}`]);
+      ws.addRow([]);
 
-      ws.mergeCells('A1:G1');
-      ws.getCell('A1').value = `INSTITUTO NACIONAL DE SALUD - CONSULTA ANALÍTICA PAO ${anioCiclo} (${dimText.toUpperCase()})`;
-      ws.getCell('A1').font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF0F172A' } };
-
-      const headers = [dimText, 'Actividades', 'Productos INS', 'Meta Programada', 'Ejecución Realizada', '% Cumplimiento Simple', '% Cumplimiento Ponderado'];
-      const hRow = ws.getRow(3);
-      headers.forEach((h, i) => {
-        const c = hRow.getCell(i + 1);
-        c.value = h;
-        c.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
-        c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0C4A6E' } };
-        c.alignment = { horizontal: i === 0 ? 'left' : 'center', vertical: 'middle' };
+      const header = ws.addRow(['Dimensión Agrupada', 'Actividades', 'Productos Hijos', 'Meta Prog. Corte', 'Ejecución Real', '% Cumplimiento Simple', '% Cumplimiento Ponderado']);
+      header.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      header.eachCell(c => {
+        c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0369A1' } };
       });
 
-      cuboResultadosCache.forEach((r, idx) => {
-        const row = ws.getRow(4 + idx);
-        row.values = [
-          r.label,
-          r.actsCount,
-          r.prodsCount,
-          Number(r.sumaProg.toFixed(2)),
-          Number(r.sumaReal.toFixed(2)),
-          Number((r.pctSimpleProm / 100).toFixed(4)),
-          Number((r.pctPonderadoProm / 100).toFixed(4))
-        ];
-        row.getCell(6).numFmt = '0.00%';
-        row.getCell(7).numFmt = '0.00%';
+      cuboResultadosCache.forEach(r => {
+        ws.addRow([r.dimension, r.actividades, r.productos, r.progSuma, r.realSuma, r.pctSimple / 100, r.pctPonderado / 100]);
       });
 
-      ws.columns = [{ width: 45 }, { width: 14 }, { width: 15 }, { width: 18 }, { width: 18 }, { width: 22 }, { width: 24 }];
+      ws.getColumn(1).width = 45;
+      [2, 3, 4, 5, 6, 7].forEach(idx => { ws.getColumn(idx).width = 18; });
+      ws.getColumn(6).numFmt = '0.0%';
+      ws.getColumn(7).numFmt = '0.0%';
 
       const buf = await wb.xlsx.writeBuffer();
       const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Consulta_Dinamica_PAO_${anioCiclo}_INS.xlsx`;
+      a.download = `Consulta_Analitica_PAO_${anioCiclo}_INS.xlsx`;
       a.click();
       URL.revokeObjectURL(url);
     }
 
     function exportarCuboCSV() {
-      if (!cuboResultadosCache.length) return alert('No hay datos agrupados para exportar.');
-      const dimText = document.getElementById('cubo-th-dimension').textContent;
-      const lines = [
-        `"${dimText}","Actividades","Productos INS","Meta Programada","Ejecucion Realizada","% Cumplimiento Simple","% Cumplimiento Ponderado"`
+      if (!cuboResultadosCache.length) return alert('No hay datos en la consulta actual para exportar.');
+      const lineas = [
+        ['Dimension Agrupada', 'Actividades', 'Productos Hijos', 'Meta Prog Corte', 'Ejecucion Real', '% Simple', '% Ponderado'].join(','),
+        ...cuboResultadosCache.map(r => [
+          `"${String(r.dimension).replace(/"/g, '""')}"`,
+          r.actividades,
+          r.productos,
+          r.progSuma.toFixed(2),
+          r.realSuma.toFixed(2),
+          r.pctSimple.toFixed(1),
+          r.pctPonderado.toFixed(1)
+        ].join(','))
       ];
-      cuboResultadosCache.forEach(r => {
-        lines.push(`"${r.label.replace(/"/g, '""')}",${r.actsCount},${r.prodsCount},${r.sumaProg.toFixed(2)},${r.sumaReal.toFixed(2)},${r.pctSimpleProm.toFixed(2)},${r.pctPonderadoProm.toFixed(2)}`);
-      });
-      const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob(['\ufeff', lineas.join('\n')], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'Consulta_Dinamica_PAO_INS.csv';
+      a.download = `Consulta_Analitica_PAO_INS.csv`;
       a.click();
       URL.revokeObjectURL(url);
     }
 
-    // Arranque seguro
-    window.checkSession();
+    function renderConfigTables() {
+      const enriquecidos = tiposProductoList.map(t => ({
+        ...t,
+        _cat: inferirCategoriaProducto(t)
+      })).sort((a, b) => a._cat.localeCompare(b._cat) || a.nombre.localeCompare(b.nombre));
+
+      const catSelect = document.getElementById('filtro-cat-tp');
+      const catActual = catSelect ? catSelect.value : 'ALL';
+      const categoriasUnicas = [...new Set(enriquecidos.map(t => t._cat))].sort();
+      if (catSelect) {
+        catSelect.innerHTML = `<option value="ALL">Todas las Categorías (${enriquecidos.length})</option>` +
+          categoriasUnicas.map(c => `<option value="${c}" ${c === catActual ? 'selected' : ''}>${c}</option>`).join('');
+      }
+
+      const filtrados = catActual === 'ALL' ? enriquecidos : enriquecidos.filter(t => t._cat === catActual);
+
+      document.getElementById('tabla-tipos-producto').innerHTML = filtrados.map(t => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-2 px-2"><span class="px-2 py-0.5 rounded bg-sky-50 text-sky-800 font-semibold text-[10px] border border-sky-100">${t._cat}</span></td>
+          <td class="py-2 px-2 font-mono text-[11px] font-bold text-slate-700">${t.codigo}</td>
+          <td class="py-2 px-2 font-medium text-slate-800">${t.nombre}</td>
+          <td class="py-2 px-2 text-slate-500">${t.unidad_medida_default}</td>
+          <td class="py-2 px-2 text-center">
+            <button onclick="toggleTipoProducto('${t.id}', ${!t.activo})" class="px-2 py-0.5 rounded text-[10px] font-semibold ${t.activo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
+              ${t.activo ? 'Activo' : 'Inactivo'}
+            </button>
+          </td>
+          <td class="py-2 px-2 text-center">
+            <button onclick="abrirEditarTipoProducto('${t.id}')" title="Editar nombre, código, unidad o categoría"
+              class="p-1 bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 rounded border border-slate-200 transition">
+              <i data-lucide="pencil" class="w-3 h-3"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      document.getElementById('lista-ciclos-admin').innerHTML = ciclosList.map(c => `
+        <div class="flex justify-between items-center p-2.5 bg-slate-50 rounded-lg border">
+          <div>
+            <span class="font-bold">Ciclo PAO ${c.anio}</span>
+            <span class="ml-2 px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[10px] uppercase">${c.estado}</span>
+          </div>
+          ${c.estado !== 'cerrado' ? `<button onclick="cambiarEstadoCiclo('${c.id}', 'cerrado')" class="text-rose-600 hover:underline font-semibold">Cerrar Año</button>` : '<span class="text-slate-400">Archivado</span>'}
+        </div>
+      `).join('');
+
+      const refContainer = document.getElementById('lista-referentes-admin');
+      if (refContainer) {
+        refContainer.innerHTML = referentesList.map(r => {
+          const u = unidadesList.find(x => x.id === r.unidad_id);
+          return `
+            <div class="py-2 flex items-center justify-between gap-2">
+              <div>
+                <div class="font-semibold text-slate-800">${r.nombre}</div>
+                <div class="text-[10px] text-slate-500">${u ? u.nombre : 'INS'} • ${r.cargo || 'Referente'}</div>
+              </div>
+              ${r.origen === 'local'
+                ? `<button onclick="eliminarReferenteLocal('${r.id}')" title="Quitar del directorio" class="text-rose-600 hover:underline text-[11px] font-semibold">Quitar</button>`
+                : `<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Usuario Activo</span>`
+              }
+            </div>
+          `;
+        }).join('');
+      }
+
+      window.renderIconsSafe();
+    }
+
+    function abrirEditarTipoProducto(id) {
+      const tp = tiposProductoList.find(x => x.id === id);
+      if (!tp) return;
+      document.getElementById('edit-tp-id').value = tp.id;
+      document.getElementById('edit-tp-categoria').value = inferirCategoriaProducto(tp);
+      document.getElementById('edit-tp-codigo').value = tp.codigo || '';
+      document.getElementById('edit-tp-nombre').value = tp.nombre || '';
+      document.getElementById('edit-tp-unidad').value = tp.unidad_medida_default || '';
+      document.getElementById('modal-editar-tp').classList.remove('hidden');
+    }
+
+    document.getElementById('form-editar-tp').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('edit-tp-id').value;
+      const cat = document.getElementById('edit-tp-categoria').value.trim() || 'General INS';
+      const codigo = document.getElementById('edit-tp-codigo').value.trim();
+      const nombre = document.getElementById('edit-tp-nombre').value.trim();
+      const unidad = document.getElementById('edit-tp-unidad').value.trim();
+
+      let { error } = await sb.from('catalogo_tipos_producto')
+        .update({ codigo, nombre, unidad_medida_default: unidad, categoria: cat })
+        .eq('id', id);
+
+      if (error && error.message && error.message.includes('categoria')) {
+        const retry = await sb.from('catalogo_tipos_producto')
+          .update({ codigo, nombre, unidad_medida_default: unidad })
+          .eq('id', id);
+        error = retry.error;
+      }
+
+      if (error) {
+        alert('Error al actualizar tipo de producto: ' + error.message);
+      } else {
+        setLocalTpCat(id, cat);
+        const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
+        tiposProductoList = data || [];
+        cerrarModal('modal-editar-tp');
+        renderConfigTables();
+      }
+    });
+
+    document.getElementById('form-nuevo-tipo-producto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const cat = document.getElementById('tp-categoria').value.trim() || 'General INS';
+      const payload = {
+        codigo: document.getElementById('tp-codigo').value.trim(),
+        nombre: document.getElementById('tp-nombre').value.trim(),
+        unidad_medida_default: document.getElementById('tp-unidad').value.trim(),
+        categoria: cat
+      };
+
+      let { data: inserted, error } = await sb.from('catalogo_tipos_producto').insert(payload).select().single();
+      if (error && error.message && error.message.includes('categoria')) {
+        delete payload.categoria;
+        const retry = await sb.from('catalogo_tipos_producto').insert(payload).select().single();
+        inserted = retry.data;
+        error = retry.error;
+      }
+
+      if (error) alert(error.message);
+      else {
+        if (inserted?.id) setLocalTpCat(inserted.id, cat);
+        e.target.reset();
+        const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
+        tiposProductoList = data || [];
+        renderConfigTables();
+      }
+    });
+
+    async function toggleTipoProducto(id, estado) {
+      await sb.from('catalogo_tipos_producto').update({ activo: estado }).eq('id', id);
+      const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
+      tiposProductoList = data || [];
+      renderConfigTables();
+    }
+
+    document.getElementById('form-nuevo-ciclo').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const { error } = await sb.from('ciclos_anuales').insert({
+        anio: parseInt(document.getElementById('ciclo-anio').value),
+        plan_estrategico_id: document.getElementById('ciclo-plan-id').value,
+        estado: 'abierto'
+      });
+      if (error) alert(error.message);
+      else {
+        e.target.reset();
+        await window.initMasterData();
+      }
+    });
+
+    async function cambiarEstadoCiclo(id, estado) {
+      if (!confirm('¿Confirmas cerrar este ciclo anual? Las unidades operativas ya no podrán modificar sus cifras.')) return;
+      await sb.from('ciclos_anuales').update({ estado }).eq('id', id);
+      await window.initMasterData();
+    }
+
+    document.getElementById('form-nuevo-referente').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById('ref-nombre').value.trim();
+      const unidad_id = document.getElementById('ref-unidad').value;
+      const cargo = document.getElementById('ref-cargo').value.trim() || 'Referente Técnico';
+      if (!nombre) return;
+
+      let locales = [];
+      try { locales = JSON.parse(localStorage.getItem(LOCAL_REF_KEY) || '[]'); } catch { locales = []; }
+      const nuevo = { id: 'loc-' + Date.now(), nombre, unidad_id, cargo, origen: 'local' };
+      locales.push(nuevo);
+      localStorage.setItem(LOCAL_REF_KEY, JSON.stringify(locales));
+      referentesList.push(nuevo);
+
+      e.target.reset();
+      actualizarDatalistResponsables();
+      renderConfigTables();
+    });
+
+    function eliminarReferenteLocal(id) {
+      let locales = [];
+      try { locales = JSON.parse(localStorage.getItem(LOCAL_REF_KEY) || '[]'); } catch { locales = []; }
+      locales = locales.filter(x => x.id !== id);
+      localStorage.setItem(LOCAL_REF_KEY, JSON.stringify(locales));
+      referentesList = referentesList.filter(x => x.id !== id);
+      actualizarDatalistResponsables();
+      renderConfigTables();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      window.renderIconsSafe();
+      window.checkSession();
+    });
   </script>
 </body>
 </html>

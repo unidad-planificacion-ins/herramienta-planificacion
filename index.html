@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica v1.7 | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v1.8 | INS El Salvador</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230369a1'/><text x='50' y='66' font-size='44' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>INS</text></svg>" />
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +34,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.7</span></p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.8</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -95,11 +95,17 @@
         };
 
         document.getElementById('user-name-display').textContent = currentProfile.nombre_completo;
-        document.getElementById('user-role-display').textContent = (currentProfile.rol || 'usuario').replace('_', ' ');
+        const rolLabels = {
+          admin_planificacion: 'Planificador INS (Control Total)',
+          operativo_referente: 'Referente Técnico de Unidad',
+          gerencial_direccion: 'Alta Dirección INS (Lectura)',
+          auditor_minsal: 'Auditor DIRPLAN MINSAL (POI)'
+        };
+        const rolActual = currentProfile.rol || 'operativo_referente';
+        document.getElementById('user-role-display').textContent = rolLabels[rolActual] || rolActual.replace('_', ' ');
 
-        if (currentProfile.rol !== 'admin_planificacion') {
-          const navCfg = document.getElementById('nav-config');
-          if (navCfg) navCfg.classList.add('hidden');
+        if (typeof window.aplicarVisibilidadPorRol === 'function') {
+          window.aplicarVisibilidadPorRol(rolActual);
         }
 
         document.getElementById('login-screen').classList.add('hidden');
@@ -193,7 +199,7 @@
           <div>
             <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
               Planificación Operativa y Estratégica
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.7</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.8</span>
             </div>
             <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad INS - MINSAL</div>
           </div>
@@ -239,7 +245,10 @@
           <button data-tab="foda" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> FODA Asistido IA
           </button>
-          <button data-tab="informes" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
+          <button data-tab="consultas" id="nav-consultas" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
+            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i> Consultas
+          </button>
+          <button data-tab="informes" id="nav-informes" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
             <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Informes Gerenciales
           </button>
           <button data-tab="configuracion" id="nav-config" class="nav-btn px-3 py-2 rounded-lg text-sky-100 hover:bg-white/10 flex items-center gap-1.5">
@@ -262,6 +271,7 @@
             <p class="text-xs text-slate-500">Evaluación acumulada al trimestre de corte sin errores de división por cero ni castigo por metas futuras.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
+            <span id="badge-rol-contexto" class="hidden px-2.5 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-[11px] font-semibold"></span>
             <select id="dash-trimestre-corte" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold bg-slate-50">
               <option value="1">Corte: Trimestre 1 (Ene-Mar)</option>
               <option value="2">Corte: Trimestre 2 (Abr-Jun)</option>
@@ -476,7 +486,7 @@
       <!-- =================================================================== -->
       <section id="tab-evidencias" class="tab-content hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 h-fit">
+          <div id="panel-form-evidencia" class="bg-white p-5 rounded-xl card-shadow border border-slate-200 h-fit">
             <div class="flex items-center justify-between mb-3">
               <h3 id="titulo-form-evidencia" class="text-sm font-bold text-slate-800 flex items-center gap-2">
                 <i data-lucide="upload-cloud" class="w-4 h-4 text-sky-700"></i> Registrar Evidencia o Justificación
@@ -684,7 +694,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+          <div id="panel-form-foda" class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
             <h3 class="text-sm font-bold text-slate-800 mb-3">1. Ingresar Aporte / Idea al Taller FODA</h3>
             <form id="form-aporte-foda" class="space-y-3 text-xs">
               <div>
@@ -711,7 +721,7 @@
             </div>
           </div>
 
-          <div class="lg:col-span-2 space-y-4">
+          <div id="panel-resultados-foda" class="lg:col-span-2 space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200">
                 <h4 class="text-xs font-bold text-emerald-900 uppercase mb-2">Fortalezas Consolidadas (F)</h4>
@@ -736,6 +746,184 @@
               <div id="foda-resumen-ejecutivo" class="text-xs text-slate-600 whitespace-pre-line leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-200">
                 Aún no se ha generado la síntesis ejecutiva. Ingresa aportes y presiona "Sintetizar Aportes y Generar Análisis CAME".
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- TAB NUEVO: CONSULTAS DINÁMICAS (CUBO ANALÍTICO OLAP LIGERO)         -->
+      <!-- =================================================================== -->
+      <section id="tab-consultas" class="tab-content hidden space-y-5">
+        <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 space-y-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-lg font-bold text-slate-800">Cubo Analítico y Consultas Dinámicas PAO</h2>
+                <span id="cubo-badge-minsal" class="hidden px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold">
+                  Vista Auditada MINSAL (Solo Actividades POI)
+                </span>
+              </div>
+              <p class="text-xs text-slate-500">Cruza dimensiones estratégicas, operativas y de productos INS en tiempo real con métricas simples y ponderadas.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="resetFiltrosCubo()" class="px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Limpiar Filtros
+              </button>
+              <button type="button" onclick="exportarCuboExcel()" class="px-3.5 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Exportar Consulta (.xlsx)
+              </button>
+              <button type="button" onclick="exportarCuboCSV()" class="px-3 py-2 rounded-lg bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i> CSV
+              </button>
+            </div>
+          </div>
+
+          <!-- Constructor de Cruce y Filtros Multicriterio -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <!-- Dimensión de Agrupación Principal -->
+            <div class="sm:col-span-2 lg:col-span-1 bg-sky-50/90 p-2.5 rounded-lg border border-sky-200">
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-sky-900 mb-1">
+                <i data-lucide="layers" class="w-3 h-3 inline mr-0.5"></i> Agrupar / Cruzar por...
+              </label>
+              <select id="cubo-agrupar-por" onchange="ejecutarCuboAnalitico()" class="w-full px-2.5 py-1.5 rounded-lg border border-sky-300 bg-white font-bold text-sky-950">
+                <option value="unidad">Unidad Organizativa INS</option>
+                <option value="eje">Eje Estratégico PEI</option>
+                <option value="estrategia">Estrategia PEI</option>
+                <option value="tipo_producto">Tipo de Producto INS</option>
+                <option value="responsable">Persona Responsable (Col U)</option>
+                <option value="estado">Estado de Cumplimiento / Semáforo</option>
+              </select>
+            </div>
+
+            <!-- Corte Trimestral -->
+            <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Corte de Evaluación</label>
+              <select id="cubo-corte" onchange="ejecutarCuboAnalitico()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold text-slate-800">
+                <option value="1">Trimestre 1 (Ene–Mar)</option>
+                <option value="2">Acumulado al T2 (Ene–Jun)</option>
+                <option value="3">Acumulado al T3 (Ene–Sep)</option>
+                <option value="4" selected>Acumulado Anual (T1–T4)</option>
+              </select>
+            </div>
+
+            <!-- Unidad Organizativa -->
+            <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Unidad Organizativa INS</label>
+              <select id="cubo-filtro-unidad" onchange="ejecutarCuboAnalitico()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800">
+                <option value="ALL">Todas las Unidades (Consolidado)</option>
+              </select>
+            </div>
+
+            <!-- Filtro Ministerial POI -->
+            <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Filtro Ministerial (¿Pasa a POI?)</label>
+              <select id="cubo-filtro-poi" onchange="ejecutarCuboAnalitico()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-semibold text-slate-800">
+                <option value="ALL">Todas las Actividades (POI + Internas)</option>
+                <option value="SI">Solo Reportables a MINSAL (Pasa a POI = SÍ)</option>
+                <option value="NO">Solo Gestión Interna INS (Pasa a POI = NO)</option>
+              </select>
+            </div>
+
+            <!-- Eje Estratégico PEI -->
+            <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Eje Estratégico PEI</label>
+              <select id="cubo-filtro-eje" onchange="onCuboEjeChange()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800">
+                <option value="ALL">Todos los Ejes Estratégicos</option>
+              </select>
+            </div>
+
+            <!-- Estrategia PEI -->
+            <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Estrategia PEI</label>
+              <select id="cubo-filtro-estrategia" onchange="onCuboEstrategiaChange()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800">
+                <option value="ALL">Todas las Estrategias</option>
+              </select>
+            </div>
+
+            <!-- Línea de Acción PEI -->
+            <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Línea de Acción PEI</label>
+              <select id="cubo-filtro-linea" onchange="ejecutarCuboAnalitico()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800">
+                <option value="ALL">Todas las Líneas de Acción</option>
+              </select>
+            </div>
+
+            <!-- Estado / Semáforo -->
+            <div class="p-2.5 rounded-lg bg-white border border-slate-200">
+              <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Estado / Semáforo</label>
+              <select id="cubo-filtro-estado" onchange="ejecutarCuboAnalitico()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800">
+                <option value="ALL">Todos los Estados</option>
+                <option value="Finalizada">Finalizada (100%)</option>
+                <option value="En curso">En curso (≥ 90%)</option>
+                <option value="En atención">En atención (75% - 89%)</option>
+                <option value="Con retraso">Con retraso (&lt; 75%)</option>
+                <option value="Sin registro">Sin registro</option>
+                <option value="Pendiente">Pendiente / Programada futura</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- KPIs Resumen del Cubo Filtrado -->
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="text-[10px] font-bold uppercase text-slate-500">Actividades Filtradas</div>
+              <div id="cubo-kpi-acts" class="text-2xl font-bold text-slate-900 mt-0.5">0</div>
+              <div id="cubo-kpi-prods" class="text-[11px] text-slate-500">0 productos hijos</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="text-[10px] font-bold uppercase text-slate-500">Meta Prog. al Corte</div>
+              <div id="cubo-kpi-prog" class="text-2xl font-bold text-slate-800 mt-0.5">0.0</div>
+              <div class="text-[11px] text-slate-500">Suma unidades / %</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="text-[10px] font-bold uppercase text-slate-500">Ejecución Realizada</div>
+              <div id="cubo-kpi-real" class="text-2xl font-bold text-emerald-700 mt-0.5">0.0</div>
+              <div class="text-[11px] text-slate-500">Acumulado al corte</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-sky-50/70 border border-sky-200">
+              <div class="text-[10px] font-bold uppercase text-sky-800">Cumplimiento Simple</div>
+              <div id="cubo-kpi-simple" class="text-2xl font-bold text-sky-700 mt-0.5">0.0%</div>
+              <div class="text-[11px] text-sky-600">Promedio acotado</div>
+            </div>
+            <div class="p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-200 col-span-2 sm:col-span-1">
+              <div class="text-[10px] font-bold uppercase text-indigo-800">Cumplimiento Ponderado</div>
+              <div id="cubo-kpi-ponderado" class="text-2xl font-bold text-indigo-700 mt-0.5">0.0%</div>
+              <div class="text-[11px] text-indigo-600">Según peso gerencial</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla Dinámica + Gráfico Comparativo -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <div class="bg-white rounded-xl card-shadow border border-slate-200 overflow-hidden lg:col-span-7 flex flex-col">
+            <div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+              <h3 id="cubo-tabla-titulo" class="text-xs font-bold uppercase tracking-wider text-slate-700">Resultados Agrupados por Unidad Organizativa</h3>
+              <span id="cubo-grupos-count" class="text-[11px] font-semibold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-full">0 grupos</span>
+            </div>
+            <div class="overflow-x-auto scrollbar-thin flex-1">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-800 text-white uppercase text-[10px]">
+                  <tr>
+                    <th id="cubo-th-dimension" class="px-3 py-2.5">Dimensión Agrupada</th>
+                    <th class="px-2.5 py-2.5 text-center">Act.</th>
+                    <th class="px-2.5 py-2.5 text-center">Prod.</th>
+                    <th class="px-2.5 py-2.5 text-right">Meta Prog.</th>
+                    <th class="px-2.5 py-2.5 text-right">Ejec. Real</th>
+                    <th class="px-2.5 py-2.5 text-right">% Simple</th>
+                    <th class="px-2.5 py-2.5 text-right">% Pond.</th>
+                  </tr>
+                </thead>
+                <tbody id="cubo-tabla-body" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 lg:col-span-5 flex flex-col">
+            <h3 class="text-sm font-bold text-slate-800 mb-1">Comparativo Gráfico por Dimensión</h3>
+            <p class="text-[11px] text-slate-500 mb-3">Porcentaje de cumplimiento simple vs. ponderado al corte seleccionado.</p>
+            <div class="flex-1 min-h-[300px]">
+              <canvas id="chart-cubo-dinamico"></canvas>
             </div>
           </div>
         </div>
@@ -1256,7 +1444,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- LÓGICA DE MÓDULOS DE NEGOCIO Y DASHBOARDS v1.7                          -->
+  <!-- LÓGICA DE MÓDULOS DE NEGOCIO Y DASHBOARDS v1.8                          -->
   <!-- ======================================================================= -->
   <script>
     let ciclosList = [];
@@ -1269,6 +1457,8 @@
     let tiposProductoList = [];
     let referentesList = [];
     let actividadesCache = [];
+    let productosCicloCache = [];
+    let cuboResultadosCache = [];
     let evidenciasCache = [];
     let dashDataCache = [];
     let charts = {};
@@ -1279,6 +1469,101 @@
     const LOCAL_TP_CAT_KEY = 'ins_tp_categorias_v11';
     const LOCAL_REF_KEY = 'ins_directorio_referentes_v11';
     const LOCAL_ACT_TP_KEY = 'ins_actividad_tipo_producto_v14';
+
+
+    function getRolActual() {
+      return currentProfile?.rol || 'operativo_referente';
+    }
+
+    function esAdminPlanificacion() {
+      return getRolActual() === 'admin_planificacion';
+    }
+
+    function esOperativoReferente() {
+      return getRolActual() === 'operativo_referente';
+    }
+
+    function esSoloLectura() {
+      const r = getRolActual();
+      return r === 'gerencial_direccion' || r === 'auditor_minsal';
+    }
+
+    function esAuditorMinsal() {
+      return getRolActual() === 'auditor_minsal';
+    }
+
+    function aplicarScopeRolActividades(lista) {
+      const rol = getRolActual();
+      let res = [...(lista || [])];
+      if (rol === 'operativo_referente' && currentProfile?.unidad_id) {
+        res = res.filter(a => a.unidad_ins_id === currentProfile.unidad_id);
+      } else if (rol === 'auditor_minsal') {
+        res = res.filter(a => Boolean(a.pasa_poi));
+      }
+      return res;
+    }
+
+    window.aplicarVisibilidadPorRol = function(rol) {
+      const navConfig = document.getElementById('nav-config');
+      const navInformes = document.getElementById('nav-informes');
+      const navConsultas = document.getElementById('nav-consultas');
+      const btnNuevaAct = document.getElementById('btn-nueva-actividad');
+      const btnNuevoRiesgo = document.getElementById('btn-nuevo-riesgo');
+      const btnSintetizarFoda = document.getElementById('btn-sintetizar-foda');
+      const panelFormEv = document.getElementById('panel-form-evidencia');
+      const panelFormFoda = document.getElementById('panel-form-foda');
+      const panelResFoda = document.getElementById('panel-resultados-foda');
+      const badgeCtx = document.getElementById('badge-rol-contexto');
+      const cuboBadgeMinsal = document.getElementById('cubo-badge-minsal');
+
+      [navConfig, navInformes, navConsultas, btnNuevaAct, btnNuevoRiesgo, btnSintetizarFoda, panelFormEv, panelFormFoda].forEach(el => {
+        if (el) el.classList.remove('hidden');
+      });
+      if (panelResFoda) {
+        panelResFoda.classList.remove('lg:col-span-3');
+        panelResFoda.classList.add('lg:col-span-2');
+      }
+
+      if (rol === 'admin_planificacion') {
+        if (badgeCtx) badgeCtx.classList.add('hidden');
+        if (cuboBadgeMinsal) cuboBadgeMinsal.classList.add('hidden');
+      } else if (rol === 'operativo_referente') {
+        if (navConfig) navConfig.classList.add('hidden');
+        if (navInformes) navInformes.classList.add('hidden');
+        if (navConsultas) navConsultas.classList.add('hidden');
+
+        const unidadNombre = currentProfile?.unidades_ins?.nombre || 'Mi Unidad INS';
+        if (badgeCtx) {
+          badgeCtx.textContent = `Vista filtrada: ${unidadNombre}`;
+          badgeCtx.classList.remove('hidden');
+        }
+      } else if (rol === 'gerencial_direccion' || rol === 'auditor_minsal') {
+        if (navConfig) navConfig.classList.add('hidden');
+        if (navInformes) navInformes.classList.add('hidden');
+        if (navConsultas) navConsultas.classList.remove('hidden');
+
+        if (btnNuevaAct) btnNuevaAct.classList.add('hidden');
+        if (btnNuevoRiesgo) btnNuevoRiesgo.classList.add('hidden');
+        if (btnSintetizarFoda) btnSintetizarFoda.classList.add('hidden');
+        if (panelFormEv) panelFormEv.classList.add('hidden');
+        if (panelFormFoda) panelFormFoda.classList.add('hidden');
+        if (panelResFoda) {
+          panelResFoda.classList.remove('lg:col-span-2');
+          panelResFoda.classList.add('lg:col-span-3');
+        }
+
+        if (rol === 'auditor_minsal') {
+          if (badgeCtx) {
+            badgeCtx.textContent = 'Auditoría DIRPLAN MINSAL • Solo Actividades POI';
+            badgeCtx.classList.remove('hidden');
+          }
+          if (cuboBadgeMinsal) cuboBadgeMinsal.classList.remove('hidden');
+        } else if (badgeCtx) {
+          badgeCtx.textContent = 'Modo Consulta Ejecutiva (Solo Lectura)';
+          badgeCtx.classList.remove('hidden');
+        }
+      }
+    };
 
     function getLocalTpCats() {
       try { return JSON.parse(localStorage.getItem(LOCAL_TP_CAT_KEY) || '{}'); } catch { return {}; }
@@ -1592,9 +1877,30 @@
       const unitOpts = unidadesList.map(u => `<option value="${u.id}">${u.nombre}</option>`).join('');
       document.getElementById('dash-unidad-filter').innerHTML = `<option value="ALL">Todas las Unidades INS</option>` + unitOpts;
       document.getElementById('filtro-ev-unidad').innerHTML = `<option value="ALL">Todas las Unidades INS</option>` + unitOpts;
+      document.getElementById('cubo-filtro-unidad').innerHTML = `<option value="ALL">Todas las Unidades (Consolidado)</option>` + unitOpts;
       document.getElementById('act-unidad').innerHTML = unitOpts;
       document.getElementById('rk-unidad').innerHTML = unitOpts;
       document.getElementById('ref-unidad').innerHTML = unitOpts;
+
+      if (esOperativoReferente() && currentProfile?.unidad_id) {
+        ['dash-unidad-filter', 'filtro-ev-unidad', 'act-unidad', 'rk-unidad'].forEach(selId => {
+          const el = document.getElementById(selId);
+          if (el) {
+            el.value = currentProfile.unidad_id;
+            el.disabled = true;
+          }
+        });
+      }
+
+      if (esAuditorMinsal()) {
+        const poiSel = document.getElementById('cubo-filtro-poi');
+        if (poiSel) {
+          poiSel.value = 'SI';
+          poiSel.disabled = true;
+        }
+      }
+
+      poblarFiltrosPeiCubo();
 
       const planOpts = planesList.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
       document.getElementById('dash-plan-select').innerHTML = planOpts;
@@ -1684,6 +1990,7 @@
     function refreshActiveTab(tab) {
       if (tab === 'dash-anual') loadDashboardAnual();
       if (tab === 'dash-estrategico') loadDashboardPlurianual();
+      if (tab === 'consultas') ejecutarCuboAnalitico();
       if (tab === 'matriz-poa') loadActividadesPOA();
       if (tab === 'evidencias') loadEvidencias();
       if (tab === 'riesgos') loadRiesgos();
@@ -1850,12 +2157,19 @@
         .eq('ciclo_id', activeCicloId)
         .eq('trimestre_corte', corte);
 
-      if (unitFilter !== 'ALL') {
+      if (esOperativoReferente() && currentProfile?.unidad_id) {
+        query = query.eq('unidad_id', currentProfile.unidad_id);
+      } else if (unitFilter !== 'ALL') {
         query = query.eq('unidad_id', unitFilter);
       }
 
       const { data } = await query;
-      dashDataCache = data || [];
+      let rowsDash = data || [];
+      if (esAuditorMinsal() && actividadesCache.length > 0) {
+        const idsPoi = new Set(actividadesCache.filter(a => Boolean(a.pasa_poi)).map(a => a.id));
+        rowsDash = rowsDash.filter(r => !r.actividad_id || idsPoi.has(r.actividad_id));
+      }
+      dashDataCache = rowsDash;
 
       const validas = dashDataCache.filter(d => d.pct_cumplimiento_corte !== null);
       const avgAcotado = validas.length ? (validas.reduce((acc, r) => acc + Number(r.pct_cumplimiento_corte_acotado), 0) / validas.length) : 0;
@@ -2365,20 +2679,31 @@
                 <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold leading-tight ${sem.badgeClass}">${sem.label}</span>
               </td>
               <td class="px-1.5 py-2 text-center align-middle">
-                <div class="inline-flex items-center justify-center gap-1">
-                  <button onclick="abrirEditarActividadModal('${a.id}')" title="Editar actividad PAO"
-                    class="p-1.5 bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 rounded-lg border border-slate-200 transition">
-                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                  </button>
-                  <button onclick="abrirGestionProductos('${a.id}')" title="${a.consolida_desde_productos ? 'Gestionar Productos y Avance Trimestral' : 'Registrar Avance Trimestral'}"
-                    class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg font-semibold text-[10px] leading-tight border border-sky-200 transition">
-                    ${a.consolida_desde_productos ? 'Productos' : 'Avance'}
-                  </button>
-                  <button onclick="eliminarActividadPOA('${a.id}')" title="Eliminar actividad y sus productos hijos"
-                    class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg border border-rose-200 transition">
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                  </button>
-                </div>
+                ${esSoloLectura()
+                  ? `<div class="inline-flex items-center justify-center gap-1">
+                       ${a.consolida_desde_productos
+                         ? `<button onclick="abrirGestionProductos('${a.id}')" title="Ver desglose de productos INS"
+                              class="px-2 py-1 bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-800 rounded-lg font-semibold text-[10px] border border-slate-200 transition">
+                              Ver Productos
+                            </button>`
+                         : `<span class="text-[10px] text-slate-400 italic">Solo lectura</span>`
+                       }
+                     </div>`
+                  : `<div class="inline-flex items-center justify-center gap-1">
+                       <button onclick="abrirEditarActividadModal('${a.id}')" title="Editar actividad PAO"
+                         class="p-1.5 bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 rounded-lg border border-slate-200 transition">
+                         <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                       </button>
+                       <button onclick="abrirGestionProductos('${a.id}')" title="${a.consolida_desde_productos ? 'Gestionar Productos y Avance Trimestral' : 'Registrar Avance Trimestral'}"
+                         class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-lg font-semibold text-[10px] leading-tight border border-sky-200 transition">
+                         ${a.consolida_desde_productos ? 'Productos' : 'Avance'}
+                       </button>
+                       <button onclick="eliminarActividadPOA('${a.id}')" title="Eliminar actividad y sus productos hijos"
+                         class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg border border-rose-200 transition">
+                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                       </button>
+                     </div>`
+                }
               </td>
             </tr>
           `;
@@ -2398,13 +2723,25 @@
         .eq('ciclo_id', activeCicloId)
         .order('created_at', { ascending: true });
 
-      actividadesCache = data || [];
+      actividadesCache = aplicarScopeRolActividades(data || []);
+
+      const actIds = actividadesCache.map(a => a.id);
+      if (actIds.length > 0) {
+        const { data: prods } = await sb.from('productos_poa')
+          .select('*, catalogo_tipos_producto(id, codigo, nombre, unidad_medida_default)')
+          .in('actividad_poa_id', actIds);
+        productosCicloCache = prods || [];
+      } else {
+        productosCicloCache = [];
+      }
+
       if (modoControlMatriz === 'filtrar') {
         poblarOpcionesFiltroMatriz();
       }
       renderTablaActividadesPOA();
       actualizarOpcionesFiltroEvidencia();
       renderListaEvidencias();
+      ejecutarCuboAnalitico();
     }
 
     let currentEditingActId = null;
@@ -2438,6 +2775,8 @@
         `).join('');
 
         await loadProductosHijos(actId);
+        const formNP = document.getElementById('form-nuevo-producto');
+        if (formNP) formNP.classList.toggle('hidden', esSoloLectura());
       } else {
         document.getElementById('seccion-productos-hijos').classList.add('hidden');
         document.getElementById('seccion-avance-directo').classList.remove('hidden');
@@ -3172,7 +3511,9 @@
       const catFilter = document.getElementById('filtro-ev-categoria')?.value || 'ALL';
       const unitFilter = document.getElementById('filtro-ev-unidad')?.value || 'ALL';
 
+      const allowedActIds = new Set(actividadesCache.map(a => a.id));
       return evidenciasCache.filter(ev => {
+        if (actividadesCache.length > 0 && !allowedActIds.has(ev.actividad_poa_id)) return false;
         if (Number(ev.trimestre) > corteMax) return false;
         if (catFilter === 'SOLO_JUSTIFICACIONES' && ev.categoria === 'evidencia_cumplimiento') return false;
         if (catFilter !== 'ALL' && catFilter !== 'SOLO_JUSTIFICACIONES' && ev.categoria !== catFilter) return false;
@@ -3213,14 +3554,16 @@
               <div class="font-bold text-slate-800">${ev.titulo} <span class="text-slate-500 font-semibold">(T${ev.trimestre})</span></div>
               <div class="flex items-center gap-1.5 shrink-0">
                 ${badge}
-                <button type="button" onclick="prepararEdicionEvidencia('${ev.id}')" title="Editar registro"
-                  class="p-1 bg-white hover:bg-amber-100 text-slate-600 hover:text-amber-900 rounded border border-slate-200 transition">
-                  <i data-lucide="pencil" class="w-3 h-3"></i>
-                </button>
-                <button type="button" onclick="eliminarEvidencia('${ev.id}')" title="Eliminar registro y archivo"
-                  class="p-1 bg-white hover:bg-rose-100 text-rose-600 rounded border border-slate-200 transition">
-                  <i data-lucide="trash-2" class="w-3 h-3"></i>
-                </button>
+                ${esSoloLectura() ? '' : `
+                  <button type="button" onclick="prepararEdicionEvidencia('${ev.id}')" title="Editar registro"
+                    class="p-1 bg-white hover:bg-amber-100 text-slate-600 hover:text-amber-900 rounded border border-slate-200 transition">
+                    <i data-lucide="pencil" class="w-3 h-3"></i>
+                  </button>
+                  <button type="button" onclick="eliminarEvidencia('${ev.id}')" title="Eliminar registro y archivo"
+                    class="p-1 bg-white hover:bg-rose-100 text-rose-600 rounded border border-slate-200 transition">
+                    <i data-lucide="trash-2" class="w-3 h-3"></i>
+                  </button>
+                `}
               </div>
             </div>
             <div class="text-[11px] text-sky-800 font-medium">${unidadNom ? `[${unidadNom}] ` : ''}${actObj?.actividad || ''}</div>
@@ -3475,7 +3818,11 @@
 
     async function loadRiesgos() {
       if (!activeCicloId) return;
-      const { data } = await sb.from('matriz_riesgos').select('*').eq('ciclo_id', activeCicloId).order('created_at');
+      let queryRk = sb.from('matriz_riesgos').select('*').eq('ciclo_id', activeCicloId).order('created_at');
+      if (esOperativoReferente() && currentProfile?.unidad_id) {
+        queryRk = queryRk.eq('unidad_ins_id', currentProfile.unidad_id);
+      }
+      const { data } = await queryRk;
       const tbody = document.getElementById('tabla-riesgos');
 
       if (!data || data.length === 0) {
@@ -3497,15 +3844,15 @@
             <td class="px-3 py-2.5 text-center whitespace-nowrap">
               ${[1,2,3,4].map(t => `
                 <label class="inline-flex items-center mr-1.5 cursor-pointer">
-                  <input type="checkbox" ${r['materializado_t'+t] ? 'checked' : ''} onchange="toggleRiesgoMat('${r.id}', ${t}, this.checked)" />
+                  <input type="checkbox" ${esSoloLectura() ? 'disabled' : ''} ${r['materializado_t'+t] ? 'checked' : ''} onchange="toggleRiesgoMat('${r.id}', ${t}, this.checked)" />
                   <span class="ml-0.5 text-[10px]">T${t}</span>
                 </label>
               `).join('')}
             </td>
             <td class="px-3 py-2.5">
-              <input type="text" value="${r.acciones_tomadas_contingencia || ''}" placeholder="Si materializó, describir..."
+              <input type="text" ${esSoloLectura() ? 'disabled' : ''} value="${r.acciones_tomadas_contingencia || ''}" placeholder="Si materializó, describir..."
                 onblur="guardarContingenciaRiesgo('${r.id}', this.value)"
-                class="w-full px-2 py-1 border rounded text-xs" />
+                class="w-full px-2 py-1 border rounded text-xs disabled:bg-slate-50" />
             </td>
           </tr>
         `;
@@ -3908,6 +4255,367 @@
     async function cambiarEstadoCiclo(id, estado) {
       await sb.from('ciclos_anuales').update({ estado }).eq('id', id);
       await initMasterData();
+    }
+
+
+    // =========================================================================
+    // MÓDULO: CUBO ANALÍTICO DINÁMICO (CONSULTAS MULTICRITERIO OLAP LIGERO)
+    // =========================================================================
+    function poblarFiltrosPeiCubo() {
+      const ejeSel = document.getElementById('cubo-filtro-eje');
+      const estSel = document.getElementById('cubo-filtro-estrategia');
+      const linSel = document.getElementById('cubo-filtro-linea');
+      if (!ejeSel) return;
+
+      ejeSel.innerHTML = `<option value="ALL">Todos los Ejes Estratégicos</option>` +
+        ejesList.map(e => `<option value="${e.id}">Eje ${e.numero_orden}. ${e.nombre}</option>`).join('');
+      estSel.innerHTML = `<option value="ALL">Todas las Estrategias</option>` +
+        estrategiasList.map(s => `<option value="${s.id}">${s.numero_orden}. ${s.nombre}</option>`).join('');
+      linSel.innerHTML = `<option value="ALL">Todas las Líneas de Acción</option>` +
+        lineasList.map(l => `<option value="${l.id}">${l.numero_orden}. ${l.nombre}</option>`).join('');
+    }
+
+    function onCuboEjeChange() {
+      const ejeId = document.getElementById('cubo-filtro-eje').value;
+      const estSel = document.getElementById('cubo-filtro-estrategia');
+      const linSel = document.getElementById('cubo-filtro-linea');
+
+      const estFiltradas = ejeId === 'ALL' ? estrategiasList : estrategiasList.filter(s => s.eje_id === ejeId);
+      estSel.innerHTML = `<option value="ALL">Todas las Estrategias</option>` +
+        estFiltradas.map(s => `<option value="${s.id}">${s.numero_orden}. ${s.nombre}</option>`).join('');
+
+      const estIds = new Set(estFiltradas.map(s => s.id));
+      const linFiltradas = ejeId === 'ALL' ? lineasList : lineasList.filter(l => estIds.has(l.estrategia_id));
+      linSel.innerHTML = `<option value="ALL">Todas las Líneas de Acción</option>` +
+        linFiltradas.map(l => `<option value="${l.id}">${l.numero_orden}. ${l.nombre}</option>`).join('');
+
+      ejecutarCuboAnalitico();
+    }
+
+    function onCuboEstrategiaChange() {
+      const estId = document.getElementById('cubo-filtro-estrategia').value;
+      const ejeId = document.getElementById('cubo-filtro-eje').value;
+      const linSel = document.getElementById('cubo-filtro-linea');
+
+      let linFiltradas = lineasList;
+      if (estId !== 'ALL') {
+        linFiltradas = lineasList.filter(l => l.estrategia_id === estId);
+      } else if (ejeId !== 'ALL') {
+        const estIds = new Set(estrategiasList.filter(s => s.eje_id === ejeId).map(s => s.id));
+        linFiltradas = lineasList.filter(l => estIds.has(l.estrategia_id));
+      }
+
+      linSel.innerHTML = `<option value="ALL">Todas las Líneas de Acción</option>` +
+        linFiltradas.map(l => `<option value="${l.id}">${l.numero_orden}. ${l.nombre}</option>`).join('');
+
+      ejecutarCuboAnalitico();
+    }
+
+    function resetFiltrosCubo() {
+      document.getElementById('cubo-agrupar-por').value = 'unidad';
+      document.getElementById('cubo-corte').value = '4';
+      document.getElementById('cubo-filtro-unidad').value = 'ALL';
+      document.getElementById('cubo-filtro-eje').value = 'ALL';
+      document.getElementById('cubo-filtro-estrategia').value = 'ALL';
+      document.getElementById('cubo-filtro-linea').value = 'ALL';
+      document.getElementById('cubo-filtro-estado').value = 'ALL';
+      if (!esAuditorMinsal()) {
+        document.getElementById('cubo-filtro-poi').value = 'ALL';
+      } else {
+        document.getElementById('cubo-filtro-poi').value = 'SI';
+      }
+      poblarFiltrosPeiCubo();
+      ejecutarCuboAnalitico();
+    }
+
+    function calcularMetricasActividadAlCorte(act, corte) {
+      let prog = 0;
+      let real = 0;
+      let tieneReal = false;
+      for (let t = 1; t <= corte; t++) {
+        prog += Number(act['prog_t' + t] || 0);
+        const rVal = act['real_t' + t];
+        if (rVal !== null && rVal !== undefined && rVal !== '') {
+          real += Number(rVal);
+          tieneReal = true;
+        }
+      }
+      let pctAcotado = 0;
+      if (prog > 0) {
+        pctAcotado = Math.min(100, (real / prog) * 100);
+      } else if (real > 0) {
+        pctAcotado = 100;
+      }
+      return { prog, real, pctAcotado, tieneReal };
+    }
+
+    function ejecutarCuboAnalitico() {
+      const tablaBody = document.getElementById('cubo-tabla-body');
+      if (!tablaBody) return;
+
+      const dimension = document.getElementById('cubo-agrupar-por').value;
+      const corte = parseInt(document.getElementById('cubo-corte').value || '4');
+      const unitFilter = document.getElementById('cubo-filtro-unidad').value;
+      const ejeFilter = document.getElementById('cubo-filtro-eje').value;
+      const estFilter = document.getElementById('cubo-filtro-estrategia').value;
+      const linFilter = document.getElementById('cubo-filtro-linea').value;
+      const estSemFilter = document.getElementById('cubo-filtro-estado').value;
+      const poiFilter = esAuditorMinsal() ? 'SI' : document.getElementById('cubo-filtro-poi').value;
+
+      let filtradas = actividadesCache.filter(a => {
+        if (unitFilter !== 'ALL' && a.unidad_ins_id !== unitFilter) return false;
+        if (poiFilter === 'SI' && !a.pasa_poi) return false;
+        if (poiFilter === 'NO' && a.pasa_poi) return false;
+
+        const linObj = lineasList.find(l => l.id === a.linea_accion_id);
+        const estObj = linObj ? estrategiasList.find(s => s.id === linObj.estrategia_id) : null;
+        if (ejeFilter !== 'ALL' && estObj?.eje_id !== ejeFilter) return false;
+        if (estFilter !== 'ALL' && linObj?.estrategia_id !== estFilter) return false;
+        if (linFilter !== 'ALL' && a.linea_accion_id !== linFilter) return false;
+
+        const sem = calcularSemaforoYEstado(a);
+        if (estSemFilter !== 'ALL' && sem.label !== estSemFilter) return false;
+
+        return true;
+      });
+
+      const localTpMap = getLocalActTpMap();
+      const grupos = {};
+
+      const addToGrupo = (key, label, metrica, pond, prodsCount) => {
+        if (!grupos[key]) {
+          grupos[key] = {
+            key,
+            label,
+            actsCount: 0,
+            prodsCount: 0,
+            sumaProg: 0,
+            sumaReal: 0,
+            sumaPctSimple: 0,
+            sumaPctPond: 0,
+            sumaPesos: 0
+          };
+        }
+        const g = grupos[key];
+        g.actsCount += 1;
+        g.prodsCount += prodsCount;
+        g.sumaProg += metrica.prog;
+        g.sumaReal += metrica.real;
+        g.sumaPctSimple += metrica.pctAcotado;
+        g.sumaPctPond += metrica.pctAcotado * pond;
+        g.sumaPesos += pond;
+      };
+
+      let totalProdsGlobal = 0;
+
+      filtradas.forEach(a => {
+        const m = calcularMetricasActividadAlCorte(a, corte);
+        const pond = Number(a.ponderacion || 1);
+        const prodsAct = productosCicloCache.filter(p => p.actividad_poa_id === a.id);
+        totalProdsGlobal += prodsAct.length;
+
+        if (dimension === 'unidad') {
+          const uNom = a.unidades_ins?.nombre || 'Sin Unidad Asignada';
+          addToGrupo(uNom, uNom, m, pond, prodsAct.length);
+        } else if (dimension === 'eje') {
+          const eje = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
+          const label = eje ? `Eje ${eje.numero_orden}. ${eje.nombre}` : 'Sin Eje PEI';
+          addToGrupo(label, label, m, pond, prodsAct.length);
+        } else if (dimension === 'estrategia') {
+          const est = a.pei_lineas_accion?.pei_estrategias;
+          const label = est ? `${est.numero_orden ? est.numero_orden + '. ' : ''}${est.nombre}` : 'Sin Estrategia PEI';
+          addToGrupo(label, label, m, pond, prodsAct.length);
+        } else if (dimension === 'responsable') {
+          const resp = (a.responsable_nombre || 'Sin Responsable').trim();
+          addToGrupo(resp, resp, m, pond, prodsAct.length);
+        } else if (dimension === 'estado') {
+          const sem = calcularSemaforoYEstado(a);
+          addToGrupo(sem.label, sem.label, m, pond, prodsAct.length);
+        } else if (dimension === 'tipo_producto') {
+          if (prodsAct.length > 0) {
+            prodsAct.forEach(p => {
+              const tpNom = p.catalogo_tipos_producto?.nombre || 'Producto General INS';
+              let pProg = 0;
+              let pReal = 0;
+              for (let t = 1; t <= corte; t++) {
+                pProg += Number(p['prog_num_t' + t] || 0);
+                pReal += Number(p['real_num_t' + t] || 0);
+              }
+              const pPct = pProg > 0 ? Math.min(100, (pReal / pProg) * 100) : (pReal > 0 ? 100 : 0);
+              addToGrupo(tpNom, tpNom, { prog: pProg, real: pReal, pctAcotado: pPct }, pond, 1);
+            });
+          } else {
+            const tpId = a.tipo_producto_id || localTpMap[a.id];
+            const tpObj = tpId ? tiposProductoList.find(t => t.id === tpId) : null;
+            const tpNom = tpObj ? tpObj.nombre : 'Actividad Directa (Sin Tipo Producto)';
+            addToGrupo(tpNom, tpNom, m, pond, 0);
+          }
+        }
+      });
+
+      const resultados = Object.values(grupos).map(g => ({
+        ...g,
+        pctSimpleProm: g.actsCount > 0 ? (g.sumaPctSimple / g.actsCount) : 0,
+        pctPonderadoProm: g.sumaPesos > 0 ? (g.sumaPctPond / g.sumaPesos) : 0
+      })).sort((a, b) => b.pctPonderadoProm - a.pctPonderadoProm || b.actsCount - a.actsCount);
+
+      cuboResultadosCache = resultados;
+
+      const totActs = filtradas.length;
+      const totProg = resultados.reduce((acc, r) => acc + r.sumaProg, 0);
+      const totReal = resultados.reduce((acc, r) => acc + r.sumaReal, 0);
+      const globalSimple = totActs > 0
+        ? (filtradas.reduce((acc, a) => acc + calcularMetricasActividadAlCorte(a, corte).pctAcotado, 0) / totActs)
+        : 0;
+      const totPesos = filtradas.reduce((acc, a) => acc + Number(a.ponderacion || 1), 0);
+      const globalPond = totPesos > 0
+        ? (filtradas.reduce((acc, a) => acc + calcularMetricasActividadAlCorte(a, corte).pctAcotado * Number(a.ponderacion || 1), 0) / totPesos)
+        : 0;
+
+      document.getElementById('cubo-kpi-acts').textContent = totActs;
+      document.getElementById('cubo-kpi-prods').textContent = `${totalProdsGlobal} productos INS vinculados`;
+      document.getElementById('cubo-kpi-prog').textContent = totProg.toLocaleString('es-SV', { maximumFractionDigits: 1 });
+      document.getElementById('cubo-kpi-real').textContent = totReal.toLocaleString('es-SV', { maximumFractionDigits: 1 });
+      document.getElementById('cubo-kpi-simple').textContent = globalSimple.toFixed(1) + '%';
+      document.getElementById('cubo-kpi-ponderado').textContent = globalPond.toFixed(1) + '%';
+
+      const titulosDim = {
+        unidad: 'Unidad Organizativa INS',
+        eje: 'Eje Estratégico PEI',
+        estrategia: 'Estrategia PEI',
+        tipo_producto: 'Tipo de Producto INS',
+        responsable: 'Persona Responsable (Col U)',
+        estado: 'Estado de Cumplimiento'
+      };
+      document.getElementById('cubo-tabla-titulo').textContent = `Cruce Dinámico por ${titulosDim[dimension]}`;
+      document.getElementById('cubo-th-dimension').textContent = titulosDim[dimension];
+      document.getElementById('cubo-grupos-count').textContent = `${resultados.length} grupos`;
+
+      if (resultados.length === 0) {
+        tablaBody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No existen registros que coincidan con la combinación de filtros seleccionada.</td></tr>`;
+      } else {
+        tablaBody.innerHTML = resultados.map(r => {
+          const badgeColor = r.pctPonderadoProm >= 90
+            ? 'bg-emerald-100 text-emerald-800'
+            : r.pctPonderadoProm >= 75
+              ? 'bg-amber-100 text-amber-800'
+              : 'bg-rose-100 text-rose-800';
+          return `
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2.5 font-semibold text-slate-800 leading-snug">${r.label}</td>
+              <td class="px-2.5 py-2.5 text-center font-medium text-slate-700">${r.actsCount}</td>
+              <td class="px-2.5 py-2.5 text-center text-slate-500">${r.prodsCount}</td>
+              <td class="px-2.5 py-2.5 text-right text-slate-600">${r.sumaProg.toLocaleString('es-SV', { maximumFractionDigits: 1 })}</td>
+              <td class="px-2.5 py-2.5 text-right font-semibold text-slate-800">${r.sumaReal.toLocaleString('es-SV', { maximumFractionDigits: 1 })}</td>
+              <td class="px-2.5 py-2.5 text-right font-semibold text-sky-700">${r.pctSimpleProm.toFixed(1)}%</td>
+              <td class="px-2.5 py-2.5 text-right">
+                <span class="px-2 py-0.5 rounded-full font-bold text-[11px] ${badgeColor}">${r.pctPonderadoProm.toFixed(1)}%</span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      renderChartCubo(resultados);
+    }
+
+    function renderChartCubo(resultados) {
+      if (!window.Chart) return;
+      const canvas = document.getElementById('chart-cubo-dinamico');
+      if (!canvas) return;
+
+      const top = resultados.slice(0, 12);
+      const labels = top.map(r => r.label.length > 26 ? r.label.substring(0, 26) + '...' : r.label);
+      const dataSimple = top.map(r => Number(r.pctSimpleProm.toFixed(1)));
+      const dataPond = top.map(r => Number(r.pctPonderadoProm.toFixed(1)));
+
+      if (charts.cubo) charts.cubo.destroy();
+      charts.cubo = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: '% Simple', data: dataSimple, backgroundColor: '#0284c7', borderRadius: 4 },
+            { label: '% Ponderado', data: dataPond, backgroundColor: '#4f46e5', borderRadius: 4 }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { max: 100, beginAtZero: true } },
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+        }
+      });
+    }
+
+    async function exportarCuboExcel() {
+      if (!cuboResultadosCache.length) return alert('No hay datos agrupados para exportar.');
+      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
+      const anioCiclo = cicloObj?.anio || new Date().getFullYear();
+      const dimText = document.getElementById('cubo-th-dimension').textContent;
+
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet('Consulta Dinámica PAO');
+
+      ws.mergeCells('A1:G1');
+      ws.getCell('A1').value = `INSTITUTO NACIONAL DE SALUD - CONSULTA ANALÍTICA PAO ${anioCiclo} (${dimText.toUpperCase()})`;
+      ws.getCell('A1').font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF0F172A' } };
+
+      const headers = [dimText, 'Actividades', 'Productos INS', 'Meta Programada', 'Ejecución Realizada', '% Cumplimiento Simple', '% Cumplimiento Ponderado'];
+      const hRow = ws.getRow(3);
+      headers.forEach((h, i) => {
+        const c = hRow.getCell(i + 1);
+        c.value = h;
+        c.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0C4A6E' } };
+        c.alignment = { horizontal: i === 0 ? 'left' : 'center', vertical: 'middle' };
+      });
+
+      cuboResultadosCache.forEach((r, idx) => {
+        const row = ws.getRow(4 + idx);
+        row.values = [
+          r.label,
+          r.actsCount,
+          r.prodsCount,
+          Number(r.sumaProg.toFixed(2)),
+          Number(r.sumaReal.toFixed(2)),
+          Number((r.pctSimpleProm / 100).toFixed(4)),
+          Number((r.pctPonderadoProm / 100).toFixed(4))
+        ];
+        row.getCell(6).numFmt = '0.00%';
+        row.getCell(7).numFmt = '0.00%';
+      });
+
+      ws.columns = [{ width: 45 }, { width: 14 }, { width: 15 }, { width: 18 }, { width: 18 }, { width: 22 }, { width: 24 }];
+
+      const buf = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Consulta_Dinamica_PAO_${anioCiclo}_INS.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportarCuboCSV() {
+      if (!cuboResultadosCache.length) return alert('No hay datos agrupados para exportar.');
+      const dimText = document.getElementById('cubo-th-dimension').textContent;
+      const lines = [
+        `"${dimText}","Actividades","Productos INS","Meta Programada","Ejecucion Realizada","% Cumplimiento Simple","% Cumplimiento Ponderado"`
+      ];
+      cuboResultadosCache.forEach(r => {
+        lines.push(`"${r.label.replace(/"/g, '""')}",${r.actsCount},${r.prodsCount},${r.sumaProg.toFixed(2)},${r.sumaReal.toFixed(2)},${r.pctSimpleProm.toFixed(2)},${r.pctPonderadoProm.toFixed(2)}`);
+      });
+      const blob = new Blob(['﻿' + lines.join('
+')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Consulta_Dinamica_PAO_INS.csv';
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
     // Arranque seguro

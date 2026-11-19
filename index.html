@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica v1.8 | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v1.9 | INS El Salvador</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230369a1'/><text x='50' y='66' font-size='44' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>INS</text></svg>" />
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +34,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.8</span></p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.9</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -199,7 +199,7 @@
           <div>
             <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
               Planificación Operativa y Estratégica
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.8</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.9</span>
             </div>
             <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad INS - MINSAL</div>
           </div>
@@ -1196,7 +1196,7 @@
           <div>
             <div class="flex items-center gap-1 mb-1">
               <label class="block font-semibold text-slate-700">Ponderación Gerencial</label>
-              <span title="Peso estratégico interno para el Dashboard Plurianual del INS (no afecta el Excel MINSAL):&#10;• 1.0 = Actividad operativa estándar&#10;• 1.5 = Actividad prioritaria de unidad&#10;• 2.0 = Proyecto insignia / Alta relevancia institucional"
+              <span title="Peso estratégico interno para el Dashboard Plurianual del INS (no afecta el Excel MINSAL):&#10;• 1.0 = Actividad operativa estándar&#10;• 1.5 = Actividad prioritaria de unidad&#10;• 2.0 = Proyecto insignia / alto impacto institucional"
                 class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-sky-100 text-sky-700 font-bold text-[10px] cursor-help">?</span>
             </div>
             <input type="number" step="0.1" min="0.1" max="5" id="act-ponderacion" value="1.0" required
@@ -1207,7 +1207,7 @@
               <b>Peso estratégico interno INS:</b><br/>
               • <b>1.0</b>: Operativa estándar<br/>
               • <b>1.5</b>: Prioritaria de unidad<br/>
-              • <b>2.0</b>: Alta relevancia para el INS
+              • <b>2.0</b>: Estratégica / Alto impacto
             </div>
           </div>
         </div>
@@ -1444,7 +1444,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- LÓGICA DE MÓDULOS DE NEGOCIO Y DASHBOARDS v1.8                          -->
+  <!-- LÓGICA DE MÓDULOS DE NEGOCIO Y DASHBOARDS v1.9                          -->
   <!-- ======================================================================= -->
   <script>
     let ciclosList = [];
@@ -1998,69 +1998,73 @@
       if (tab === 'configuracion') renderConfigTables();
     }
 
-    function mejorarRedaccionActividadIA() {
+    function obtenerContextoFormularioPOA() {
+      const getSelectedText = (id) => {
+        const el = document.getElementById(id);
+        return el && el.selectedIndex >= 0 ? el.options[el.selectedIndex].text : '';
+      };
+      return {
+        unidad: getSelectedText('act-unidad'),
+        eje: getSelectedText('act-eje'),
+        estrategia: getSelectedText('act-estrategia'),
+        linea: getSelectedText('act-linea'),
+        consolida: document.getElementById('act-consolida-productos')?.checked || false
+      };
+    }
+
+    async function llamarAsistenteGeminiPOA(payload, btnElement, textoOriginalBtn) {
+      if (btnElement) {
+        btnElement.disabled = true;
+        btnElement.innerHTML = `<span class="animate-pulse">Redactando con Gemini...</span>`;
+      }
+      try {
+        const { data, error } = await sb.functions.invoke('asistente-poa-ins', {
+          body: payload
+        });
+        if (error) throw new Error(error.message);
+        if (data?.error) throw new Error(data.error);
+        return data.resultado;
+      } finally {
+        if (btnElement) {
+          btnElement.disabled = false;
+          btnElement.innerHTML = textoOriginalBtn;
+          if (typeof window.renderIconsSafe === 'function') window.renderIconsSafe();
+        }
+      }
+    }
+
+    async function mejorarRedaccionActividadIA() {
       const field = document.getElementById('act-descripcion');
-      const consolida = document.getElementById('act-consolida-productos').checked;
-      let texto = field.value.trim();
-      if (!texto) {
-        alert('Escribe primero una idea general de lo que deseas realizar en la actividad.');
+      const borrador = field.value.trim();
+      if (!borrador) {
+        alert('Escribe primero tus ideas generales sobre lo que deseas realizar en la actividad.');
         field.focus();
         return;
       }
 
-      texto = texto
-        .replace(/\b(almenos|al menos)\b/gi, 'al menos')
-        .replace(/^(llevar a cabo la ejecuci[oó]n de|llevar a cabo|proceder a realizar|realizar la ejecuci[oó]n de|se realizar[aá]n?|hacer)\s+/i, '')
-        .replace(/\b(distintas y variadas|diferentes y diversas)\b/gi, 'diversas')
-        .replace(/\s+/g, ' ')
-        .trim();
+      const btn = document.querySelector('button[onclick="mejorarRedaccionActividadIA()"]');
+      const htmlOriginal = btn ? btn.innerHTML : '';
 
-      if (consolida) {
-        texto = texto
-          .replace(/^([A-Za-zÁÉÍÓÚáéíóúñÑ]+\s+)(?:al menos\s+)?\d+\s+/i, '$1')
-          .replace(/\bdistribuid[oa]s en \d+ tem[aá]ticas\b/gi, 'en temáticas');
+      try {
+        const resultado = await llamarAsistenteGeminiPOA({
+          tipo: 'descripcion',
+          borrador,
+          contexto: obtenerContextoFormularioPOA()
+        }, btn, htmlOriginal);
+
+        if (resultado) field.value = resultado;
+      } catch (err) {
+        console.error('Error Gemini Descripción:', err);
+        alert('No se pudo conectar con Gemini (' + err.message + '). Verifica que la Edge Function "asistente-poa-ins" y el secreto GEMINI_API_KEY estén activos en Supabase.');
       }
-
-      if (/^(gu[ií]as?\s+cl[ií]nicas?|instructivos?|protocolos?|lineamientos?|manual(es)?|normativa)/i.test(texto)) {
-        texto = 'Elaboración de ' + texto.charAt(0).toLowerCase() + texto.slice(1);
-      } else if (/^capacitaci[oó]n\b/i.test(texto)) {
-        texto = 'Capacitación' + texto.slice(12);
-      } else if (/^capacitar\s+(a|al|en)\b/i.test(texto)) {
-        texto = texto.replace(/^capacitar\s+(?:a|al)\s+(.+?)\s+en\s+(.+)$/i, 'Capacitación en $2 dirigida a $1');
-        if (/^capacitar\s+en\b/i.test(texto)) {
-          texto = texto.replace(/^capacitar\s+en\b/i, 'Capacitación en');
-        }
-      } else if (/^(investigaci[oó]n|investigaciones|estudios?)\b/i.test(texto)) {
-        texto = 'Desarrollo de ' + texto.charAt(0).toLowerCase() + texto.slice(1);
-      } else if (/^vigilancia\b/i.test(texto)) {
-        texto = 'Ejecución de ' + texto.charAt(0).toLowerCase() + texto.slice(1);
-      } else {
-        const iniciosValidos = /^(elaborar|desarrollar|ejecutar|implementar|realizar|fortalecer|gestionar|publicar|evaluar|coordinar|efectuar|brindar|analizar|diseñar|establecer|conducir|vigilar|elaboración|desarrollo|ejecución|implementación|capacitación|publicación|evaluación|fortalecimiento|vigilancia)\b/i;
-        if (!iniciosValidos.test(texto)) {
-          texto = 'Desarrollar ' + texto.charAt(0).toLowerCase() + texto.slice(1);
-        } else {
-          texto = texto.charAt(0).toUpperCase() + texto.slice(1);
-        }
-      }
-
-      const palabras = texto.split(/\s+/);
-      if (palabras.length > 18) {
-        const corteFinalidad = texto.search(/\s+(para\s+(fortalecer|mejorar|contribuir|garantizar|asegurar|impulsar)|con\s+el\s+(objetivo|fin|prop[oó]sito)\s+de|a\s+fin\s+de)\b/i);
-        if (corteFinalidad > 25) {
-          texto = texto.substring(0, corteFinalidad).trim();
-        }
-      }
-
-      texto = texto.replace(/[,;:.]+$/, '').trim();
-      field.value = texto;
     }
 
-    function sugerirIndicadorIA() {
+    async function sugerirIndicadorIA() {
       const actRaw = document.getElementById('act-descripcion').value.trim();
       const indField = document.getElementById('act-indicador');
 
       if (!actRaw) {
-        alert('Escribe primero la descripción de la actividad.');
+        alert('Escribe o mejora primero la descripción de la actividad.');
         document.getElementById('act-descripcion').focus();
         return;
       }
@@ -2069,78 +2073,48 @@
         if (!confirm('El campo Indicador de Medición ya contiene texto. ¿Deseas reemplazarlo?')) return;
       }
 
-      const txt = actRaw.toLowerCase();
-      let indicadorSugerido = '';
+      const btn = document.querySelector('button[onclick="sugerirIndicadorIA()"]');
+      const htmlOriginal = btn ? btn.innerHTML : '';
 
-      if (txt.includes('teleclínica') || txt.includes('teleclinica') || txt.includes('echo')) {
-        indicadorSugerido = 'Porcentaje de sesiones de teleclínicas realizadas';
-      } else if (txt.includes('guía clínica') || txt.includes('guías clínicas') || txt.includes('guias clinicas')) {
-        indicadorSugerido = 'Porcentaje de guías clínicas elaboradas';
-      } else if (txt.includes('instructivo')) {
-        indicadorSugerido = 'Porcentaje de instructivos elaborados';
-      } else if (txt.includes('protocolo') && !txt.includes('investigación')) {
-        indicadorSugerido = 'Porcentaje de protocolos técnicos elaborados';
-      } else if (txt.includes('lineamiento') || txt.includes('manual') || txt.includes('normativa')) {
-        indicadorSugerido = 'Porcentaje de documentos normativos elaborados';
-      } else if (txt.includes('curso') && txt.includes('entrenamiento')) {
-        indicadorSugerido = 'Porcentaje de cursos de entrenamiento realizados';
-      } else if (txt.includes('curso')) {
-        indicadorSugerido = 'Porcentaje de cursos realizados';
-      } else if (txt.includes('capacitación') || txt.includes('capacitacion') || txt.includes('taller')) {
-        indicadorSugerido = 'Porcentaje de capacitaciones realizadas';
-      } else if (txt.includes('revisión sistemática') || txt.includes('revisiones sistemáticas')) {
-        indicadorSugerido = 'Porcentaje de revisiones sistemáticas finalizadas';
-      } else if (txt.includes('investigación') || txt.includes('investigaciones') || txt.includes('estudio')) {
-        indicadorSugerido = 'Porcentaje de investigaciones finalizadas respecto de las programadas';
-      } else if (txt.includes('artículo') || txt.includes('revista') || txt.includes('publicación') || txt.includes('boletín')) {
-        indicadorSugerido = 'Porcentaje de publicaciones científicas realizadas';
-      } else if (txt.includes('vigilancia') || txt.includes('ensayo') || txt.includes('muestra') || txt.includes('diagnóstico')) {
-        indicadorSugerido = 'Porcentaje de análisis de vigilancia laboratorial ejecutados';
-      } else if (txt.includes('informe') || txt.includes('evaluación')) {
-        indicadorSugerido = 'Porcentaje de informes técnicos elaborados';
-      } else {
-        let limpio = actRaw
-          .replace(/^(elaborar|desarrollar|ejecutar|implementar|realizar|fortalecer|gestionar|publicar|evaluar|coordinar|efectuar|brindar|analizar|diseñar|establecer|conducir|vigilar|elaboración de|desarrollo de|ejecución de|implementación de|capacitación en|publicación de|evaluación de)\s+/i, '')
-          .replace(/^(el|la|los|las|un|una|unos|unas)\s+/i, '')
-          .replace(/\b(para|con|dirigid[oa]s?|mediante|a trav[eé]s|en el marco)\b.*$/i, '')
-          .replace(/[,;:.]+$/, '')
-          .trim();
+      try {
+        const resultado = await llamarAsistenteGeminiPOA({
+          tipo: 'indicador',
+          descripcionActividad: actRaw,
+          contexto: obtenerContextoFormularioPOA()
+        }, btn, htmlOriginal);
 
-        const palabrasObj = limpio.split(/\s+/).slice(0, 4).join(' ').toLowerCase();
-        indicadorSugerido = palabrasObj
-          ? `Porcentaje de ${palabrasObj} realizados`
-          : 'Porcentaje de cumplimiento de la actividad programada';
+        if (resultado) indField.value = resultado;
+      } catch (err) {
+        console.error('Error Gemini Indicador:', err);
+        alert('No se pudo conectar con Gemini: ' + err.message);
       }
-
-      indField.value = indicadorSugerido;
     }
 
-    function sugerirSupuestosIA() {
-      const act = document.getElementById('act-descripcion').value.toLowerCase();
+    async function sugerirSupuestosIA() {
+      const actRaw = document.getElementById('act-descripcion').value.trim();
       const supField = document.getElementById('act-supuestos');
-      const actual = supField.value.trim();
 
-      let sugerencia = '';
-      if (act.includes('echo') || act.includes('teleclínica') || act.includes('capacita') || act.includes('curso')) {
-        sugerencia = 'Disponibilidad de conectividad y equipamiento audiovisual, asignación de horas protegidas del talento humano y participación activa del personal de las RIIS.';
-      } else if (act.includes('investigaci') || act.includes('estudio') || act.includes('protocolo') || act.includes('revisi')) {
-        sugerencia = 'Aprobación oportuna por el Comité Nacional de Ética de Investigación en Salud (CNEIS), acceso a bases de datos y disponibilidad de horas del equipo investigador.';
-      } else if (act.includes('laboratorio') || act.includes('muestra') || act.includes('vigilancia') || act.includes('diagnóstico')) {
-        sugerencia = 'Dotación oportuna de reactivos, insumos y equipamiento de laboratorio por el nivel central o cooperación, envío regular de muestras desde las RIIS y ausencia de emergencias epidemiológicas extraordinarias.';
-      } else if (act.includes('publica') || act.includes('revista') || act.includes('alerta') || act.includes('artículo')) {
-        sugerencia = 'Recepción oportuna de manuscritos científicos, disponibilidad de revisores pares externos y continuidad de plataformas editoriales.';
-      } else if (act.includes('guía') || act.includes('instructivo') || act.includes('lineamiento') || act.includes('normativa')) {
-        sugerencia = 'Conformación oportuna de mesas técnicas interdisciplinarias, disponibilidad de talento humano especialista y validación dentro del marco legal institucional vigente.';
-      } else {
-        sugerencia = 'Disponibilidad oportuna de recursos materiales, equipamiento e insumos físicos, asignación de horas de talento humano técnico y estabilidad del entorno sanitario y normativo.';
+      if (!actRaw) {
+        alert('Escribe primero la descripción de la actividad para contextualizar los supuestos.');
+        document.getElementById('act-descripcion').focus();
+        return;
       }
 
-      if (actual && !actual.endsWith('.')) {
-        supField.value = actual + '; ' + sugerencia.charAt(0).toLowerCase() + sugerencia.slice(1);
-      } else if (actual) {
-        supField.value = actual + ' ' + sugerencia;
-      } else {
-        supField.value = sugerencia;
+      const btn = document.querySelector('button[onclick="sugerirSupuestosIA()"]');
+      const htmlOriginal = btn ? btn.innerHTML : '';
+
+      try {
+        const resultado = await llamarAsistenteGeminiPOA({
+          tipo: 'supuestos',
+          descripcionActividad: actRaw,
+          borrador: supField.value.trim(),
+          contexto: obtenerContextoFormularioPOA()
+        }, btn, htmlOriginal);
+
+        if (resultado) supField.value = resultado;
+      } catch (err) {
+        console.error('Error Gemini Supuestos:', err);
+        alert('No se pudo conectar con Gemini: ' + err.message);
       }
     }
 

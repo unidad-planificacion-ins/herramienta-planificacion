@@ -376,25 +376,92 @@
 
         <!-- KPIs Ejecutivos -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
-            <div class="text-xs font-semibold text-slate-500 uppercase">Ejecución Acotada (Máx 100%)</div>
-            <div id="kpi-cumplimiento-acotado" class="text-3xl font-bold text-sky-700 mt-1">0.0%</div>
-            <div id="kpi-cumplimiento-bruto" class="text-xs text-slate-400 mt-1">Promedio bruto: 0.0%</div>
+          <!-- Tarjeta 1 -->
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 relative flex flex-col justify-between">
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="text-xs font-semibold text-slate-500 uppercase">Ejecución Acotada (Máx 100%)</div>
+                <div class="relative group inline-flex items-center shrink-0">
+                  <button type="button" aria-label="Información sobre Ejecución Acotada"
+                    class="w-5 h-5 rounded-full bg-slate-100 hover:bg-sky-100 text-slate-500 hover:text-sky-700 border border-slate-200 flex items-center justify-center text-[11px] font-bold cursor-help transition focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    ⓘ
+                  </button>
+                  <div class="pointer-events-none opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 absolute right-0 top-full mt-2 w-72 p-3 rounded-xl bg-slate-900 text-white text-[11px] leading-relaxed shadow-2xl z-50 border border-slate-700 normal-case font-normal">
+                    Mide el cumplimiento promedio acumulado al trimestre de corte, limitando cada actividad a un máximo del 100% para evitar que sobreejecuciones oculten retrasos. El dato inferior muestra el promedio real sin límite.
+                  </div>
+                </div>
+              </div>
+              <div id="kpi-cumplimiento-acotado" class="text-3xl font-bold text-sky-700 mt-1">0.0%</div>
+            </div>
+            <div id="kpi-cumplimiento-bruto" class="text-xs text-slate-400 mt-2">Promedio bruto: 0.0%</div>
           </div>
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
-            <div class="text-xs font-semibold text-slate-500 uppercase">Actividades Evaluadas</div>
-            <div id="kpi-total-act" class="text-3xl font-bold text-slate-800 mt-1">0</div>
-            <div id="kpi-finalizadas" class="text-xs text-emerald-600 font-medium mt-1">0 finalizadas al 100%</div>
+
+          <!-- Tarjeta 2 -->
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 relative flex flex-col justify-between">
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="text-xs font-semibold text-slate-500 uppercase">Actividades Evaluadas</div>
+                <div class="relative group inline-flex items-center shrink-0">
+                  <button type="button" aria-label="Información sobre Actividades Evaluadas"
+                    class="w-5 h-5 rounded-full bg-slate-100 hover:bg-sky-100 text-slate-500 hover:text-sky-700 border border-slate-200 flex items-center justify-center text-[11px] font-bold cursor-help transition focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    ⓘ
+                  </button>
+                  <div class="pointer-events-none opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 absolute right-0 top-full mt-2 w-72 p-3 rounded-xl bg-slate-900 text-white text-[11px] leading-relaxed shadow-2xl z-50 border border-slate-700 normal-case font-normal">
+                    Muestra el total de actividades programadas de las unidades seleccionadas e indica cuántas ya alcanzaron o superaron el 100% de su meta anual total al trimestre de corte.
+                  </div>
+                </div>
+              </div>
+              <div id="kpi-total-act" class="text-3xl font-bold text-slate-800 mt-1">0</div>
+            </div>
+            <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+              <span id="kpi-finalizadas" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">0 finalizadas al 100% anual</span>
+              <span id="kpi-t2-en-curso" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-100 text-sky-800 border border-sky-200">0 en curso</span>
+              <span id="kpi-t2-en-atencion" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">0 en atención</span>
+            </div>
           </div>
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
-            <div class="text-xs font-semibold text-slate-500 uppercase">En Curso / En Atención</div>
-            <div id="kpi-en-curso" class="text-3xl font-bold text-amber-500 mt-1">0</div>
-            <div class="text-xs text-slate-400 mt-1">Cumplimiento entre 75% y 99%</div>
+
+          <!-- Tarjeta 3 -->
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 relative flex flex-col justify-between">
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="text-xs font-semibold text-slate-500 uppercase">En Curso / En Atención</div>
+                <div class="relative group inline-flex items-center shrink-0">
+                  <button type="button" aria-label="Información sobre En Curso / En Atención"
+                    class="w-5 h-5 rounded-full bg-slate-100 hover:bg-sky-100 text-slate-500 hover:text-sky-700 border border-slate-200 flex items-center justify-center text-[11px] font-bold cursor-help transition focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    ⓘ
+                  </button>
+                  <div class="pointer-events-none opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 absolute right-0 top-full mt-2 w-72 p-3 rounded-xl bg-slate-900 text-white text-[11px] leading-relaxed shadow-2xl z-50 border border-slate-700 normal-case font-normal">
+                    Contabiliza las actividades que aún no completan su meta anual, pero mantienen un ritmo de avance aceptable (entre 75% y 99%, o al día con su programación parcial).
+                  </div>
+                </div>
+              </div>
+              <div id="kpi-en-curso" class="text-3xl font-bold text-amber-500 mt-1">0</div>
+            </div>
+            <div class="text-xs text-slate-400 mt-2">Cumplimiento entre 75% y 99%</div>
           </div>
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
-            <div class="text-xs font-semibold text-slate-500 uppercase">Alertas / Con Retraso</div>
-            <div id="kpi-retraso" class="text-3xl font-bold text-rose-600 mt-1">0</div>
-            <div id="kpi-sin-registro" class="text-xs text-rose-500 mt-1">0 con omisión de registro</div>
+
+          <!-- Tarjeta 4 -->
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 relative flex flex-col justify-between">
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <div class="text-xs font-semibold text-slate-500 uppercase">Alertas / Con Retraso</div>
+                <div class="relative group inline-flex items-center shrink-0">
+                  <button type="button" aria-label="Información sobre Alertas / Con Retraso"
+                    class="w-5 h-5 rounded-full bg-slate-100 hover:bg-sky-100 text-slate-500 hover:text-sky-700 border border-slate-200 flex items-center justify-center text-[11px] font-bold cursor-help transition focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    ⓘ
+                  </button>
+                  <div class="pointer-events-none opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 absolute right-0 top-full mt-2 w-72 p-3 rounded-xl bg-slate-900 text-white text-[11px] leading-relaxed shadow-2xl z-50 border border-slate-700 normal-case font-normal">
+                    Identifica actividades cuyo avance acumulado está por debajo de lo esperado (&lt;75%) o que tienen meta programada en el período sin datos de ejecución registrados.
+                  </div>
+                </div>
+              </div>
+              <div id="kpi-retraso" class="text-3xl font-bold text-rose-600 mt-1">0</div>
+            </div>
+            <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+              <span id="kpi-t4-en-atencion" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">0 en atención</span>
+              <span id="kpi-t4-retraso" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-800 border border-rose-200">0 con retraso</span>
+              <span id="kpi-sin-registro" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 text-slate-700 border border-slate-300">0 sin registro</span>
+            </div>
           </div>
         </div>
 
@@ -2491,10 +2558,14 @@
         document.getElementById('kpi-cumplimiento-acotado').textContent = '0.0%';
         document.getElementById('kpi-cumplimiento-bruto').textContent = 'Promedio bruto (con brotes): 0.0%';
         document.getElementById('kpi-total-act').textContent = '0';
-        document.getElementById('kpi-finalizadas').textContent = '0 finalizadas al 100%';
+        document.getElementById('kpi-finalizadas').textContent = '0 finalizadas al 100% anual';
+        document.getElementById('kpi-t2-en-curso').textContent = '0 en curso';
+        document.getElementById('kpi-t2-en-atencion').textContent = '0 en atención';
         document.getElementById('kpi-en-curso').textContent = '0';
         document.getElementById('kpi-retraso').textContent = '0';
-        document.getElementById('kpi-sin-registro').textContent = '0 con omisión de registro';
+        document.getElementById('kpi-t4-en-atencion').textContent = '0 en atención';
+        document.getElementById('kpi-t4-retraso').textContent = '0 con retraso';
+        document.getElementById('kpi-sin-registro').textContent = '0 sin registro';
         renderChartsAnual([]);
         return;
       }
@@ -2540,7 +2611,9 @@
 
       // Tarjetas 2, 3 y 4: Conteo bajo regla de irreversibilidad anual
       const finalizadas = dashDataCache.filter(d => d.semaforo_calculado === 'Finalizada').length;
-      const enCurso = dashDataCache.filter(d => ['En curso', 'En atención'].includes(d.semaforo_calculado)).length;
+      const soloEnCurso = dashDataCache.filter(d => d.semaforo_calculado === 'En curso').length;
+      const soloEnAtencion = dashDataCache.filter(d => d.semaforo_calculado === 'En atención').length;
+      const enCurso = soloEnCurso + soloEnAtencion;
       const retraso = dashDataCache.filter(d => d.semaforo_calculado === 'Con retraso').length;
       const sinReg = dashDataCache.filter(d => d.semaforo_calculado === 'Sin registro').length;
 
@@ -2548,9 +2621,13 @@
       document.getElementById('kpi-cumplimiento-bruto').textContent = `Promedio bruto (con brotes): ${avgBruto.toFixed(1)}%`;
       document.getElementById('kpi-total-act').textContent = dashDataCache.length;
       document.getElementById('kpi-finalizadas').textContent = `${finalizadas} finalizadas al 100% anual`;
+      document.getElementById('kpi-t2-en-curso').textContent = `${soloEnCurso} en curso`;
+      document.getElementById('kpi-t2-en-atencion').textContent = `${soloEnAtencion} en atención`;
       document.getElementById('kpi-en-curso').textContent = enCurso;
       document.getElementById('kpi-retraso').textContent = retraso;
-      document.getElementById('kpi-sin-registro').textContent = `${sinReg} con omisión de registro`;
+      document.getElementById('kpi-t4-en-atencion').textContent = `${soloEnAtencion} en atención`;
+      document.getElementById('kpi-t4-retraso').textContent = `${retraso} con retraso`;
+      document.getElementById('kpi-sin-registro').textContent = `${sinReg} sin registro`;
 
       renderChartsAnual(dashDataCache);
     }

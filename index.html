@@ -413,11 +413,7 @@
               </div>
               <div id="kpi-total-act" class="text-3xl font-bold text-slate-800 mt-1">0</div>
             </div>
-            <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
-              <span id="kpi-finalizadas" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">0 finalizadas al 100% anual</span>
-              <span id="kpi-t2-en-curso" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-100 text-sky-800 border border-sky-200">0 en curso</span>
-              <span id="kpi-t2-en-atencion" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">0 en atención</span>
-            </div>
+            <div id="kpi-finalizadas" class="text-xs text-emerald-600 font-medium mt-2">0 finalizadas al 100%</div>
           </div>
 
           <!-- Tarjeta 3 -->
@@ -437,7 +433,10 @@
               </div>
               <div id="kpi-en-curso" class="text-3xl font-bold text-amber-500 mt-1">0</div>
             </div>
-            <div class="text-xs text-slate-400 mt-2">Cumplimiento entre 75% y 99%</div>
+            <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+              <span id="kpi-t3-en-curso" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-sky-100 text-sky-800 border border-sky-200">0 en curso</span>
+              <span id="kpi-t3-en-atencion" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">0 en atención</span>
+            </div>
           </div>
 
           <!-- Tarjeta 4 -->
@@ -2559,9 +2558,9 @@
         document.getElementById('kpi-cumplimiento-bruto').textContent = 'Promedio bruto (con brotes): 0.0%';
         document.getElementById('kpi-total-act').textContent = '0';
         document.getElementById('kpi-finalizadas').textContent = '0 finalizadas al 100% anual';
-        document.getElementById('kpi-t2-en-curso').textContent = '0 en curso';
-        document.getElementById('kpi-t2-en-atencion').textContent = '0 en atención';
         document.getElementById('kpi-en-curso').textContent = '0';
+        document.getElementById('kpi-t3-en-curso').textContent = '0 en curso';
+        document.getElementById('kpi-t3-en-atencion').textContent = '0 en atención';
         document.getElementById('kpi-retraso').textContent = '0';
         document.getElementById('kpi-t4-en-atencion').textContent = '0 en atención';
         document.getElementById('kpi-t4-retraso').textContent = '0 con retraso';
@@ -2621,9 +2620,9 @@
       document.getElementById('kpi-cumplimiento-bruto').textContent = `Promedio bruto (con brotes): ${avgBruto.toFixed(1)}%`;
       document.getElementById('kpi-total-act').textContent = dashDataCache.length;
       document.getElementById('kpi-finalizadas').textContent = `${finalizadas} finalizadas al 100% anual`;
-      document.getElementById('kpi-t2-en-curso').textContent = `${soloEnCurso} en curso`;
-      document.getElementById('kpi-t2-en-atencion').textContent = `${soloEnAtencion} en atención`;
       document.getElementById('kpi-en-curso').textContent = enCurso;
+      document.getElementById('kpi-t3-en-curso').textContent = `${soloEnCurso} en curso`;
+      document.getElementById('kpi-t3-en-atencion').textContent = `${soloEnAtencion} en atención`;
       document.getElementById('kpi-retraso').textContent = retraso;
       document.getElementById('kpi-t4-en-atencion').textContent = `${soloEnAtencion} en atención`;
       document.getElementById('kpi-t4-retraso').textContent = `${retraso} con retraso`;

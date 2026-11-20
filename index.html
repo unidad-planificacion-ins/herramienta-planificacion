@@ -1762,6 +1762,66 @@
       return Math.max(acumDb, acumCalc);
     }
 
+    function evaluarEstadoIrreversibleAlCorte(act, corte, fallbackRow = null) {
+      const tCorte = parseInt(corte) || 4;
+      if (!act) {
+        const semFallback = fallbackRow?.semaforo_calculado || 'Sin registro';
+        return {
+          semaforo: semFallback === 'Finalizada' ? 'En curso' : semFallback,
+          pctAnualAlCorte: 0,
+          pctCorteAcotado: fallbackRow?.pct_cumplimiento_corte_acotado ?? null
+        };
+      }
+
+      const metaAnual = calcularSumaProgramada(act);
+      let progCorte = 0;
+      let realCorte = 0;
+      let tieneAlgunReal = false;
+
+      for (let t = 1; t <= tCorte; t++) {
+        progCorte += Number(act['prog_t' + t] || 0);
+        const rVal = act['real_t' + t];
+        if (rVal !== null && rVal !== undefined && rVal !== '') {
+          realCorte += Number(rVal);
+          tieneAlgunReal = true;
+        }
+      }
+
+      const pctAnualAlCorte = metaAnual > 0 ? (realCorte / metaAnual) * 100 : 0;
+      let pctCorteAcotado = null;
+      if (progCorte > 0) {
+        pctCorteAcotado = Math.min(100, (realCorte / progCorte) * 100);
+      } else if (realCorte > 0) {
+        pctCorteAcotado = 100;
+      }
+
+      // Regla de irreversibilidad: solo es Finalizada si liquidó >= 100% de su Meta Anual al corte
+      if (metaAnual > 0 && pctAnualAlCorte >= 99.95) {
+        return { semaforo: 'Finalizada', pctAnualAlCorte, pctCorteAcotado };
+      }
+
+      if (progCorte > 0) {
+        if (!tieneAlgunReal) {
+          return { semaforo: 'Sin registro', pctAnualAlCorte, pctCorteAcotado };
+        }
+        const pctCorteBruto = (realCorte / progCorte) * 100;
+        // Si cumple >= 90% (incluso 100% del corte trimestral) pero aún no llega al 100% anual -> En curso
+        if (pctCorteBruto >= 90) {
+          return { semaforo: 'En curso', pctAnualAlCorte, pctCorteAcotado };
+        }
+        if (pctCorteBruto >= 75) {
+          return { semaforo: 'En atención', pctAnualAlCorte, pctCorteAcotado };
+        }
+        return { semaforo: 'Con retraso', pctAnualAlCorte, pctCorteAcotado };
+      }
+
+      if (realCorte > 0) {
+        return { semaforo: 'En curso', pctAnualAlCorte, pctCorteAcotado };
+      }
+
+      return { semaforo: 'Sin programación al corte', pctAnualAlCorte, pctCorteAcotado };
+    }
+
     function calcularSemaforoYEstado(a) {
       const acum = calcularAcumuladoReal(a);
 
@@ -2056,11 +2116,13 @@
     }
 
     async function reloadAllCycleData() {
-      await loadEvidencias();
+      await Promise.all([
+        loadEvidencias(),
+        loadActividadesPOA()
+      ]);
       await Promise.all([
         loadDashboardAnual(),
         loadDashboardPlurianual(),
-        loadActividadesPOA(),
         loadRiesgos(),
         loadFoda()
       ]);
@@ -2454,21 +2516,38 @@
         const idsPoi = new Set(actividadesCache.filter(a => Boolean(a.pasa_poi)).map(a => a.id));
         rowsDash = rowsDash.filter(r => !r.actividad_id || idsPoi.has(r.actividad_id));
       }
+
+      const actMap = new Map(actividadesCache.map(a => [a.id, a]));
+      rowsDash = rowsDash.map(r => {
+        const actObj = actMap.get(r.actividad_id);
+        if (!actObj) {
+          const semClean = r.semaforo_calculado === 'Finalizada' ? 'En curso' : r.semaforo_calculado;
+          return { ...r, semaforo_calculado: semClean };
+        }
+        const evalIrrev = evaluarEstadoIrreversibleAlCorte(actObj, corte, r);
+        return {
+          ...r,
+          semaforo_calculado: evalIrrev.semaforo,
+          pct_anual_al_corte: evalIrrev.pctAnualAlCorte
+        };
+      });
       dashDataCache = rowsDash;
 
+      // Tarjeta 1: Mantiene el ritmo de avance al corte (acotado al 100%)
       const validas = dashDataCache.filter(d => d.pct_cumplimiento_corte !== null);
       const avgAcotado = validas.length ? (validas.reduce((acc, r) => acc + Number(r.pct_cumplimiento_corte_acotado), 0) / validas.length) : 0;
       const avgBruto = validas.length ? (validas.reduce((acc, r) => acc + Number(r.pct_cumplimiento_corte), 0) / validas.length) : 0;
 
-      const finalizadas = dashDataCache.filter(d => d.semaforo_calculado === 'Finalizada' || Number(d.pct_cumplimiento_corte_acotado) >= 99.95).length;
-      const enCurso = dashDataCache.filter(d => ['En curso', 'En atención'].includes(d.semaforo_calculado) && Number(d.pct_cumplimiento_corte_acotado) < 99.95).length;
+      // Tarjetas 2, 3 y 4: Conteo bajo regla de irreversibilidad anual
+      const finalizadas = dashDataCache.filter(d => d.semaforo_calculado === 'Finalizada').length;
+      const enCurso = dashDataCache.filter(d => ['En curso', 'En atención'].includes(d.semaforo_calculado)).length;
       const retraso = dashDataCache.filter(d => d.semaforo_calculado === 'Con retraso').length;
       const sinReg = dashDataCache.filter(d => d.semaforo_calculado === 'Sin registro').length;
 
       document.getElementById('kpi-cumplimiento-acotado').textContent = avgAcotado.toFixed(1) + '%';
       document.getElementById('kpi-cumplimiento-bruto').textContent = `Promedio bruto (con brotes): ${avgBruto.toFixed(1)}%`;
       document.getElementById('kpi-total-act').textContent = dashDataCache.length;
-      document.getElementById('kpi-finalizadas').textContent = `${finalizadas} finalizadas al 100%`;
+      document.getElementById('kpi-finalizadas').textContent = `${finalizadas} finalizadas al 100% anual`;
       document.getElementById('kpi-en-curso').textContent = enCurso;
       document.getElementById('kpi-retraso').textContent = retraso;
       document.getElementById('kpi-sin-registro').textContent = `${sinReg} con omisión de registro`;
@@ -4268,11 +4347,25 @@
         productosCiclo = prodData || [];
       }
 
-      const rows = evalData || [];
+      const actMapInf = new Map(actividadesCache.map(a => [a.id, a]));
+      const rows = (evalData || []).map(r => {
+        const actObj = actMapInf.get(r.actividad_id);
+        if (!actObj) {
+          return { ...r, semaforo_calculado: r.semaforo_calculado === 'Finalizada' ? 'En curso' : r.semaforo_calculado };
+        }
+        const evalIrrev = evaluarEstadoIrreversibleAlCorte(actObj, trim, r);
+        return {
+          ...r,
+          semaforo_calculado: evalIrrev.semaforo,
+          pct_anual_al_corte: evalIrrev.pctAnualAlCorte
+        };
+      });
+
       const anio = rows[0]?.anio || '2026';
       const validas = rows.filter(r => r.pct_cumplimiento_corte !== null);
       const avgAcotado = validas.length ? (validas.reduce((a, b) => a + Number(b.pct_cumplimiento_corte_acotado), 0) / validas.length).toFixed(1) : '0.0';
-      const cumplidas = rows.filter(r => ['Finalizada', 'En curso'].includes(r.semaforo_calculado));
+      const finalizadasAnual = rows.filter(r => r.semaforo_calculado === 'Finalizada');
+      const enCursoCorte = rows.filter(r => r.semaforo_calculado === 'En curso');
       const retrasadas = rows.filter(r => ['Con retraso', 'En atención'].includes(r.semaforo_calculado));
 
       let texto = `INSTITUTO NACIONAL DE SALUD (INS)\n`;
@@ -4281,7 +4374,7 @@
       texto += `Visto Bueno: Dirección del Instituto Nacional de Salud\n`;
       texto += `========================================================================\n\n`;
       texto += `1. INTRODUCCIÓN Y RESUMEN EJECUTIVO\n`;
-      texto += `Durante el Trimestre ${trim} de ${anio}, el Instituto Nacional de Salud (INS) dio seguimiento a ${rows.length} actividades estratégicas y operativas alineadas al PEI MINSAL 2026–2030. El índice de ejecución promedio acotado (evitando distorsiones por sobre-demanda epidemiológica) alcanzó el ${avgAcotado}%, con ${cumplidas.length} actividades en rango de cumplimiento satisfactorio y ${retrasadas.length} en seguimiento por ajuste o reprogramación.\n\n`;
+      texto += `Durante el Trimestre ${trim} de ${anio}, el Instituto Nacional de Salud (INS) dio seguimiento a ${rows.length} actividades estratégicas y operativas alineadas al PEI MINSAL 2026–2030. El índice de ejecución promedio acotado al corte (evitando distorsiones por sobre-demanda epidemiológica) alcanzó el ${avgAcotado}%, registrando ${finalizadasAnual.length} actividades finalizadas al 100% de su meta anual, ${enCursoCorte.length} actividades en curso conforme a su programación trimestral y ${retrasadas.length} en seguimiento por ajuste o reprogramación.\n\n`;
 
       texto += `2. PRINCIPALES AVANCES POR UNIDAD ORGANIZATIVA\n`;
       const unidadesUnicas = [...new Set(rows.map(r => r.unidad_ins))];
@@ -4289,7 +4382,8 @@
         const actsU = rows.filter(r => r.unidad_ins === u);
         texto += `• ${u} (${actsU.length} actividades):\n`;
         actsU.forEach(a => {
-          texto += `  - ${a.actividad}: Ejecución acumulada al corte de ${a.pct_cumplimiento_corte ?? 0}% (${a.semaforo_calculado}).\n`;
+          const avanceAnualTxt = a.pct_anual_al_corte !== undefined ? `; avance anual: ${a.pct_anual_al_corte.toFixed(1)}%` : '';
+          texto += `  - ${a.actividad}: Ejecución acumulada al corte de ${a.pct_cumplimiento_corte ?? 0}%${avanceAnualTxt} (${a.semaforo_calculado}).\n`;
         });
       });
 
@@ -4434,7 +4528,12 @@
         }
       }
 
-      const sem = calcularSemaforoYEstado(a);
+      const evalIrrev = evaluarEstadoIrreversibleAlCorte(a, corte);
+      let estadoCubo = evalIrrev.semaforo;
+      if (estadoCubo === 'Sin programación al corte') {
+        estadoCubo = 'Pendiente';
+      }
+
       let pctAcotado = null;
       if (progCorte > 0) {
         pctAcotado = Math.min(100, (realCorte / progCorte) * 100);
@@ -4447,7 +4546,7 @@
         realCorte,
         tieneAlgunReal,
         pctAcotado,
-        estado: sem.label
+        estado: estadoCubo
       };
     }
 

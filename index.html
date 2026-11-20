@@ -457,7 +457,6 @@
               <div id="kpi-retraso" class="text-3xl font-bold text-rose-600 mt-1">0</div>
             </div>
             <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
-              <span id="kpi-t4-en-atencion" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">0 en atención</span>
               <span id="kpi-t4-retraso" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-800 border border-rose-200">0 con retraso</span>
               <span id="kpi-sin-registro" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 text-slate-700 border border-slate-300">0 sin registro</span>
             </div>
@@ -472,9 +471,9 @@
               <canvas id="chart-semaforo"></canvas>
             </div>
           </div>
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 lg:col-span-2">
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 lg:col-span-2 flex flex-col">
             <h3 class="text-sm font-bold text-slate-800 mb-3">Cumplimiento Promedio por Unidad Organizativa (%)</h3>
-            <div class="h-64">
+            <div id="chart-unidades-container" class="relative w-full min-h-[260px] flex-1">
               <canvas id="chart-unidades"></canvas>
             </div>
           </div>
@@ -2562,7 +2561,6 @@
         document.getElementById('kpi-t3-en-curso').textContent = '0 en curso';
         document.getElementById('kpi-t3-en-atencion').textContent = '0 en atención';
         document.getElementById('kpi-retraso').textContent = '0';
-        document.getElementById('kpi-t4-en-atencion').textContent = '0 en atención';
         document.getElementById('kpi-t4-retraso').textContent = '0 con retraso';
         document.getElementById('kpi-sin-registro').textContent = '0 sin registro';
         renderChartsAnual([]);
@@ -2624,7 +2622,6 @@
       document.getElementById('kpi-t3-en-curso').textContent = `${soloEnCurso} en curso`;
       document.getElementById('kpi-t3-en-atencion').textContent = `${soloEnAtencion} en atención`;
       document.getElementById('kpi-retraso').textContent = retraso;
-      document.getElementById('kpi-t4-en-atencion').textContent = `${soloEnAtencion} en atención`;
       document.getElementById('kpi-t4-retraso').textContent = `${retraso} con retraso`;
       document.getElementById('kpi-sin-registro').textContent = `${sinReg} sin registro`;
 
@@ -2641,7 +2638,25 @@
       charts.semaforo = new Chart(document.getElementById('chart-semaforo'), {
         type: 'doughnut',
         data: { labels: estados, datasets: [{ data: conteos, backgroundColor: colores }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const dataset = context.dataset.data || [];
+                  const total = dataset.reduce((acc, val) => acc + (Number(val) || 0), 0);
+                  const valor = Number(context.parsed) || 0;
+                  const pct = total > 0 ? ((valor / total) * 100).toFixed(1) : '0.0';
+                  const etiqueta = context.label || '';
+                  return `${etiqueta}: ${valor} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
       });
 
       const mapU = {};
@@ -2654,19 +2669,71 @@
       const labelsU = Object.keys(mapU);
       const valsU = labelsU.map(u => (mapU[u].reduce((a, b) => a + b, 0) / mapU[u].length).toFixed(1));
 
+      // Dividir etiquetas muy extensas en múltiples líneas sin truncar ninguna palabra
+      const formatearEtiquetaMultilinea = (texto, maxChars = 42) => {
+        if (!texto || texto.length <= maxChars) return texto;
+        const palabras = texto.split(' ');
+        const lineas = [];
+        let lineaActual = '';
+        palabras.forEach(palabra => {
+          const candidato = lineaActual ? `${lineaActual} ${palabra}` : palabra;
+          if (candidato.length <= maxChars) {
+            lineaActual = candidato;
+          } else {
+            if (lineaActual) lineas.push(lineaActual);
+            lineaActual = palabra;
+          }
+        });
+        if (lineaActual) lineas.push(lineaActual);
+        return lineas;
+      };
+
+      const labelsMultilinea = labelsU.map(u => formatearEtiquetaMultilinea(u, 42));
+
+      // Ajustar altura dinámica del contenedor según la cantidad de unidades para evitar solapamiento
+      const contUnidades = document.getElementById('chart-unidades-container');
+      if (contUnidades) {
+        const alturaCalculada = Math.max(260, labelsU.length * 42);
+        contUnidades.style.height = `${alturaCalculada}px`;
+      }
+
       if (charts.unidades) charts.unidades.destroy();
       charts.unidades = new Chart(document.getElementById('chart-unidades'), {
         type: 'bar',
         data: {
-          labels: labelsU.map(l => l.length > 28 ? l.substring(0, 28) + '...' : l),
-          datasets: [{ label: '% Cumplimiento Acotado', data: valsU, backgroundColor: '#0369a1', borderRadius: 6 }]
+          labels: labelsMultilinea,
+          datasets: [{ label: '% Cumplimiento Acotado', data: valsU, backgroundColor: '#0369a1', borderRadius: 6, barThickness: 'flex', maxBarThickness: 26 }]
         },
         options: {
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          scales: { x: { max: 100, beginAtZero: true } },
-          plugins: { legend: { display: false } }
+          scales: {
+            x: { max: 100, beginAtZero: true },
+            y: {
+              ticks: {
+                autoSkip: false,
+                font: { size: 11, family: 'Inter, sans-serif' },
+                color: '#1e293b',
+                padding: 6
+              },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: function(items) {
+                  if (!items || !items.length) return '';
+                  return labelsU[items[0].dataIndex] || '';
+                },
+                label: function(context) {
+                  return `% Cumplimiento Acotado: ${context.parsed.x}%`;
+                }
+              }
+            }
+          }
         }
       });
     }

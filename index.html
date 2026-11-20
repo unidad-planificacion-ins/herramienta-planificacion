@@ -1916,7 +1916,13 @@
         sb.from('perfiles_usuarios').select('id, nombre_completo, unidad_id, rol')
       ]);
 
-      unidadesList = uRes.data || [];
+      unidadesList = (uRes.data || []).filter(u => {
+        const nom = (u.nombre || '').toLowerCase();
+        const sig = (u.siglas || '').toLowerCase();
+        return !nom.includes('dirección de planificación') &&
+               !nom.includes('direccion de planificacion') &&
+               !sig.includes('dirplan');
+});
       planesList = pRes.data || [];
       ciclosList = cRes.data || [];
       ejesList = eRes.data || [];

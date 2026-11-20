@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica v1.9.1 | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v1.9 | INS El Salvador</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230369a1'/><text x='50' y='66' font-size='44' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>INS</text></svg>" />
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +34,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.9.1</span></p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.9</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -199,7 +199,7 @@
           <div>
             <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
               Planificación Operativa y Estratégica
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.9.1</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.9</span>
             </div>
             <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad INS - MINSAL</div>
           </div>
@@ -308,79 +308,18 @@
           </div>
         </div>
 
-        <!-- Gráficos y Analítica Ejecutiva del Dashboard Anual -->
+        <!-- Gráficos -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 flex flex-col">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-sm font-bold text-slate-800">Distribución por Semáforo Oficial</h3>
-              <span id="dash-filtro-estado-badge" class="hidden text-[11px] bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full font-semibold"></span>
-            </div>
-            <p class="text-[11px] text-slate-400 mb-2">Haz clic en un segmento para filtrar las actividades abajo.</p>
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
+            <h3 class="text-sm font-bold text-slate-800 mb-3">Distribución por Semáforo Oficial</h3>
             <div class="h-64 flex items-center justify-center">
               <canvas id="chart-semaforo"></canvas>
             </div>
           </div>
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 lg:col-span-2 flex flex-col">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-              <div>
-                <h3 class="text-sm font-bold text-slate-800">Cumplimiento Promedio por Unidad Organizativa (%)</h3>
-                <p class="text-[11px] text-slate-400">Ordenado descendente • Meta institucional (90%) y umbral de atención (75%) • Clic en barra filtra unidad.</p>
-              </div>
-              <div class="flex items-center gap-3 text-[10px] font-semibold">
-                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span> ≥90% Óptimo</span>
-                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> 75–89% Atención</span>
-                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-600 inline-block"></span> &lt;75% Retraso</span>
-              </div>
-            </div>
-            <div id="chart-unidades-wrapper" class="min-h-[260px] flex-1">
+          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 lg:col-span-2">
+            <h3 class="text-sm font-bold text-slate-800 mb-3">Cumplimiento Promedio por Unidad Organizativa (%)</h3>
+            <div class="h-64">
               <canvas id="chart-unidades"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Evolución Trimestral + Brechas Prioritarias -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
-            <h3 class="text-sm font-bold text-slate-800 mb-1">Evolución Acumulada por Trimestre</h3>
-            <p class="text-[11px] text-slate-400 mb-3">Comparativo Programado vs. Realizado Acotado (%)</p>
-            <div class="h-56">
-              <canvas id="chart-evolucion-trimestral"></canvas>
-            </div>
-          </div>
-          <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 lg:col-span-2 flex flex-col">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-              <div>
-                <h3 class="text-sm font-bold text-slate-800">Detalle Operativo y Brechas Prioritarias al Corte</h3>
-                <p id="dash-tabla-subtitulo" class="text-[11px] text-slate-500">Actividades ordenadas por menor cumplimiento para gestión preventiva.</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <select id="dash-estado-filter" onchange="renderTablaDashboardAnual()" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-slate-50 font-medium">
-                  <option value="ALL">Todos los estados</option>
-                  <option value="ALERTAS">Solo Alertas (Retraso / Atención / Sin reg.)</option>
-                  <option value="Finalizada">Finalizada</option>
-                  <option value="En curso">En curso</option>
-                  <option value="En atención">En atención</option>
-                  <option value="Con retraso">Con retraso</option>
-                  <option value="Sin registro">Sin registro</option>
-                </select>
-                <button type="button" id="btn-limpiar-filtros-dash" onclick="limpiarFiltrosDashboardAnual()" class="hidden px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold">
-                  Restablecer
-                </button>
-              </div>
-            </div>
-            <div class="overflow-x-auto max-h-64 scrollbar-thin border border-slate-100 rounded-lg">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] sticky top-0 border-b border-slate-200">
-                  <tr>
-                    <th class="px-3 py-2">Unidad</th>
-                    <th class="px-3 py-2">Actividad PAO</th>
-                    <th class="px-2 py-2 text-center">Corte</th>
-                    <th class="px-3 py-2 text-center">Semáforo</th>
-                    <th class="px-2 py-2 text-center">Acción</th>
-                  </tr>
-                </thead>
-                <tbody id="tabla-dash-anual-detalle" class="divide-y divide-slate-100"></tbody>
-              </table>
             </div>
           </div>
         </div>
@@ -1487,7 +1426,7 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- LÓGICA DE MÓDULOS DE NEGOCIO Y DASHBOARDS v1.9.1                          -->
+  <!-- LÓGICA DE MÓDULOS DE NEGOCIO Y DASHBOARDS v1.9                          -->
   <!-- ======================================================================= -->
   <script>
     let ciclosList = [];
@@ -2044,78 +1983,6 @@
     document.getElementById('dash-trimestre-corte').addEventListener('change', loadDashboardAnual);
     document.getElementById('dash-unidad-filter').addEventListener('change', loadDashboardAnual);
 
-    const pluginLineasMetaDash = {
-      id: 'lineasMetaDash',
-      afterDatasetsDraw(chart) {
-        if (chart.canvas.id !== 'chart-unidades') return;
-        const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
-        if (!x) return;
-        const drawRefLine = (val, color, label) => {
-          const xPos = x.getPixelForValue(val);
-          ctx.save();
-          ctx.beginPath();
-          ctx.setLineDash([4, 4]);
-          ctx.lineWidth = 1.5;
-          ctx.strokeStyle = color;
-          ctx.moveTo(xPos, top);
-          ctx.lineTo(xPos, bottom);
-          ctx.stroke();
-          ctx.fillStyle = color;
-          ctx.font = 'bold 9px Inter, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText(label, xPos, top - 4);
-          ctx.restore();
-        };
-        drawRefLine(75, '#d97706', '75%');
-        drawRefLine(90, '#059669', 'Meta 90%');
-      }
-    };
-
-    const pluginEtiquetasBarrasDash = {
-      id: 'etiquetasBarrasDash',
-      afterDatasetsDraw(chart) {
-        if (chart.canvas.id !== 'chart-unidades') return;
-        const { ctx } = chart;
-        const meta = chart.getDatasetMeta(0);
-        if (!meta || !meta.data) return;
-        ctx.save();
-        ctx.font = 'bold 10px Inter, sans-serif';
-        ctx.textBaseline = 'middle';
-        meta.data.forEach((bar, i) => {
-          const val = Number(chart.data.datasets[0].data[i] || 0);
-          const text = val.toFixed(1) + '%';
-          if (val >= 22) {
-            ctx.fillStyle = '#ffffff';
-            ctx.textAlign = 'right';
-            ctx.fillText(text, bar.x - 6, bar.y);
-          } else {
-            ctx.fillStyle = '#334155';
-            ctx.textAlign = 'left';
-            ctx.fillText(text, bar.x + 6, bar.y);
-          }
-        });
-        ctx.restore();
-      }
-    };
-
-    function limpiarFiltrosDashboardAnual() {
-      const uSel = document.getElementById('dash-unidad-filter');
-      if (uSel && !uSel.disabled) uSel.value = 'ALL';
-      const eSel = document.getElementById('dash-estado-filter');
-      if (eSel) eSel.value = 'ALL';
-      loadDashboardAnual();
-    }
-
-    function irAActividadDesdeDashboard(actId) {
-      if (!actId) return;
-      activarPestana('matriz-poa');
-      setTimeout(() => {
-        if (typeof abrirGestionProductos === 'function') {
-          abrirGestionProductos(actId);
-        }
-      }, 150);
-    }
-
     async function loadDashboardAnual() {
       if (!activeCicloId) return;
       const corte = parseInt(document.getElementById('dash-trimestre-corte').value);
@@ -2158,8 +2025,6 @@
       document.getElementById('kpi-sin-registro').textContent = `${sinReg} con omisión de registro`;
 
       renderChartsAnual(dashDataCache);
-      renderChartEvolucionTrimestral(unitFilter);
-      renderTablaDashboardAnual();
     }
 
     function renderChartsAnual(rows) {
@@ -2171,237 +2036,35 @@
       if (charts.semaforo) charts.semaforo.destroy();
       charts.semaforo = new Chart(document.getElementById('chart-semaforo'), {
         type: 'doughnut',
-        data: { labels: estados, datasets: [{ data: conteos, backgroundColor: colores, borderWidth: 2, borderColor: '#ffffff' }] },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '58%',
-          onClick: (evt, elements) => {
-            if (elements.length > 0) {
-              const idx = elements[0].index;
-              const estSel = estados[idx];
-              const filtroEl = document.getElementById('dash-estado-filter');
-              if (filtroEl) {
-                filtroEl.value = [...filtroEl.options].some(o => o.value === estSel) ? estSel : 'ALL';
-                renderTablaDashboardAnual();
-              }
-            }
-          },
-          plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
-            tooltip: {
-              callbacks: {
-                label: (ctx) => {
-                  const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                  const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : '0.0';
-                  return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
-                }
-              }
-            }
-          }
-        }
+        data: { labels: estados, datasets: [{ data: conteos, backgroundColor: colores }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
       });
 
       const mapU = {};
       rows.forEach(r => {
         if (r.pct_cumplimiento_corte_acotado !== null) {
-          if (!mapU[r.unidad_ins]) {
-            mapU[r.unidad_ins] = { vals: [], id: r.unidad_id };
-          }
-          mapU[r.unidad_ins].vals.push(Number(r.pct_cumplimiento_corte_acotado));
+          if (!mapU[r.unidad_ins]) mapU[r.unidad_ins] = [];
+          mapU[r.unidad_ins].push(Number(r.pct_cumplimiento_corte_acotado));
         }
       });
-
-      const rankingUnidades = Object.keys(mapU).map(u => {
-        const avg = mapU[u].vals.reduce((a, b) => a + b, 0) / mapU[u].vals.length;
-        return { nombre: u, id: mapU[u].id, promedio: avg, totalActs: mapU[u].vals.length };
-      }).sort((a, b) => b.promedio - a.promedio);
-
-      const wrapperU = document.getElementById('chart-unidades-wrapper');
-      if (wrapperU) {
-        const alturaDinamica = Math.max(260, rankingUnidades.length * 32 + 40);
-        wrapperU.style.height = alturaDinamica + 'px';
-      }
-
-      const coloresBarras = rankingUnidades.map(u => u.promedio >= 90 ? '#059669' : u.promedio >= 75 ? '#f59e0b' : '#e11d48');
+      const labelsU = Object.keys(mapU);
+      const valsU = labelsU.map(u => (mapU[u].reduce((a, b) => a + b, 0) / mapU[u].length).toFixed(1));
 
       if (charts.unidades) charts.unidades.destroy();
       charts.unidades = new Chart(document.getElementById('chart-unidades'), {
         type: 'bar',
-        plugins: [pluginLineasMetaDash, pluginEtiquetasBarrasDash],
         data: {
-          labels: rankingUnidades.map(u => u.nombre.length > 36 ? u.nombre.substring(0, 36) + '…' : u.nombre),
-          datasets: [{
-            label: '% Cumplimiento Acotado',
-            data: rankingUnidades.map(u => Number(u.promedio.toFixed(1))),
-            backgroundColor: coloresBarras,
-            borderRadius: 5,
-            barThickness: 20
-          }]
+          labels: labelsU.map(l => l.length > 28 ? l.substring(0, 28) + '...' : l),
+          datasets: [{ label: '% Cumplimiento Acotado', data: valsU, backgroundColor: '#0369a1', borderRadius: 6 }]
         },
         options: {
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          layout: { padding: { top: 14, right: 24 } },
-          onClick: (evt, elements) => {
-            if (elements.length > 0) {
-              const uObj = rankingUnidades[elements[0].index];
-              const uFilter = document.getElementById('dash-unidad-filter');
-              if (uFilter && !uFilter.disabled && uObj?.id) {
-                uFilter.value = (uFilter.value === uObj.id) ? 'ALL' : uObj.id;
-                loadDashboardAnual();
-              }
-            }
-          },
-          scales: {
-            x: { max: 100, beginAtZero: true, grid: { color: '#f1f5f9' } },
-            y: { grid: { display: false }, ticks: { font: { size: 11 } } }
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                title: (items) => rankingUnidades[items[0].dataIndex]?.nombre || '',
-                label: (ctx) => {
-                  const uObj = rankingUnidades[ctx.dataIndex];
-                  return ` Ejecución promedio: ${ctx.parsed.x}% (${uObj?.totalActs || 0} actividades)`;
-                }
-              }
-            }
-          }
+          scales: { x: { max: 100, beginAtZero: true } },
+          plugins: { legend: { display: false } }
         }
       });
-    }
-
-    function renderChartEvolucionTrimestral(unitFilter) {
-      const canvas = document.getElementById('chart-evolucion-trimestral');
-      if (!canvas || !window.Chart) return;
-
-      let acts = [...actividadesCache];
-      if (esOperativoReferente() && currentProfile?.unidad_id) {
-        acts = acts.filter(a => a.unidad_ins_id === currentProfile.unidad_id);
-      } else if (unitFilter && unitFilter !== 'ALL') {
-        acts = acts.filter(a => a.unidad_ins_id === unitFilter);
-      }
-
-      const progTrim = [1, 2, 3, 4].map(t => {
-        if (!acts.length) return 0;
-        const sum = acts.reduce((acc, a) => {
-          let p = 0;
-          for (let i = 1; i <= t; i++) p += Number(a['prog_t' + i] || 0);
-          return acc + Math.min(100, p);
-        }, 0);
-        return Number((sum / acts.length).toFixed(1));
-      });
-
-      const realTrim = [1, 2, 3, 4].map(t => {
-        if (!acts.length) return 0;
-        const sum = acts.reduce((acc, a) => {
-          let r = 0;
-          for (let i = 1; i <= t; i++) r += Number(a['real_t' + i] || 0);
-          return acc + Math.min(100, r);
-        }, 0);
-        return Number((sum / acts.length).toFixed(1));
-      });
-
-      if (charts.evolucionTrim) charts.evolucionTrim.destroy();
-      charts.evolucionTrim = new Chart(canvas, {
-        type: 'line',
-        data: {
-          labels: ['T1', 'T2', 'T3', 'T4'],
-          datasets: [
-            {
-              label: 'Meta Programada Acum. (%)',
-              data: progTrim,
-              borderColor: '#94a3b8',
-              backgroundColor: 'rgba(148,163,184,0.1)',
-              borderDash: [5, 5],
-              tension: 0.25,
-              fill: false
-            },
-            {
-              label: 'Ejecución Real Acotada (%)',
-              data: realTrim,
-              borderColor: '#0369a1',
-              backgroundColor: 'rgba(3,105,161,0.12)',
-              tension: 0.25,
-              fill: true,
-              pointRadius: 4,
-              pointBackgroundColor: '#0369a1'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: { y: { min: 0, max: 100 } },
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
-        }
-      });
-    }
-
-    function renderTablaDashboardAnual() {
-      const tbody = document.getElementById('tabla-dash-anual-detalle');
-      if (!tbody) return;
-
-      const estadoFilter = document.getElementById('dash-estado-filter')?.value || 'ALL';
-      const unitFilter = document.getElementById('dash-unidad-filter')?.value || 'ALL';
-      const btnReset = document.getElementById('btn-limpiar-filtros-dash');
-      const badgeEst = document.getElementById('dash-filtro-estado-badge');
-
-      const hayFiltroActivo = estadoFilter !== 'ALL' || (unitFilter !== 'ALL' && !document.getElementById('dash-unidad-filter')?.disabled);
-      if (btnReset) btnReset.classList.toggle('hidden', !hayFiltroActivo);
-      if (badgeEst) {
-        badgeEst.textContent = estadoFilter !== 'ALL' ? `Filtro: ${estadoFilter}` : '';
-        badgeEst.classList.toggle('hidden', estadoFilter === 'ALL');
-      }
-
-      let lista = [...dashDataCache];
-      if (estadoFilter === 'ALERTAS') {
-        lista = lista.filter(r => ['Con retraso', 'En atención', 'Sin registro'].includes(r.semaforo_calculado));
-      } else if (estadoFilter !== 'ALL') {
-        lista = lista.filter(r => r.semaforo_calculado === estadoFilter);
-      }
-
-      lista.sort((a, b) => {
-        const va = a.pct_cumplimiento_corte_acotado === null ? 999 : Number(a.pct_cumplimiento_corte_acotado);
-        const vb = b.pct_cumplimiento_corte_acotado === null ? 999 : Number(b.pct_cumplimiento_corte_acotado);
-        return va - vb;
-      });
-
-      const sub = document.getElementById('dash-tabla-subtitulo');
-      if (sub) sub.textContent = `Mostrando ${lista.length} actividad(es) ordenadas de menor a mayor avance al corte.`;
-
-      if (!lista.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No hay actividades que coincidan con el filtro seleccionado.</td></tr>`;
-        return;
-      }
-
-      const badgeColor = (sem) => {
-        if (sem === 'Finalizada') return 'bg-emerald-100 text-emerald-800';
-        if (sem === 'En curso') return 'bg-sky-100 text-sky-800';
-        if (sem === 'En atención') return 'bg-amber-100 text-amber-800';
-        if (sem === 'Con retraso') return 'bg-rose-100 text-rose-800';
-        return 'bg-slate-100 text-slate-700';
-      };
-
-      tbody.innerHTML = lista.map(r => {
-        const pct = r.pct_cumplimiento_corte_acotado !== null ? Number(r.pct_cumplimiento_corte_acotado).toFixed(1) + '%' : 'N/A';
-        return `
-          <tr class="hover:bg-slate-50">
-            <td class="px-3 py-2 font-medium text-slate-700 whitespace-nowrap">${r.unidad_ins || '-'}</td>
-            <td class="px-3 py-2 text-slate-800 max-w-md truncate" title="${(r.actividad || '').replace(/"/g, '&quot;')}">${r.actividad || '-'}</td>
-            <td class="px-2 py-2 text-center font-bold text-slate-800">${pct}</td>
-            <td class="px-3 py-2 text-center">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeColor(r.semaforo_calculado)}">${r.semaforo_calculado}</span>
-            </td>
-            <td class="px-2 py-2 text-center">
-              ${r.actividad_id ? `<button type="button" onclick="irAActividadDesdeDashboard('${r.actividad_id}')" class="text-sky-700 hover:underline font-semibold text-[11px]">Ver</button>` : '-'}
-            </td>
-          </tr>
-        `;
-      }).join('');
     }
 
     document.getElementById('dash-plan-select').addEventListener('change', loadDashboardPlurianual);
@@ -2915,9 +2578,6 @@
       actualizarOpcionesFiltroEvidencia();
       renderListaEvidencias();
       ejecutarCuboAnalitico();
-      if (typeof renderChartEvolucionTrimestral === 'function') {
-        renderChartEvolucionTrimestral(document.getElementById('dash-unidad-filter')?.value || 'ALL');
-      }
     }
 
     let currentEditingActId = null;

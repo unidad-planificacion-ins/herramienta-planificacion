@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Planificación Operativa y Estratégica v1.9 | INS El Salvador</title>
+  <title>Sistema de Planificación Operativa y Estratégica v2.0 | INS El Salvador</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230369a1'/><text x='50' y='66' font-size='44' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>INS</text></svg>" />
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +34,7 @@
           INS
         </div>
         <h1 class="text-xl font-bold text-slate-900">Instituto Nacional de Salud</h1>
-        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v1.9</span></p>
+        <p class="text-sm text-slate-500 mt-1">Sistema de Planificación Operativa y Estratégica <span class="text-[11px] font-semibold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">v2.0</span></p>
       </div>
       <div id="login-form" class="space-y-4">
         <div>
@@ -199,7 +199,7 @@
           <div>
             <div class="font-semibold text-sm sm:text-base leading-tight flex items-center gap-2">
               Planificación Operativa y Estratégica
-              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v1.9</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-semibold">v2.0</span>
             </div>
             <div class="text-[11px] text-sky-200">Unidad de Planificación y Calidad INS - MINSAL</div>
           </div>
@@ -270,17 +270,107 @@
             <h2 class="text-lg font-bold text-slate-800">Tablero de Control Operativo Anual (PAO)</h2>
             <p class="text-xs text-slate-500">Evaluación acumulada al trimestre de corte sin errores de división por cero ni castigo por metas futuras.</p>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2.5">
             <span id="badge-rol-contexto" class="hidden px-2.5 py-1 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 text-[11px] font-semibold"></span>
-            <select id="dash-trimestre-corte" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold bg-slate-50">
-              <option value="1">Corte: Trimestre 1 (Ene-Mar)</option>
-              <option value="2">Corte: Trimestre 2 (Abr-Jun)</option>
-              <option value="3">Corte: Trimestre 3 (Jul-Sep)</option>
-              <option value="4" selected>Corte: Trimestre 4 (Anual)</option>
-            </select>
-            <select id="dash-unidad-filter" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-slate-50 max-w-xs">
-              <option value="ALL">Todas las Unidades INS</option>
-            </select>
+
+            <!-- Selector de Corte con Mes Resaltado y Tooltip Informativo (ⓘ) -->
+            <div class="relative inline-flex items-center gap-1.5">
+              <input type="hidden" id="dash-trimestre-corte" value="4" />
+              <div class="relative" id="corte-dropdown-wrapper">
+                <button type="button" id="btn-corte-dropdown" onclick="toggleCorteDropdown(event)"
+                  class="px-3 py-1.5 rounded-lg border border-slate-300 hover:border-sky-400 text-xs font-semibold bg-slate-50 text-slate-800 flex items-center gap-2 transition shadow-2xs">
+                  <i data-lucide="calendar-check" class="w-3.5 h-3.5 text-sky-700"></i>
+                  <span id="corte-btn-label">Corte: Trimestre 4 (<strong class="text-sky-700 font-extrabold bg-sky-100/80 px-1.5 py-0.5 rounded">Anual</strong>)</span>
+                  <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500"></i>
+                </button>
+                <div id="corte-dropdown-menu" class="hidden absolute right-0 sm:left-0 top-full mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-40 text-xs">
+                  <button type="button" onclick="seleccionarCorteTrimestre('1')" data-corte-opt="1"
+                    class="w-full text-left px-3.5 py-2 hover:bg-sky-50 flex items-center justify-between text-slate-700 transition">
+                    <span>Corte: Trimestre 1 (Ene–<strong class="text-sky-700 font-extrabold bg-sky-100 px-1.5 py-0.5 rounded">Mar</strong>)</span>
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-sky-700 hidden corte-check-icon"></i>
+                  </button>
+                  <button type="button" onclick="seleccionarCorteTrimestre('2')" data-corte-opt="2"
+                    class="w-full text-left px-3.5 py-2 hover:bg-sky-50 flex items-center justify-between text-slate-700 transition">
+                    <span>Corte: Trimestre 2 (Abr–<strong class="text-sky-700 font-extrabold bg-sky-100 px-1.5 py-0.5 rounded">Jun</strong>)</span>
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-sky-700 hidden corte-check-icon"></i>
+                  </button>
+                  <button type="button" onclick="seleccionarCorteTrimestre('3')" data-corte-opt="3"
+                    class="w-full text-left px-3.5 py-2 hover:bg-sky-50 flex items-center justify-between text-slate-700 transition">
+                    <span>Corte: Trimestre 3 (Jul–<strong class="text-sky-700 font-extrabold bg-sky-100 px-1.5 py-0.5 rounded">Sep</strong>)</span>
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-sky-700 hidden corte-check-icon"></i>
+                  </button>
+                  <button type="button" onclick="seleccionarCorteTrimestre('4')" data-corte-opt="4"
+                    class="w-full text-left px-3.5 py-2 hover:bg-sky-50 flex items-center justify-between text-slate-900 font-semibold bg-sky-50/60 transition">
+                    <span>Corte: Trimestre 4 (<strong class="text-sky-700 font-extrabold bg-sky-100 px-1.5 py-0.5 rounded">Anual</strong>)</span>
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-sky-700 corte-check-icon"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Ícono Informativo (ⓘ) con Tooltip Flotante -->
+              <div class="relative group inline-flex items-center">
+                <button type="button" aria-label="Información sobre evaluación acumulada"
+                  class="w-6 h-6 rounded-full bg-sky-100 hover:bg-sky-200 text-sky-800 border border-sky-300 flex items-center justify-center text-xs font-bold cursor-help transition focus:outline-none focus:ring-2 focus:ring-sky-500">
+                  ⓘ
+                </button>
+                <div class="pointer-events-none opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 absolute right-0 top-full mt-2 w-72 p-3 rounded-xl bg-slate-900 text-white text-[11px] leading-relaxed shadow-2xl z-50 border border-slate-700">
+                  <div class="font-bold text-sky-300 mb-1 flex items-center gap-1">
+                    <span>ⓘ Evaluación acumulada</span>
+                  </div>
+                  Evaluación acumulada: calcula el cumplimiento sumando lo ejecutado y programado desde enero hasta el cierre del trimestre seleccionado.
+                </div>
+              </div>
+            </div>
+
+            <!-- Multi-Select Jerárquico de Unidades y Oficinas Subordinadas -->
+            <div class="relative" id="dash-unidad-multiselect-wrapper">
+              <button type="button" id="btn-dash-unidad-multiselect" onclick="toggleDashUnidadDropdown(event)"
+                class="px-3 py-1.5 rounded-lg border border-slate-300 hover:border-sky-400 text-xs font-semibold bg-slate-50 text-slate-800 flex items-center gap-2 max-w-xs sm:max-w-sm transition shadow-2xs">
+                <i data-lucide="building-2" class="w-3.5 h-3.5 text-sky-700 shrink-0"></i>
+                <span id="dash-unidad-btn-label" class="truncate">Todas las Unidades INS</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 shrink-0"></i>
+              </button>
+
+              <div id="dash-unidad-dropdown-panel"
+                class="hidden absolute right-0 top-full mt-1.5 w-80 sm:w-96 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden text-xs">
+                <!-- Cabecera y Buscador -->
+                <div class="p-2.5 bg-slate-50 border-b border-slate-200 space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Unidades y Oficinas INS</span>
+                    <div class="flex items-center gap-1.5">
+                      <button type="button" onclick="seleccionarTodasUnidadesDash(true)"
+                        class="px-2 py-0.5 rounded bg-sky-100 hover:bg-sky-200 text-sky-800 font-semibold text-[10px] transition">
+                        Todas
+                      </button>
+                      <button type="button" onclick="seleccionarTodasUnidadesDash(false)"
+                        class="px-2 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-[10px] transition">
+                        Limpiar
+                      </button>
+                    </div>
+                  </div>
+                  <div class="relative">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2"></i>
+                    <input type="text" id="dash-unidad-search" oninput="filtrarArbolUnidadesDash(this.value)"
+                      placeholder="Buscar unidad padre u oficina subordinada..."
+                      class="w-full pl-8 pr-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] focus:outline-none focus:ring-1 focus:ring-sky-600" />
+                  </div>
+                </div>
+
+                <!-- Lista Jerárquica con Checkboxes -->
+                <div id="dash-unidad-tree-container" class="max-h-80 overflow-y-auto scrollbar-thin divide-y divide-slate-100 p-1.5">
+                  <div class="p-4 text-center text-slate-400 text-[11px]">Cargando estructura organizativa...</div>
+                </div>
+
+                <!-- Pie Resumen -->
+                <div class="px-3 py-2 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-[11px]">
+                  <span id="dash-unidad-footer-resumen" class="font-semibold text-sky-900">Todas las unidades activas</span>
+                  <button type="button" onclick="cerrarDropdownsDash()"
+                    class="px-2.5 py-1 rounded-lg bg-sky-700 hover:bg-sky-800 text-white font-semibold text-[10px] transition">
+                    Listo
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1857,15 +1947,16 @@
       });
 
       const unitOpts = unidadesList.map(u => `<option value="${u.id}">${u.nombre}</option>`).join('');
-      document.getElementById('dash-unidad-filter').innerHTML = `<option value="ALL">Todas las Unidades INS</option>` + unitOpts;
       document.getElementById('filtro-ev-unidad').innerHTML = `<option value="ALL">Todas las Unidades INS</option>` + unitOpts;
       document.getElementById('cubo-filtro-unidad').innerHTML = `<option value="ALL">Todas las Unidades (Consolidado)</option>` + unitOpts;
       document.getElementById('act-unidad').innerHTML = unitOpts;
       document.getElementById('rk-unidad').innerHTML = unitOpts;
       document.getElementById('ref-unidad').innerHTML = unitOpts;
 
+      inicializarMultiSelectUnidadesDash();
+
       if (esOperativoReferente() && currentProfile?.unidad_id) {
-        ['dash-unidad-filter', 'filtro-ev-unidad', 'act-unidad', 'rk-unidad'].forEach(selId => {
+        ['filtro-ev-unidad', 'act-unidad', 'rk-unidad'].forEach(selId => {
           const el = document.getElementById(selId);
           if (el) {
             el.value = currentProfile.unidad_id;
@@ -1980,13 +2071,365 @@
       if (tab === 'configuracion') renderConfigTables();
     }
 
-    document.getElementById('dash-trimestre-corte').addEventListener('change', loadDashboardAnual);
-    document.getElementById('dash-unidad-filter').addEventListener('change', loadDashboardAnual);
+    // =========================================================================
+    // CONTROLES MEJORADOS DASHBOARD ANUAL: CORTE CON MES RESALTADO + MULTI-SELECT JERÁRQUICO
+    // =========================================================================
+    let selectedDashUnitIds = new Set();
+    let dashBloquesJerarquicos = [];
+
+    const CORTE_LABELS_HTML = {
+      '1': 'Corte: Trimestre 1 (Ene–<strong class="text-sky-700 font-extrabold bg-sky-100/80 px-1.5 py-0.5 rounded">Mar</strong>)',
+      '2': 'Corte: Trimestre 2 (Abr–<strong class="text-sky-700 font-extrabold bg-sky-100/80 px-1.5 py-0.5 rounded">Jun</strong>)',
+      '3': 'Corte: Trimestre 3 (Jul–<strong class="text-sky-700 font-extrabold bg-sky-100/80 px-1.5 py-0.5 rounded">Sep</strong>)',
+      '4': 'Corte: Trimestre 4 (<strong class="text-sky-700 font-extrabold bg-sky-100/80 px-1.5 py-0.5 rounded">Anual</strong>)'
+    };
+
+    function toggleCorteDropdown(event) {
+      if (event) event.stopPropagation();
+      const menu = document.getElementById('corte-dropdown-menu');
+      const unitPanel = document.getElementById('dash-unidad-dropdown-panel');
+      if (unitPanel) unitPanel.classList.add('hidden');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    function seleccionarCorteTrimestre(val) {
+      const hiddenInput = document.getElementById('dash-trimestre-corte');
+      if (hiddenInput) hiddenInput.value = String(val);
+
+      const labelEl = document.getElementById('corte-btn-label');
+      if (labelEl && CORTE_LABELS_HTML[String(val)]) {
+        labelEl.innerHTML = CORTE_LABELS_HTML[String(val)];
+      }
+
+      document.querySelectorAll('[data-corte-opt]').forEach(btn => {
+        const isSelected = btn.getAttribute('data-corte-opt') === String(val);
+        btn.classList.toggle('bg-sky-50/60', isSelected);
+        btn.classList.toggle('font-semibold', isSelected);
+        btn.classList.toggle('text-slate-900', isSelected);
+        const icon = btn.querySelector('.corte-check-icon');
+        if (icon) icon.classList.toggle('hidden', !isSelected);
+      });
+
+      const menu = document.getElementById('corte-dropdown-menu');
+      if (menu) menu.classList.add('hidden');
+      loadDashboardAnual();
+    }
+
+    function toggleDashUnidadDropdown(event) {
+      if (event) event.stopPropagation();
+      if (esOperativoReferente() && currentProfile?.unidad_id) return;
+      const panel = document.getElementById('dash-unidad-dropdown-panel');
+      const corteMenu = document.getElementById('corte-dropdown-menu');
+      if (corteMenu) corteMenu.classList.add('hidden');
+      if (panel) {
+        panel.classList.toggle('hidden');
+        if (!panel.classList.contains('hidden')) {
+          const searchInput = document.getElementById('dash-unidad-search');
+          if (searchInput) searchInput.focus();
+        }
+      }
+    }
+
+    function cerrarDropdownsDash() {
+      const panel = document.getElementById('dash-unidad-dropdown-panel');
+      const corteMenu = document.getElementById('corte-dropdown-menu');
+      if (panel) panel.classList.add('hidden');
+      if (corteMenu) corteMenu.classList.add('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      const corteWrap = document.getElementById('corte-dropdown-wrapper');
+      const unitWrap = document.getElementById('dash-unidad-multiselect-wrapper');
+      if (corteWrap && !corteWrap.contains(e.target)) {
+        document.getElementById('corte-dropdown-menu')?.classList.add('hidden');
+      }
+      if (unitWrap && !unitWrap.contains(e.target)) {
+        document.getElementById('dash-unidad-dropdown-panel')?.classList.add('hidden');
+      }
+    });
+
+    function construirBloquesJerarquicosUnidades(lista) {
+      const byId = new Map(lista.map(u => [u.id, u]));
+      const tieneParentId = lista.some(u => u.unidad_padre_id || u.parent_id);
+
+      const bloquesMap = new Map();
+      const crearBloque = (padreObj) => {
+        if (!bloquesMap.has(padreObj.id)) {
+          bloquesMap.set(padreObj.id, {
+            padre: padreObj,
+            hijas: []
+          });
+        }
+        return bloquesMap.get(padreObj.id);
+      };
+
+      if (tieneParentId) {
+        // Jerarquía explícita desde columnas de base de datos (unidad_padre_id / parent_id)
+        lista.forEach(u => {
+          const pId = u.unidad_padre_id || u.parent_id;
+          if (!pId || !byId.has(pId)) {
+            crearBloque(u);
+          }
+        });
+        lista.forEach(u => {
+          const pId = u.unidad_padre_id || u.parent_id;
+          if (pId && byId.has(pId)) {
+            crearBloque(byId.get(pId)).hijas.push(u);
+          }
+        });
+      } else {
+        // Inferencia jerárquica institucional INS (Unidades Padre vs Oficinas Subordinadas)
+        const padres = lista.filter(u => !/^\s*oficina/i.test(u.nombre || ''));
+        const oficinas = lista.filter(u => /^\s*oficina/i.test(u.nombre || ''));
+
+        padres.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es')).forEach(p => crearBloque(p));
+
+        const encontrarPadreParaOficina = (oficina) => {
+          const nom = (oficina.nombre || '').toLowerCase();
+          const sig = (oficina.siglas || '').toLowerCase();
+
+          const reglasMatch = [
+            { keys: ['ética', 'etica', 'bioética', 'bioetica', 'comité de ética', 'comite de etica', 'ensayos clínicos', 'ensayos clinicos', 'investigación', 'investigacion', 'revista alerta', 'alerta', 'observatorio'], padreKeys: ['investigación', 'investigacion', 'generación de evidencia'] },
+            { keys: ['calidad', 'iso', 'planificación', 'planificacion', 'monitoreo', 'evaluación', 'evaluacion', 'procesos', 'proyectos'], padreKeys: ['planificación', 'planificacion', 'calidad'] },
+            { keys: ['echo', 'teleclínica', 'teleclinica', 'educación', 'educacion', 'capacitación', 'capacitacion', 'formación', 'formacion', 'escuela', 'biblioteca', 'virtual'], padreKeys: ['educación', 'educacion', 'formación', 'formacion', 'desarrollo del talento'] },
+            { keys: ['laboratorio', 'bacteriología', 'bacteriologia', 'virología', 'virologia', 'parasitología', 'parasitologia', 'entomología', 'entomologia', 'referencia', 'muestras', 'genómica', 'genomica'], padreKeys: ['laboratorio'] },
+            { keys: ['vigilancia', 'epidemiol', 'encuestas', 'análisis de situación', 'analisis de situacion', 'asis'], padreKeys: ['vigilancia', 'observatorio', 'investigación'] },
+            { keys: ['administrat', 'financiera', 'uaci', 'compras', 'recursos humanos', 'talento humano', 'informática', 'informatica', 'ti ', 'tic', 'jurídic', 'juridic', 'comunicaciones', 'cooperación', 'cooperacion'], padreKeys: ['dirección', 'direccion', 'administrativa', 'gerencia'] }
+          ];
+
+          for (const regla of reglasMatch) {
+            if (regla.keys.some(k => nom.includes(k) || sig.includes(k))) {
+              const found = padres.find(p => regla.padreKeys.some(pk => (p.nombre || '').toLowerCase().includes(pk)));
+              if (found) return found;
+            }
+          }
+
+          // Coincidencia léxica directa con palabras clave de cada Unidad Padre
+          const stopWords = new Set(['oficina', 'unidad', 'nacional', 'salud', 'instituto', 'para', 'del', 'las', 'los', 'con', 'por']);
+          const tokensOf = nom.split(/[^a-záéíóúñ]+/).filter(w => w.length >= 5 && !stopWords.has(w));
+          let mejorPadre = null;
+          let mejorPuntaje = 0;
+          padres.forEach(p => {
+            const pNom = (p.nombre || '').toLowerCase();
+            let score = 0;
+            tokensOf.forEach(t => { if (pNom.includes(t)) score += 2; });
+            if (score > mejorPuntaje) {
+              mejorPuntaje = score;
+              mejorPadre = p;
+            }
+          });
+          if (mejorPadre) return mejorPadre;
+
+          // Respaldo: Dirección o primera Unidad Padre disponible
+          return padres.find(p => /dirección|direccion/i.test(p.nombre || '')) || padres[0] || null;
+        };
+
+        oficinas.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es')).forEach(of => {
+          const padre = encontrarPadreParaOficina(of);
+          if (padre) {
+            crearBloque(padre).hijas.push(of);
+          } else {
+            crearBloque(of);
+          }
+        });
+      }
+
+      const resultado = [...bloquesMap.values()];
+      resultado.forEach(b => {
+        b.hijas.sort((a, c) => (a.nombre || '').localeCompare(c.nombre || '', 'es'));
+      });
+      resultado.sort((a, b) => (a.padre.nombre || '').localeCompare(b.padre.nombre || '', 'es'));
+      return resultado;
+    }
+
+    function inicializarMultiSelectUnidadesDash() {
+      dashBloquesJerarquicos = construirBloquesJerarquicosUnidades(unidadesList);
+
+      if (esOperativoReferente() && currentProfile?.unidad_id) {
+        selectedDashUnitIds = new Set([currentProfile.unidad_id]);
+        const btn = document.getElementById('btn-dash-unidad-multiselect');
+        if (btn) {
+          btn.disabled = true;
+          btn.classList.add('opacity-75', 'cursor-not-allowed');
+        }
+      } else {
+        selectedDashUnitIds = new Set(unidadesList.map(u => u.id));
+      }
+
+      renderArbolUnidadesDash();
+      actualizarBotonResumenUnidadesDash();
+    }
+
+    function renderArbolUnidadesDash(filtroTexto = '') {
+      const container = document.getElementById('dash-unidad-tree-container');
+      if (!container) return;
+
+      const q = (filtroTexto || '').toLowerCase().trim();
+      let htmlBloques = '';
+
+      dashBloquesJerarquicos.forEach((bloque, idx) => {
+        const p = bloque.padre;
+        const hijas = bloque.hijas || [];
+        const idsBloque = [p.id, ...hijas.map(h => h.id)];
+
+        const matchPadre = !q || (p.nombre || '').toLowerCase().includes(q) || (p.siglas || '').toLowerCase().includes(q);
+        const hijasVisibles = q
+          ? hijas.filter(h => matchPadre || (h.nombre || '').toLowerCase().includes(q) || (h.siglas || '').toLowerCase().includes(q))
+          : hijas;
+
+        if (!matchPadre && hijasVisibles.length === 0) return;
+
+        const seleccionadosEnBloque = idsBloque.filter(id => selectedDashUnitIds.has(id)).length;
+        const todoBloqueSeleccionado = idsBloque.length > 0 && seleccionadosEnBloque === idsBloque.length;
+        const algunoBloqueSeleccionado = seleccionadosEnBloque > 0 && !todoBloqueSeleccionado;
+
+        const padreChecked = selectedDashUnitIds.has(p.id);
+
+        htmlBloques += `
+          <div class="py-2 px-1.5 rounded-lg hover:bg-slate-50/70 transition" data-bloque-idx="${idx}">
+            <!-- Cabecera de Bloque Padre + Atajo Seleccionar Todo el Bloque -->
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <div class="flex items-center gap-1.5">
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-sky-900 text-white font-bold text-[9px] uppercase tracking-wider">
+                  Unidad Padre
+                </span>
+                ${hijas.length > 0 ? `<span class="text-[10px] text-slate-400 font-medium">(${hijas.length} oficina${hijas.length > 1 ? 's' : ''})</span>` : ''}
+              </div>
+              ${hijas.length > 0 ? `
+                <button type="button" onclick="toggleBloqueCompletoDash('${p.id}')"
+                  class="text-[10px] font-bold px-2 py-0.5 rounded border transition shrink-0 ${todoBloqueSeleccionado ? 'bg-sky-700 text-white border-sky-700' : (algunoBloqueSeleccionado ? 'bg-sky-100 text-sky-900 border-sky-300' : 'bg-white hover:bg-sky-50 text-sky-700 border-sky-200')}">
+                  ${todoBloqueSeleccionado ? '✓ Bloque completo' : 'Seleccionar todo el bloque'}
+                </button>
+              ` : ''}
+            </div>
+
+            <!-- Fila 1: Actividades propias de la Unidad Padre -->
+            <label class="flex items-start gap-2 p-1.5 rounded-md cursor-pointer ${padreChecked ? 'bg-sky-50/80 border border-sky-200/80' : 'hover:bg-slate-100/80 border border-transparent'} transition">
+              <input type="checkbox" value="${p.id}" ${padreChecked ? 'checked' : ''}
+                onchange="toggleUnidadIndividualDash('${p.id}', this.checked)"
+                class="mt-0.5 rounded border-slate-300 text-sky-700 focus:ring-sky-600 cursor-pointer" />
+              <div class="leading-snug flex-1">
+                <div class="font-bold text-slate-900">${p.nombre}</div>
+                <div class="text-[10px] text-sky-700 font-medium">Actividades propias de la Unidad Padre</div>
+              </div>
+            </label>
+
+            <!-- Filas Subordinadas: Oficinas dependientes -->
+            ${hijasVisibles.length > 0 ? `
+              <div class="mt-1 ml-3 pl-2.5 border-l-2 border-slate-200 space-y-1">
+                ${hijasVisibles.map(h => {
+                  const hChecked = selectedDashUnitIds.has(h.id);
+                  return `
+                    <label class="flex items-start gap-2 p-1.5 rounded-md cursor-pointer ${hChecked ? 'bg-indigo-50/70 border border-indigo-200/70' : 'hover:bg-slate-100/80 border border-transparent'} transition">
+                      <input type="checkbox" value="${h.id}" ${hChecked ? 'checked' : ''}
+                        onchange="toggleUnidadIndividualDash('${h.id}', this.checked)"
+                        class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
+                      <div class="leading-snug flex-1">
+                        <div class="font-medium text-slate-800 flex items-center gap-1">
+                          <span class="text-slate-400">↳</span>
+                          <span>${h.nombre}</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 pl-3">Oficina subordinada</div>
+                      </div>
+                    </label>
+                  `;
+                }).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      container.innerHTML = htmlBloques || `<div class="p-4 text-center text-slate-400 text-[11px]">No se encontraron unidades u oficinas con ese criterio.</div>`;
+    }
+
+    function toggleUnidadIndividualDash(unitId, checked) {
+      if (checked) {
+        selectedDashUnitIds.add(unitId);
+      } else {
+        selectedDashUnitIds.delete(unitId);
+      }
+      const q = document.getElementById('dash-unidad-search')?.value || '';
+      renderArbolUnidadesDash(q);
+      actualizarBotonResumenUnidadesDash();
+      loadDashboardAnual();
+    }
+
+    function toggleBloqueCompletoDash(padreId) {
+      const bloque = dashBloquesJerarquicos.find(b => b.padre.id === padreId);
+      if (!bloque) return;
+      const idsBloque = [bloque.padre.id, ...bloque.hijas.map(h => h.id)];
+      const todosMarcados = idsBloque.every(id => selectedDashUnitIds.has(id));
+
+      if (todosMarcados) {
+        idsBloque.forEach(id => selectedDashUnitIds.delete(id));
+      } else {
+        idsBloque.forEach(id => selectedDashUnitIds.add(id));
+      }
+
+      const q = document.getElementById('dash-unidad-search')?.value || '';
+      renderArbolUnidadesDash(q);
+      actualizarBotonResumenUnidadesDash();
+      loadDashboardAnual();
+    }
+
+    function seleccionarTodasUnidadesDash(marcarTodas) {
+      if (marcarTodas) {
+        selectedDashUnitIds = new Set(unidadesList.map(u => u.id));
+      } else {
+        selectedDashUnitIds.clear();
+      }
+      const q = document.getElementById('dash-unidad-search')?.value || '';
+      renderArbolUnidadesDash(q);
+      actualizarBotonResumenUnidadesDash();
+      loadDashboardAnual();
+    }
+
+    function filtrarArbolUnidadesDash(texto) {
+      renderArbolUnidadesDash(texto);
+    }
+
+    function actualizarBotonResumenUnidadesDash() {
+      const labelEl = document.getElementById('dash-unidad-btn-label');
+      const footerEl = document.getElementById('dash-unidad-footer-resumen');
+      if (!labelEl) return;
+
+      const total = unidadesList.length;
+      const count = selectedDashUnitIds.size;
+
+      if (total > 0 && count === total) {
+        labelEl.textContent = 'Todas las Unidades INS';
+        if (footerEl) footerEl.textContent = `Todas las unidades activas (${total})`;
+      } else if (count === 0) {
+        labelEl.textContent = '0 unidades seleccionadas';
+        if (footerEl) footerEl.textContent = 'Ninguna unidad seleccionada';
+      } else if (count === 1) {
+        const onlyId = [...selectedDashUnitIds][0];
+        const uObj = unidadesList.find(u => u.id === onlyId);
+        labelEl.textContent = uObj ? uObj.nombre : '1 unidad seleccionada';
+        if (footerEl) footerEl.textContent = '1 unidad seleccionada';
+      } else {
+        labelEl.textContent = `${count} unidades seleccionadas`;
+        if (footerEl) footerEl.textContent = `${count} de ${total} unidades seleccionadas`;
+      }
+    }
 
     async function loadDashboardAnual() {
       if (!activeCicloId) return;
       const corte = parseInt(document.getElementById('dash-trimestre-corte').value);
-      const unitFilter = document.getElementById('dash-unidad-filter').value;
+
+      if (unidadesList.length > 0 && selectedDashUnitIds.size === 0 && !(esOperativoReferente() && currentProfile?.unidad_id)) {
+        dashDataCache = [];
+        document.getElementById('kpi-cumplimiento-acotado').textContent = '0.0%';
+        document.getElementById('kpi-cumplimiento-bruto').textContent = 'Promedio bruto (con brotes): 0.0%';
+        document.getElementById('kpi-total-act').textContent = '0';
+        document.getElementById('kpi-finalizadas').textContent = '0 finalizadas al 100%';
+        document.getElementById('kpi-en-curso').textContent = '0';
+        document.getElementById('kpi-retraso').textContent = '0';
+        document.getElementById('kpi-sin-registro').textContent = '0 con omisión de registro';
+        renderChartsAnual([]);
+        return;
+      }
 
       let query = sb.from('vw_dashboard_operativo_anual')
         .select('*')
@@ -1995,8 +2438,8 @@
 
       if (esOperativoReferente() && currentProfile?.unidad_id) {
         query = query.eq('unidad_id', currentProfile.unidad_id);
-      } else if (unitFilter !== 'ALL') {
-        query = query.eq('unidad_id', unitFilter);
+      } else if (unidadesList.length > 0 && selectedDashUnitIds.size < unidadesList.length) {
+        query = query.in('unidad_id', [...selectedDashUnitIds]);
       }
 
       const { data } = await query;

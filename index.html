@@ -529,6 +529,18 @@
             <p class="text-xs text-slate-500">Programa, edita o elimina actividades y desagrega productos específicos del INS con consolidación automática.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
+            <!-- Selector Sincronizado de Corte Trimestral -->
+            <div class="flex items-center gap-1.5 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200 text-xs">
+              <span class="text-[11px] font-bold text-sky-900">Corte evaluación:</span>
+              <select id="matriz-trimestre-corte" onchange="sincronizarCorteTrimestral(this.value)"
+                class="px-2 py-0.5 rounded-md border border-sky-300 text-xs font-semibold bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer">
+                <option value="1">Trimestre 1 (Ene–Mar)</option>
+                <option value="2">Trimestre 2 (Abr–Jun)</option>
+                <option value="3">Trimestre 3 (Jul–Sep)</option>
+                <option value="4" selected>Trimestre 4 (Anual)</option>
+              </select>
+            </div>
+
             <!-- Control Unificado de Ordenamiento y Filtrado -->
             <div class="flex flex-wrap items-center bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs gap-1.5">
               <div class="inline-flex rounded-md bg-slate-200/80 p-0.5">
@@ -1888,89 +1900,27 @@
     }
 
     function calcularSemaforoYEstado(a) {
-      const acum = calcularAcumuladoReal(a);
+      const corteActivo = parseInt(
+        document.getElementById('matriz-trimestre-corte')?.value ||
+        document.getElementById('dash-trimestre-corte')?.value ||
+        '4'
+      );
 
-      if (acum >= 99.95) {
-        return {
-          label: 'Finalizada',
-          badgeClass: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
-          pctCorte: acum
-        };
-      }
+      const evalCorte = evaluarEstadoIrreversibleAlCorte(a, corteActivo);
 
-      let ultimoTrimConReal = 0;
-      for (let t = 4; t >= 1; t--) {
-        if (a['real_t' + t] !== null && a['real_t' + t] !== undefined && a['real_t' + t] !== '') {
-          ultimoTrimConReal = t;
-          break;
-        }
-      }
-
-      let progCorte = 0;
-      let realCorte = 0;
-      if (ultimoTrimConReal > 0) {
-        for (let t = 1; t <= ultimoTrimConReal; t++) {
-          progCorte += Number(a['prog_t' + t] || 0);
-          realCorte += Number(a['real_t' + t] || 0);
-        }
-
-        if (progCorte > 0) {
-          const pctCorte = (realCorte / progCorte) * 100;
-          if (pctCorte >= 90) {
-            return {
-              label: 'En curso',
-              badgeClass: 'bg-sky-100 text-sky-800 border border-sky-200',
-              pctCorte
-            };
-          }
-          if (pctCorte >= 75) {
-            return {
-              label: 'En atención',
-              badgeClass: 'bg-amber-100 text-amber-800 border border-amber-200',
-              pctCorte
-            };
-          }
-          return {
-            label: 'Con retraso',
-            badgeClass: 'bg-rose-100 text-rose-800 border border-rose-200',
-            pctCorte
-          };
-        } else if (realCorte > 0) {
-          return {
-            label: 'En curso',
-            badgeClass: 'bg-sky-100 text-sky-800 border border-sky-200',
-            pctCorte: 100
-          };
-        }
-      }
-
-      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
-      const anioCiclo = cicloObj?.anio || new Date().getFullYear();
-      const hoy = new Date();
-      let trimActualSistema = 0;
-      if (hoy.getFullYear() > anioCiclo) {
-        trimActualSistema = 4;
-      } else if (hoy.getFullYear() === anioCiclo) {
-        trimActualSistema = Math.floor(hoy.getMonth() / 3) + 1;
-      }
-
-      let progVencida = 0;
-      for (let t = 1; t <= trimActualSistema; t++) {
-        progVencida += Number(a['prog_t' + t] || 0);
-      }
-
-      if (progVencida > 0 && trimActualSistema > 1) {
-        return {
-          label: 'Sin registro',
-          badgeClass: 'bg-slate-200 text-slate-700 border border-slate-300',
-          pctCorte: 0
-        };
-      }
+      const estilosBadge = {
+        'Finalizada': 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+        'En curso': 'bg-sky-100 text-sky-800 border border-sky-200',
+        'En atención': 'bg-amber-100 text-amber-800 border border-amber-200',
+        'Con retraso': 'bg-rose-100 text-rose-800 border border-rose-200',
+        'Sin registro': 'bg-slate-200 text-slate-700 border border-slate-300',
+        'Sin programación al corte': 'bg-slate-100 text-slate-500 border border-slate-200'
+      };
 
       return {
-        label: 'Pendiente',
-        badgeClass: 'bg-amber-50 text-amber-700 border border-amber-200',
-        pctCorte: 0
+        label: evalCorte.semaforo,
+        badgeClass: estilosBadge[evalCorte.semaforo] || 'bg-slate-100 text-slate-600 border border-slate-200',
+        pctCorte: evalCorte.pctCorteAcotado ?? evalCorte.pctAnualAlCorte
       };
     }
 
@@ -2245,7 +2195,20 @@
 
       const menu = document.getElementById('corte-dropdown-menu');
       if (menu) menu.classList.add('hidden');
+
+      const matSel = document.getElementById('matriz-trimestre-corte');
+      if (matSel && matSel.value !== String(val)) {
+        matSel.value = String(val);
+      }
+
       loadDashboardAnual();
+      if (typeof renderTablaActividadesPOA === 'function') {
+        renderTablaActividadesPOA();
+      }
+    }
+
+    function sincronizarCorteTrimestral(val) {
+      seleccionarCorteTrimestre(String(val || '4'));
     }
 
     function toggleDashUnidadDropdown(event) {

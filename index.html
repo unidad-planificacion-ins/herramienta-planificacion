@@ -4762,9 +4762,14 @@ function escapeHtml(str) {
       });
 
       try {
+        const payloadFodaConInstruccion = {
+          instrucciones_adicionales: "IMPORTANTE: Para el análisis CAME, genera obligatoriamente entre 3 y 5 estrategias cruzadas específicas y accionables por cada una de las 4 combinaciones (3 a 5 estrategias FO Ofensivas, 3 a 5 estrategias DO de Reorientación, 3 a 5 estrategias FA Defensivas y 3 a 5 estrategias DA de Supervivencia), vinculando explícitamente los códigos de los factores consolidados (ej. F1+O2, D1+O3, F2+A1, D2+A1) y sin incluir referencias financieras o presupuestarias.",
+          aportes_por_cuadrante: agrupados
+        };
+
         const respuestaRaw = await llamarAsistenteIA({
           tipo: 'foda_came',
-          borrador: JSON.stringify(agrupados, null, 2)
+          borrador: JSON.stringify(payloadFodaConInstruccion, null, 2)
         }, 'btn-sintetizar-foda');
 
         // Extracción robusta del bloque JSON aunque venga con texto adicional

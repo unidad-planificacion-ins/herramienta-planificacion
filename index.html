@@ -4685,6 +4685,15 @@
       renderIconsSafe();
     }
 
+ function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }   
+    
 function renderizarFodaEnPantalla(factoresLista, resumenTexto) {
       ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(c => {
         const items = (factoresLista || []).filter(x => x.cuadrante === c);

@@ -1639,6 +1639,7 @@
     </div>
   </div>
 <script>
+<script>
     // =========================================================================
     // ESTADO GLOBAL DEL SISTEMA v2.1 (USA 'sb' Y 'currentProfile' DEL BLOQUE 1)
     // =========================================================================
@@ -2176,7 +2177,7 @@
     });
 
     // =========================================================================
-    // CARGA DE CATÁLOGOS MAESTROS Y CICLOS
+    // CARGA DE CATÁLOGOS MAESTROS Y CICLOS (CON DETECCIÓN AUTOMÁTICA DE CICLO CON DATOS)
     // =========================================================================
     window.initMasterData = async function() {
       const [
@@ -2187,7 +2188,8 @@
         { data: estrategias },
         { data: lineas },
         { data: tiposProd },
-        { data: perfiles }
+        { data: perfiles },
+        { data: actsCiclos }
       ] = await Promise.all([
         sb.from('planes_estrategicos').select('*').order('anio_inicio', { ascending: false }),
         sb.from('ciclos_anuales').select('*').order('anio', { ascending: false }),
@@ -2196,7 +2198,8 @@
         sb.from('estrategias_pei').select('*').order('codigo'),
         sb.from('lineas_accion_pei').select('*').order('codigo'),
         sb.from('catalogo_tipos_producto').select('*').order('nombre'),
-        sb.from('perfiles_usuarios').select('nombre_completo, cargo, unidad_id, unidades_ins(siglas)').order('nombre_completo')
+        sb.from('perfiles_usuarios').select('nombre_completo, cargo, unidad_id, unidades_ins(siglas)').order('nombre_completo'),
+        sb.from('actividades_poa').select('ciclo_id')
       ]);
 
       planesList = planes || [];
@@ -2221,11 +2224,23 @@
       });
       referentesList = Array.from(mapaRef.values());
 
+      // Contar actividades por ciclo para priorizar el ciclo activo o con registros
+      const conteoPorCiclo = {};
+      (actsCiclos || []).forEach(r => {
+        if (r.ciclo_id) conteoPorCiclo[r.ciclo_id] = (conteoPorCiclo[r.ciclo_id] || 0) + 1;
+      });
+
       const cicloSel = document.getElementById('global-ciclo-select');
-      cicloSel.innerHTML = ciclosList.map(c => `<option value="${c.id}">${c.anio} (${c.estado})</option>`).join('');
+      cicloSel.innerHTML = ciclosList.map(c => {
+        const n = conteoPorCiclo[c.id] || 0;
+        return `<option value="${c.id}">${c.anio} (${c.estado})${n > 0 ? ` • ${n} act.` : ''}</option>`;
+      }).join('');
+
       if (ciclosList.length > 0) {
-        activeCicloId = ciclosList[0].id;
-        activePlanId = ciclosList[0].plan_id;
+        const cicloConDatos = ciclosList.find(c => (conteoPorCiclo[c.id] || 0) > 0) || ciclosList[0];
+        activeCicloId = cicloConDatos.id;
+        activePlanId = cicloConDatos.plan_id;
+        cicloSel.value = activeCicloId;
       }
 
       cicloSel.addEventListener('change', async (e) => {
@@ -4166,13 +4181,20 @@
         }).eq('id', editId);
         error = res.error;
       } else {
-        const res = await sb.from('foda_aportes_participantes').insert({
+        const baseInsert = {
           ciclo_id: activeCicloId,
           unidad_id: currentProfile?.unidad_id || unidadesList[0]?.id,
-          autor_id: currentUser.id,
           cuadrante,
           idea_bruta: idea
+        };
+        let res = await sb.from('foda_aportes_participantes').insert({
+          ...baseInsert,
+          autor_id: currentUser.id
         });
+        // Respaldo automático si el esquema de la tabla no tiene autor_id
+        if (res.error && res.error.message && res.error.message.includes('autor_id')) {
+          res = await sb.from('foda_aportes_participantes').insert(baseInsert);
+        }
         error = res.error;
       }
 
@@ -5236,3 +5258,5 @@ Se recomienda mantener el monitoreo mensual de los productos estratégicos de in
   </script>
 </body>
 </html>
+
+  

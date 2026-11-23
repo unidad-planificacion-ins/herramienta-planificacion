@@ -4160,7 +4160,7 @@
       await sb.from('matriz_riesgos_poa').update({ accion_tomada_materializacion: val }).eq('id', id);
     }
 
-    // =========================================================================
+// =========================================================================
     // TAB 6: ANÁLISIS FODA PARTICIPATIVO CON SÍNTESIS CAME POR IA
     // =========================================================================
     let fodaAportesCache = [];
@@ -4172,6 +4172,11 @@
       const idea = document.getElementById('foda-idea').value.trim();
       if (!idea) return;
 
+      if (!activeCicloId) {
+        alert('No hay un ciclo PAO activo seleccionado. Recarga la página e intenta de nuevo.');
+        return;
+      }
+
       let error;
       if (editId) {
         const res = await sb.from('foda_aportes_participantes').update({
@@ -4180,20 +4185,12 @@
         }).eq('id', editId);
         error = res.error;
       } else {
-        const baseInsert = {
+        // Inserción compatible directamente con el esquema real de foda_aportes_participantes
+        const res = await sb.from('foda_aportes_participantes').insert({
           ciclo_id: activeCicloId,
-          unidad_id: currentProfile?.unidad_id || unidadesList[0]?.id,
           cuadrante,
           idea_bruta: idea
-        };
-        let res = await sb.from('foda_aportes_participantes').insert({
-          ...baseInsert,
-          autor_id: currentUser.id
         });
-        // Respaldo automático si el esquema de la tabla no tiene autor_id
-        if (res.error && res.error.message && res.error.message.includes('autor_id')) {
-          res = await sb.from('foda_aportes_participantes').insert(baseInsert);
-        }
         error = res.error;
       }
 
@@ -4243,91 +4240,10 @@
       await loadFoda();
     };
 
-    window.imprimirExportarFoda = function() {
-      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
-      const anio = cicloObj?.anio || new Date().getFullYear();
-
-      const getItemsHtml = (cuad) => {
-        const ul = document.getElementById(`foda-list-${cuad}`);
-        if (!ul) return '<li>Sin factores registrados</li>';
-        const items = Array.from(ul.querySelectorAll('li')).map(li => {
-          const clone = li.cloneNode(true);
-          clone.querySelectorAll('button').forEach(b => b.remove());
-          return `<li>${clone.innerHTML.trim()}</li>`;
-        });
-        return items.length ? items.join('') : '<li>Sin factores registrados</li>';
-      };
-
-      const resumenTexto = document.getElementById('foda-resumen-ejecutivo')?.innerText || '';
-
-      const win = window.open('', '_blank');
-      win.document.write(`
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8" />
-          <title>Diagnóstico Situacional FODA y Estrategias CAME ${anio} - INS</title>
-          <style>
-            @page { size: letter portrait; margin: 2cm 1.5cm 1.5cm 1.5cm; }
-            body { font-family: Arial, Helvetica, sans-serif; color: #000; font-size: 9.5pt; line-height: 1.35; }
-            .header { border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 12px; }
-            .header h1 { font-size: 12pt; margin: 0; text-transform: uppercase; }
-            .header p { font-size: 8.5pt; margin: 2px 0 0 0; color: #333; }
-            table.matriz { width: 100%; border-collapse: collapse; margin-bottom: 14px; table-layout: fixed; }
-            table.matriz th, table.matriz td { border: 1px solid #000; padding: 7px 9px; vertical-align: top; }
-            table.matriz th { background: #f1f5f9; text-align: left; font-size: 9pt; text-transform: uppercase; }
-            table.matriz ul { margin: 0; padding-left: 16px; }
-            table.matriz li { margin-bottom: 4px; }
-            .came-box { border: 1px solid #000; padding: 10px 12px; white-space: pre-line; font-size: 9pt; }
-            .came-title { font-weight: bold; text-transform: uppercase; font-size: 9.5pt; margin-bottom: 6px; border-bottom: 1px solid #ccc; padding-bottom: 3px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>Instituto Nacional de Salud (INS) — Diagnóstico Situacional FODA ${anio}</h1>
-            <p>Unidad de Planificación y Calidad | Consolidación Institucional y Estrategias Cruzadas CAME</p>
-          </div>
-          <table class="matriz">
-            <thead>
-              <tr>
-                <th style="width:50%;">Fortalezas Consolidadas (F)</th>
-                <th style="width:50%;">Oportunidades Consolidadas (O)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><ul>${getItemsHtml('fortaleza')}</ul></td>
-                <td><ul>${getItemsHtml('oportunidad')}</ul></td>
-              </tr>
-            </tbody>
-            <thead>
-              <tr>
-                <th>Debilidades Consolidadas (D)</th>
-                <th>Amenazas Consolidadas (A)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><ul>${getItemsHtml('debilidad')}</ul></td>
-                <td><ul>${getItemsHtml('amenaza')}</ul></td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="came-box">
-            <div class="came-title">Síntesis Analítica y Estrategias Cruzadas (CAME)</div>
-            ${escapeHtml(resumenTexto)}
-          </div>
-        </body>
-        </html>
-      `);
-      win.document.close();
-      setTimeout(() => win.print(), 300);
-    };
-
     async function loadFoda() {
       if (!activeCicloId) return;
       const [{ data: aportes }, { data: consolidados }, { data: ejecutivo }] = await Promise.all([
-        sb.from('foda_aportes_participantes').select('*, unidades_ins(siglas)').eq('ciclo_id', activeCicloId).order('created_at', { ascending: false }),
+        sb.from('foda_aportes_participantes').select('*').eq('ciclo_id', activeCicloId).order('created_at', { ascending: false }),
         sb.from('matriz_foda').select('*').eq('ciclo_id', activeCicloId).order('codigo_factor'),
         sb.from('foda_analisis_ejecutivo').select('*').eq('ciclo_id', activeCicloId).maybeSingle()
       ]);
@@ -4336,23 +4252,20 @@
       document.getElementById('count-aportes-foda').textContent = fodaAportesCache.length;
       const esAdmin = currentProfile?.rol === 'admin_planificacion';
 
-      document.getElementById('lista-aportes-foda').innerHTML = fodaAportesCache.map(a => {
-        const puedeGestionar = esAdmin || a.autor_id === currentUser?.id;
-        return `
-          <div class="p-2 bg-slate-50 rounded border border-slate-200 flex items-start justify-between gap-2">
-            <div>
-              <span class="font-bold uppercase text-[10px] text-sky-700">[${a.cuadrante} - ${escapeHtml(a.unidades_ins?.siglas || 'INS')}]</span>
-              <span class="text-slate-700"> ${escapeHtml(a.idea_bruta)}</span>
-            </div>
-            ${puedeGestionar ? `
-              <div class="flex items-center gap-1 shrink-0">
-                <button type="button" onclick="prepararEdicionAporteFoda('${a.id}')" title="Editar aporte" class="p-1 text-slate-400 hover:text-amber-600"><i data-lucide="pencil" class="w-3 h-3"></i></button>
-                <button type="button" onclick="eliminarAporteFoda('${a.id}')" title="Eliminar aporte" class="p-1 text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
-              </div>
-            ` : ''}
+      document.getElementById('lista-aportes-foda').innerHTML = fodaAportesCache.map(a => `
+        <div class="p-2 bg-slate-50 rounded border border-slate-200 flex items-start justify-between gap-2">
+          <div>
+            <span class="font-bold uppercase text-[10px] text-sky-700">[${escapeHtml(a.cuadrante)}]</span>
+            <span class="text-slate-700"> ${escapeHtml(a.idea_bruta)}</span>
           </div>
-        `;
-      }).join('');
+          ${esAdmin ? `
+            <div class="flex items-center gap-1 shrink-0">
+              <button type="button" onclick="prepararEdicionAporteFoda('${a.id}')" title="Editar aporte" class="p-1 text-slate-400 hover:text-amber-600"><i data-lucide="pencil" class="w-3 h-3"></i></button>
+              <button type="button" onclick="eliminarAporteFoda('${a.id}')" title="Eliminar aporte" class="p-1 text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
 
       ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(c => {
         const items = (consolidados || []).filter(x => x.cuadrante === c);
@@ -5259,4 +5172,5 @@ Se recomienda mantener el monitoreo mensual de los productos estratégicos de in
 </html>
 
   
+
 

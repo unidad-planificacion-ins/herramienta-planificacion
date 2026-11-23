@@ -2630,36 +2630,59 @@
 async function loadActividadesPOA() {
       if (!activeCicloId) return;
 
-      // 1. Consulta principal con relaciones
-      let { data, error } = await sb
+      // 1. Consulta PLANA directa (sin JOINs anidados que rompan PostgREST)
+      const { data: actsData, error: actsErr } = await sb
         .from('actividades_poa')
-        .select(`
-          *,
-          unidades_ins(id, nombre, siglas, unidad_padre_id),
-          lineas_accion_pei(id, codigo, nombre, estrategias_pei(id, codigo, nombre, ejes_estrategicos(id, codigo, nombre))),
-          productos_actividad_ins(*, catalogo_tipos_producto(id, nombre, unidad_medida_default, categoria))
-        `)
-        .eq('ciclo_id', activeCicloId)
-        .order('created_at', { ascending: true });
+        .select('*')
+        .eq('ciclo_id', activeCicloId);
 
-      // 2. Respaldo automático si falla alguna relación anidada en PostgREST
-      if (error) {
-        console.warn('Reintentando consulta plana de actividades_poa por error en relación:', error.message);
-        const fallback = await sb
-          .from('actividades_poa')
-          .select('*')
-          .eq('ciclo_id', activeCicloId)
-          .order('created_at', { ascending: true });
-
-        if (fallback.error) {
-          console.error('Error crítico cargando actividades_poa:', fallback.error);
-          alert('Error leyendo actividades de Supabase: ' + fallback.error.message);
-          return;
-        }
-        data = fallback.data || [];
+      if (actsErr) {
+        console.error('Error cargando actividades_poa:', actsErr);
+        alert('Error leyendo actividades_poa: ' + actsErr.message);
+        return;
       }
 
-      actividadesCache = data || [];
+      const listaActs = actsData || [];
+      const actIds = listaActs.map(a => a.id);
+
+      // 2. Cargar productos hijos en consulta plana separada (si existen)
+      let prodsPorAct = {};
+      if (actIds.length > 0) {
+        const { data: prodsData, error: prodsErr } = await sb
+          .from('productos_actividad_ins')
+          .select('*')
+          .in('actividad_id', actIds);
+
+        if (!prodsErr && prodsData) {
+          prodsData.forEach(p => {
+            const tp = tiposProductoList.find(t => t.id === p.tipo_producto_id);
+            p.catalogo_tipos_producto = tp || null;
+            if (!prodsPorAct[p.actividad_id]) prodsPorAct[p.actividad_id] = [];
+            prodsPorAct[p.actividad_id].push(p);
+          });
+        }
+      }
+
+      // 3. Unir con los catálogos ya cargados en memoria
+      actividadesCache = listaActs.map(a => {
+        const uObj = unidadesList.find(u => u.id === a.unidad_id) || null;
+        const linObj = lineasList.find(l => l.id === a.linea_accion_id) || null;
+        const estObj = linObj ? estrategiasList.find(e => e.id === linObj.estrategia_id) || null : null;
+        const ejeObj = estObj ? ejesList.find(ej => ej.id === estObj.eje_id) || null : null;
+
+        return {
+          ...a,
+          unidades_ins: uObj,
+          lineas_accion_pei: linObj ? {
+            ...linObj,
+            estrategias_pei: estObj ? {
+              ...estObj,
+              ejes_estrategicos: ejeObj
+            } : null
+          } : null,
+          productos_actividad_ins: prodsPorAct[a.id] || []
+        };
+      });
 
       const existingSet = new Set(referentesList.map(r => r.nombre.toLowerCase()));
       actividadesCache.forEach(a => {
@@ -2681,7 +2704,6 @@ async function loadActividadesPOA() {
       }
       renderTablaActividadesPOA();
     }
-
     window.cambiarModoControlMatriz = function(nuevoModo) {
       modoControlMatriz = nuevoModo;
       const btnOrd = document.getElementById('btn-modo-ordenar');

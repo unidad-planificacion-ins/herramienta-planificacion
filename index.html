@@ -850,20 +850,37 @@
       <!-- TAB 6: ANÁLISIS FODA PARTICIPATIVO (ANEXO 3)                        -->
       <!-- =================================================================== -->
       <section id="tab-foda" class="tab-content hidden space-y-6">
-        <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
             <h2 class="text-lg font-bold text-slate-800">Diagnóstico Situacional FODA Consolidado</h2>
-            <p class="text-xs text-slate-500">Recolecta aportes de todas las unidades del INS, consolídalos automáticamente y genera estrategias cruzadas CAME.</p>
+            <p class="text-xs text-slate-500">Recolecta aportes de todas las unidades del INS, consolídalos con IA y genera estrategias cruzadas CAME.</p>
           </div>
-          <button id="btn-sintetizar-foda" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-            <i data-lucide="sparkles" class="w-4 h-4"></i> Sintetizar Aportes y Generar Análisis CAME
-          </button>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="btn-limpiar-foda" onclick="limpiarModuloFoda()"
+              class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> Limpiar Módulo
+            </button>
+            <button type="button" id="btn-exportar-foda" onclick="imprimirExportarFoda()"
+              class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+              <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / Exportar FODA-CAME
+            </button>
+            <button type="button" id="btn-sintetizar-foda"
+              class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+              <i data-lucide="sparkles" class="w-4 h-4"></i> Sintetizar Aportes y Generar Análisis CAME (IA)
+            </button>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div id="panel-form-foda" class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
-            <h3 class="text-sm font-bold text-slate-800 mb-3">1. Ingresar Aporte / Idea al Taller FODA</h3>
+            <div class="flex items-center justify-between mb-3">
+              <h3 id="titulo-form-foda" class="text-sm font-bold text-slate-800">1. Ingresar Aporte / Idea al Taller FODA</h3>
+              <button type="button" id="btn-cancelar-edit-foda" onclick="cancelarEdicionAporteFoda()" class="hidden text-[11px] text-slate-500 hover:text-slate-800 underline">
+                Cancelar edición
+              </button>
+            </div>
             <form id="form-aporte-foda" class="space-y-3 text-xs">
+              <input type="hidden" id="foda-edit-id" value="" />
               <div>
                 <label class="block font-semibold text-slate-700 mb-1">Cuadrante</label>
                 <select id="foda-cuadrante" class="w-full px-3 py-2 rounded-lg border border-slate-300">
@@ -878,13 +895,13 @@
                 <textarea id="foda-idea" rows="3" required placeholder="Escribe la fortaleza, brecha u oportunidad identificada en tu unidad..."
                   class="w-full px-3 py-2 rounded-lg border border-slate-300"></textarea>
               </div>
-              <button type="submit" class="w-full py-2 bg-sky-700 hover:bg-sky-800 text-white font-semibold rounded-lg">
+              <button type="submit" id="btn-submit-foda" class="w-full py-2 bg-sky-700 hover:bg-sky-800 text-white font-semibold rounded-lg transition">
                 Enviar Aporte
               </button>
             </form>
             <div class="mt-4 pt-3 border-t border-slate-100">
               <div class="text-xs font-bold text-slate-600 mb-2">Aportes Recibidos (<span id="count-aportes-foda">0</span>)</div>
-              <div id="lista-aportes-foda" class="space-y-2 max-h-60 overflow-y-auto scrollbar-thin text-xs"></div>
+              <div id="lista-aportes-foda" class="space-y-2 max-h-72 overflow-y-auto scrollbar-thin text-xs"></div>
             </div>
           </div>
 
@@ -911,7 +928,7 @@
             <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200">
               <h4 class="text-sm font-bold text-slate-800 mb-2">Síntesis Analítica y Estrategias Cruzadas (CAME)</h4>
               <div id="foda-resumen-ejecutivo" class="text-xs text-slate-600 whitespace-pre-line leading-relaxed bg-slate-50 p-4 rounded-lg border border-slate-200">
-                Aún no se ha generado la síntesis ejecutiva. Ingresa aportes y presiona "Sintetizar Aportes y Generar Análisis CAME".
+                Aún no se ha generado la síntesis ejecutiva. Ingresa aportes y presiona "Sintetizar Aportes y Generar Análisis CAME (IA)".
               </div>
             </div>
           </div>
@@ -1339,13 +1356,54 @@
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Descripción de la Actividad (Estilo MINSAL / SMART)</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block font-semibold text-slate-700">Descripción de la Actividad (Estilo MINSAL / SMART)</label>
+            <button type="button" id="btn-ia-actividad" onclick="mejorarActividadIA()"
+              class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-[11px] border border-indigo-200 flex items-center gap-1 transition">
+              <i data-lucide="sparkles" class="w-3 h-3"></i> Mejorar redacción SMART (IA)
+            </button>
+          </div>
           <textarea id="act-descripcion" rows="2" required placeholder="Ej. Elaboración de guías clínicas de atención materna / Capacitación en lactancia materna..." class="w-full px-3 py-2 rounded-lg border border-slate-300 resize-y"></textarea>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Tipo de Producto INS (Catálogo institucional)</label>
+            <select id="act-tipo-producto-directo" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"></select>
+          </div>
+          <label class="flex items-center gap-2 font-semibold text-sky-900 cursor-pointer bg-sky-50 p-2.5 rounded-lg border border-sky-200">
+            <input type="checkbox" id="act-consolida-productos" class="rounded text-sky-700" />
+            <span>Consolidar automáticamente desde Productos INS (permite desglosar múltiples temáticas o entregables hijos)</span>
+          </label>
+          <div id="bloque-prog-directa" class="grid grid-cols-4 gap-3 pt-1">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Prog. T1 (%)</label>
+              <input type="number" step="0.01" id="act-p1" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Prog. T2 (%)</label>
+              <input type="number" step="0.01" id="act-p2" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Prog. T3 (%)</label>
+              <input type="number" step="0.01" id="act-p3" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Prog. T4 (%)</label>
+              <input type="number" step="0.01" id="act-p4" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
+            </div>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div class="md:col-span-2">
-            <label class="block font-semibold text-slate-700 mb-1">Indicador de Medición (Col E)</label>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block font-semibold text-slate-700">Indicador de Medición (Col E)</label>
+              <button type="button" id="btn-ia-indicador" onclick="sugerirIndicadorIA()"
+                class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-[11px] border border-indigo-200 flex items-center gap-1 transition">
+                <i data-lucide="sparkles" class="w-3 h-3"></i> Sugerir Indicador (IA)
+              </button>
+            </div>
             <input type="text" id="act-indicador" required placeholder="Ej. Porcentaje de guías clínicas elaboradas" class="w-full px-3 py-2 rounded-lg border border-slate-300" />
           </div>
           <div>
@@ -1363,38 +1421,6 @@
               • <b>1.0</b>: Operativa estándar<br/>
               • <b>1.5</b>: Prioritaria de unidad<br/>
               • <b>2.0</b>: Estratégica / Alto impacto
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-sky-50 p-3 rounded-xl border border-sky-200">
-          <label class="flex items-center gap-2 font-semibold text-sky-900 cursor-pointer">
-            <input type="checkbox" id="act-consolida-productos" class="rounded text-sky-700" />
-            <span>Consolidar automáticamente desde Productos INS (permite desglosar múltiples temáticas o entregables hijos)</span>
-          </label>
-        </div>
-
-        <div id="bloque-prog-directa" class="space-y-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Tipo de Producto INS (Catálogo institucional)</label>
-            <select id="act-tipo-producto-directo" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"></select>
-          </div>
-          <div class="grid grid-cols-4 gap-3">
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Prog. T1 (%)</label>
-              <input type="number" step="0.01" id="act-p1" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Prog. T2 (%)</label>
-              <input type="number" step="0.01" id="act-p2" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Prog. T3 (%)</label>
-              <input type="number" step="0.01" id="act-p3" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
-            </div>
-            <div>
-              <label class="block font-semibold text-slate-700 mb-1">Prog. T4 (%)</label>
-              <input type="number" step="0.01" id="act-p4" value="25" class="w-full px-3 py-1.5 rounded border border-slate-300 bg-white" />
             </div>
           </div>
         </div>
@@ -1418,8 +1444,14 @@
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Supuestos Externos (Col X - Obligatorio MINSAL)</label>
-          <textarea id="act-supuestos" rows="3" required placeholder="Ej. Disponibilidad de insumos, equipamiento, horas de talento humano, participación de las RIIS o estabilidad epidemiológica..."
+          <div class="flex items-center justify-between mb-1">
+            <label class="block font-semibold text-slate-700">Supuestos Externos (Col X - Obligatorio MINSAL)</label>
+            <button type="button" id="btn-ia-supuestos" onclick="sugerirSupuestosIA()"
+              class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-[11px] border border-indigo-200 flex items-center gap-1 transition">
+              <i data-lucide="sparkles" class="w-3 h-3"></i> Sugerir / Mejorar Supuestos (IA)
+            </button>
+          </div>
+          <textarea id="act-supuestos" rows="3" required placeholder="Ej. Disponibilidad oportuna de talento humano, reactivos/insumos, equipamiento tecnológico, cooperación en especie o participación activa de las RIIS..."
             class="w-full px-3 py-2 rounded-lg border border-slate-300 resize-y leading-relaxed"></textarea>
         </div>
 
@@ -2858,7 +2890,7 @@
       e.preventDefault();
       const editId = document.getElementById('act-edit-id').value;
       const consolida = document.getElementById('act-consolida-productos').checked;
-      const tpDirectoId = !consolida ? (document.getElementById('act-tipo-producto-directo').value || null) : null;
+      const tpDirectoId = document.getElementById('act-tipo-producto-directo').value || null;
 
       const payload = {
         ciclo_id: activeCicloId,
@@ -4338,18 +4370,273 @@
       await sb.from('matriz_riesgos').update({ acciones_tomadas_contingencia: texto }).eq('id', id);
     }
 
+    // =========================================================================
+    // ASISTENTE IA (EDGE FUNCTION: asistente-poa-ins -> DEEPSEEK)
+    // =========================================================================
+    async function llamarAsistenteIA(payload, botonId) {
+      const btn = botonId ? document.getElementById(botonId) : null;
+      const htmlOriginal = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add('opacity-60', 'cursor-wait');
+        btn.innerHTML = `<span class="inline-block animate-spin mr-1">⏳</span> Procesando con IA...`;
+      }
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/asistente-poa-ins`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          throw new Error(data.error || `Error HTTP ${res.status}`);
+        }
+        return data.resultado || '';
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove('opacity-60', 'cursor-wait');
+          btn.innerHTML = htmlOriginal;
+          renderIconsSafe();
+        }
+      }
+    }
+
+    function obtenerContextoActividadModal() {
+      const ejeSel = document.getElementById('act-eje');
+      const linSel = document.getElementById('act-linea');
+      const uniSel = document.getElementById('act-unidad');
+      const tpSel = document.getElementById('act-tipo-producto-directo');
+      return {
+        eje: ejeSel?.selectedIndex > 0 ? ejeSel.options[ejeSel.selectedIndex].text : '',
+        linea: linSel?.selectedIndex > 0 ? linSel.options[linSel.selectedIndex].text : '',
+        unidad: uniSel?.selectedIndex > 0 ? uniSel.options[uniSel.selectedIndex].text : '',
+        tipoProducto: tpSel?.value ? tpSel.options[tpSel.selectedIndex].text : '',
+        consolida: document.getElementById('act-consolida-productos')?.checked || false
+      };
+    }
+
+    window.mejorarActividadIA = async function() {
+      const descEl = document.getElementById('act-descripcion');
+      const borrador = descEl.value.trim();
+      if (!borrador) {
+        alert('Escribe primero una idea o borrador en "Descripción de la Actividad" para poder mejorar su redacción.');
+        descEl.focus();
+        return;
+      }
+      try {
+        const sugerencia = await llamarAsistenteIA({
+          tipo: 'actividad',
+          borrador,
+          contexto: obtenerContextoActividadModal()
+        }, 'btn-ia-actividad');
+        if (sugerencia) {
+          descEl.value = sugerencia.replace(/^["']|["']$/g, '').trim();
+        }
+      } catch (err) {
+        alert('No se pudo mejorar la redacción: ' + err.message);
+      }
+    };
+
+    window.sugerirIndicadorIA = async function() {
+      const tpSel = document.getElementById('act-tipo-producto-directo');
+      if (!tpSel || !tpSel.value) {
+        alert('Por favor, selecciona primero el "Tipo de Producto INS (Catálogo institucional)" antes de solicitar la sugerencia del indicador.');
+        tpSel?.focus();
+        return;
+      }
+      const desc = document.getElementById('act-descripcion').value.trim();
+      if (!desc) {
+        alert('Escribe primero la "Descripción de la Actividad" para generar un indicador coherente con el producto seleccionado.');
+        document.getElementById('act-descripcion').focus();
+        return;
+      }
+      try {
+        const sugerencia = await llamarAsistenteIA({
+          tipo: 'indicador',
+          descripcionActividad: desc,
+          contexto: obtenerContextoActividadModal()
+        }, 'btn-ia-indicador');
+        if (sugerencia) {
+          document.getElementById('act-indicador').value = sugerencia.replace(/^["']|["']$/g, '').trim();
+        }
+      } catch (err) {
+        alert('No se pudo sugerir el indicador: ' + err.message);
+      }
+    };
+
+    window.sugerirSupuestosIA = async function() {
+      const desc = document.getElementById('act-descripcion').value.trim();
+      const supEl = document.getElementById('act-supuestos');
+      const actual = supEl.value.trim();
+      if (!desc && !actual) {
+        alert('Ingresa primero la "Descripción de la Actividad" (o un borrador de supuestos) para generar supuestos operativos externos.');
+        document.getElementById('act-descripcion').focus();
+        return;
+      }
+      try {
+        const sugerencia = await llamarAsistenteIA({
+          tipo: 'supuestos',
+          borrador: actual,
+          descripcionActividad: desc,
+          contexto: obtenerContextoActividadModal()
+        }, 'btn-ia-supuestos');
+        if (sugerencia) {
+          supEl.value = sugerencia.replace(/^["']|["']$/g, '').trim();
+        }
+      } catch (err) {
+        alert('No se pudieron sugerir los supuestos: ' + err.message);
+      }
+    };
+
+    // =========================================================================
+    // MÓDULO FODA PARTICIPATIVO Y ANÁLISIS CAME CON IA
+    // =========================================================================
+    let fodaAportesCache = [];
+
+    window.prepararEdicionAporteFoda = function(id) {
+      const aporte = fodaAportesCache.find(x => x.id === id);
+      if (!aporte) return;
+      document.getElementById('foda-edit-id').value = aporte.id;
+      document.getElementById('foda-cuadrante').value = aporte.cuadrante;
+      document.getElementById('foda-idea').value = aporte.idea_bruta;
+      document.getElementById('titulo-form-foda').textContent = 'Editar Aporte Seleccionado';
+      document.getElementById('btn-submit-foda').textContent = 'Guardar Cambios del Aporte';
+      document.getElementById('btn-cancelar-edit-foda').classList.remove('hidden');
+      document.getElementById('foda-idea').focus();
+    };
+
+    window.cancelarEdicionAporteFoda = function() {
+      document.getElementById('foda-edit-id').value = '';
+      document.getElementById('form-aporte-foda').reset();
+      document.getElementById('titulo-form-foda').textContent = '1. Ingresar Aporte / Idea al Taller FODA';
+      document.getElementById('btn-submit-foda').textContent = 'Enviar Aporte';
+      document.getElementById('btn-cancelar-edit-foda').classList.add('hidden');
+    };
+
+    window.eliminarAporteFoda = async function(id) {
+      if (!confirm('¿Estás seguro de eliminar este aporte del taller FODA?')) return;
+      const { error } = await sb.from('foda_aportes_participantes').delete().eq('id', id);
+      if (error) {
+        alert('Error al eliminar aporte: ' + error.message);
+      } else {
+        if (document.getElementById('foda-edit-id').value === id) {
+          cancelarEdicionAporteFoda();
+        }
+        await loadFoda();
+      }
+    };
+
+    window.limpiarModuloFoda = async function() {
+      if (!activeCicloId) return;
+      if (!confirm('¿Deseas limpiar por completo el módulo FODA (aportes recibidos, factores consolidados y síntesis CAME) para iniciar un nuevo análisis? Esta acción no se puede deshacer.')) {
+        return;
+      }
+      try {
+        await Promise.all([
+          sb.from('foda_aportes_participantes').delete().eq('ciclo_id', activeCicloId),
+          sb.from('matriz_foda').delete().eq('ciclo_id', activeCicloId),
+          sb.from('foda_analisis_ejecutivo').delete().eq('ciclo_id', activeCicloId)
+        ]);
+        cancelarEdicionAporteFoda();
+        document.getElementById('foda-resumen-ejecutivo').textContent =
+          'Aún no se ha generado la síntesis ejecutiva. Ingresa aportes y presiona "Sintetizar Aportes y Generar Análisis CAME (IA)".';
+        await loadFoda();
+      } catch (err) {
+        alert('Error al limpiar el módulo FODA: ' + err.message);
+      }
+    };
+
+    window.imprimirExportarFoda = function() {
+      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
+      const anio = cicloObj?.anio || new Date().getFullYear();
+      const fHtml = document.getElementById('foda-list-fortaleza').innerHTML;
+      const oHtml = document.getElementById('foda-list-oportunidad').innerHTML;
+      const dHtml = document.getElementById('foda-list-debilidad').innerHTML;
+      const aHtml = document.getElementById('foda-list-amenaza').innerHTML;
+      const cameTexto = document.getElementById('foda-resumen-ejecutivo').textContent;
+
+      const ventana = window.open('', '_blank', 'width=960,height=800');
+      ventana.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8" />
+          <title>Análisis FODA y Estrategias CAME - INS ${anio}</title>
+          <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; margin: 28px; font-size: 12px; }
+            .header { border-bottom: 2px solid #0369a1; padding-bottom: 10px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-end; }
+            .header h1 { font-size: 16px; margin: 0; color: #0f172a; }
+            .header p { font-size: 11px; margin: 3px 0 0; color: #475569; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+            .box { border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; page-break-inside: avoid; }
+            .box h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; }
+            .f { background: #ecfdf5; border-color: #a7f3d0; } .f h3 { color: #065f46; }
+            .o { background: #f0f9ff; border-color: #bae6fd; } .o h3 { color: #075985; }
+            .d { background: #fffbeb; border-color: #fde68a; } .d h3 { color: #92400e; }
+            .a { background: #fff1f2; border-color: #fecdd3; } .a h3 { color: #9f1239; }
+            ul { margin: 0; padding-left: 18px; line-height: 1.5; }
+            li { margin-bottom: 4px; }
+            .came { border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 8px; padding: 14px; white-space: pre-line; line-height: 1.55; }
+            .came-title { font-size: 13px; font-weight: bold; color: #0f172a; margin-bottom: 8px; }
+            @media print { body { margin: 14mm; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <h1>INSTITUTO NACIONAL DE SALUD (INS) - MINSAL EL SALVADOR</h1>
+              <p>Diagnóstico Situacional FODA Consolidado y Matriz Estratégica CAME — Ciclo ${anio}</p>
+            </div>
+            <div style="font-size:10px;color:#64748b;">Generado: ${new Date().toLocaleDateString('es-SV')}</div>
+          </div>
+          <div class="grid">
+            <div class="box f"><h3>Fortalezas Consolidadas (F)</h3><ul>${fHtml}</ul></div>
+            <div class="box o"><h3>Oportunidades Consolidadas (O)</h3><ul>${oHtml}</ul></div>
+            <div class="box d"><h3>Debilidades Consolidadas (D)</h3><ul>${dHtml}</ul></div>
+            <div class="box a"><h3>Amenazas Consolidadas (A)</h3><ul>${aHtml}</ul></div>
+          </div>
+          <div class="came-title">Síntesis Analítica y Estrategias Cruzadas (CAME)</div>
+          <div class="came">${cameTexto.replace(/</g, '&lt;')}</div>
+          <script>window.onload = function() { window.print(); };<\/script>
+        </body>
+        </html>
+      `);
+      ventana.document.close();
+    };
+
     document.getElementById('form-aporte-foda').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const { error } = await sb.from('foda_aportes_participantes').insert({
-        ciclo_id: activeCicloId,
-        unidad_ins_id: currentProfile?.unidad_id || null,
-        usuario_id: currentUser.id,
-        cuadrante: document.getElementById('foda-cuadrante').value,
-        idea_bruta: document.getElementById('foda-idea').value
-      });
-      if (error) alert(error.message);
-      else {
-        e.target.reset();
+      const editId = document.getElementById('foda-edit-id').value;
+      const cuadrante = document.getElementById('foda-cuadrante').value;
+      const idea_bruta = document.getElementById('foda-idea').value.trim();
+      if (!idea_bruta) return;
+
+      let error = null;
+      if (editId) {
+        const res = await sb.from('foda_aportes_participantes')
+          .update({ cuadrante, idea_bruta })
+          .eq('id', editId);
+        error = res.error;
+      } else {
+        const res = await sb.from('foda_aportes_participantes').insert({
+          ciclo_id: activeCicloId,
+          unidad_ins_id: currentProfile?.unidad_id || null,
+          usuario_id: currentUser.id,
+          cuadrante,
+          idea_bruta
+        });
+        error = res.error;
+      }
+
+      if (error) {
+        alert(error.message);
+      } else {
+        cancelarEdicionAporteFoda();
         await loadFoda();
       }
     });
@@ -4362,12 +4649,24 @@
         sb.from('foda_analisis_ejecutivo').select('*').eq('ciclo_id', activeCicloId).maybeSingle()
       ]);
 
-      const aportes = apRes.data || [];
-      document.getElementById('count-aportes-foda').textContent = aportes.length;
-      document.getElementById('lista-aportes-foda').innerHTML = aportes.map(a => `
-        <div class="p-2 bg-slate-50 rounded border border-slate-200">
-          <span class="font-bold uppercase text-[10px] text-sky-700">[${a.cuadrante}]</span>
-          <span class="text-slate-700">${a.idea_bruta}</span>
+      fodaAportesCache = apRes.data || [];
+      document.getElementById('count-aportes-foda').textContent = fodaAportesCache.length;
+      document.getElementById('lista-aportes-foda').innerHTML = fodaAportesCache.map(a => `
+        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-start justify-between gap-2">
+          <div class="leading-snug">
+            <span class="font-bold uppercase text-[10px] text-sky-700">[${a.cuadrante}${a.unidades_ins?.siglas ? ' · ' + a.unidades_ins.siglas : ''}]</span>
+            <span class="text-slate-700">${a.idea_bruta}</span>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" onclick="prepararEdicionAporteFoda('${a.id}')" title="Editar aporte"
+              class="p-1 rounded hover:bg-sky-100 text-slate-500 hover:text-sky-700 transition">
+              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+            </button>
+            <button type="button" onclick="eliminarAporteFoda('${a.id}')" title="Eliminar aporte"
+              class="p-1 rounded hover:bg-rose-100 text-slate-500 hover:text-rose-700 transition">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
         </div>
       `).join('');
 
@@ -4379,57 +4678,72 @@
           : `<li class="text-slate-400 italic">Sin factores consolidados</li>`;
       });
 
-      if (ejRes.data?.resumen_situacional) {
-        document.getElementById('foda-resumen-ejecutivo').textContent = ejRes.data.resumen_situacional;
-      }
+      document.getElementById('foda-resumen-ejecutivo').textContent = ejRes.data?.resumen_situacional
+        ? ejRes.data.resumen_situacional
+        : 'Aún no se ha generado la síntesis ejecutiva. Ingresa aportes y presiona "Sintetizar Aportes y Generar Análisis CAME (IA)".';
+
+      renderIconsSafe();
     }
 
     document.getElementById('btn-sintetizar-foda').addEventListener('click', async () => {
-      const { data: aportes } = await sb.from('foda_aportes_participantes').select('*').eq('ciclo_id', activeCicloId);
-      if (!aportes || aportes.length === 0) return alert('Primero ingresa aportes en el buzón FODA.');
-
-      const prefijos = { fortaleza: 'F', oportunidad: 'O', debilidad: 'D', amenaza: 'A' };
-      await sb.from('matriz_foda').delete().eq('ciclo_id', activeCicloId);
-
-      const nuevosFactores = [];
-      ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(cuad => {
-        const unicos = [...new Set(aportes.filter(a => a.cuadrante === cuad).map(a => a.idea_bruta.trim()))];
-        unicos.forEach((texto, idx) => {
-          nuevosFactores.push({
-            ciclo_id: activeCicloId,
-            cuadrante: cuad,
-            codigo_factor: `${prefijos[cuad]}${idx + 1}`,
-            descripcion_consolidada: texto.charAt(0).toUpperCase() + texto.slice(1),
-            generado_con_ia: false,
-            aprobado: true
-          });
-        });
-      });
-
-      if (nuevosFactores.length > 0) {
-        await sb.from('matriz_foda').insert(nuevosFactores);
+      const { data: aportes } = await sb.from('foda_aportes_participantes').select('*, unidades_ins(siglas)').eq('ciclo_id', activeCicloId);
+      if (!aportes || aportes.length === 0) {
+        return alert('Primero ingresa aportes en el buzón FODA.');
       }
 
-      const fCount = nuevosFactores.filter(x => x.cuadrante === 'fortaleza').length;
-      const oCount = nuevosFactores.filter(x => x.cuadrante === 'oportunidad').length;
-      const dCount = nuevosFactores.filter(x => x.cuadrante === 'debilidad').length;
-      const aCount = nuevosFactores.filter(x => x.cuadrante === 'amenaza').length;
+      const agrupados = { fortaleza: [], oportunidad: [], debilidad: [], amenaza: [] };
+      aportes.forEach(a => {
+        if (agrupados[a.cuadrante]) {
+          const etiquetaUnidad = a.unidades_ins?.siglas ? ` (${a.unidades_ins.siglas})` : '';
+          agrupados[a.cuadrante].push(`${a.idea_bruta.trim()}${etiquetaUnidad}`);
+        }
+      });
 
-      const resumenTexto = `DIAGNÓSTICO SITUACIONAL CONSOLIDADO DEL INS:\n` +
-        `Se integraron ${aportes.length} aportes técnicos de las unidades organizativas, consolidándose en ${fCount} Fortalezas, ${oCount} Oportunidades, ${dCount} Debilidades y ${aCount} Amenazas.\n\n` +
-        `• Estrategia Ofensiva (FO): Capitalizar las capacidades técnicas del Laboratorio Nacional de Salud Pública, Investigación y Educación Continua (ECHO) para aprovechar alianzas internacionales y cooperación técnica.\n` +
-        `• Estrategia de Reorientación (DO): Programar actividades en el PAO orientadas a cerrar las brechas internas identificadas en tiempos de respuesta, articulación de procesos y disponibilidad de insumos.\n` +
-        `• Estrategia Defensiva (FA): Utilizar el rigor científico y los sistemas de gestión de calidad/antisoborno (ISO 37001) para mitigar brotes epidemiológicos y riesgos externos.\n` +
-        `• Estrategia de Supervivencia (DA): Incorporar controles preventivos en la Matriz de Valoración de Riesgos para evitar la materialización de vulnerabilidades críticas.`;
+      try {
+        const respuestaRaw = await llamarAsistenteIA({
+          tipo: 'foda_came',
+          borrador: JSON.stringify(agrupados, null, 2)
+        }, 'btn-sintetizar-foda');
 
-      await sb.from('foda_analisis_ejecutivo').upsert({
-        ciclo_id: activeCicloId,
-        resumen_situacional: resumenTexto,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'ciclo_id' });
+        const jsonLimpio = respuestaRaw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+        const analisisIA = JSON.parse(jsonLimpio);
 
-      await loadFoda();
-      alert('Síntesis FODA y análisis CAME generados exitosamente.');
+        const prefijos = { fortaleza: 'F', oportunidad: 'O', debilidad: 'D', amenaza: 'A' };
+        await sb.from('matriz_foda').delete().eq('ciclo_id', activeCicloId);
+
+        const nuevosFactores = [];
+        ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(cuad => {
+          const lista = Array.isArray(analisisIA[cuad]) ? analisisIA[cuad] : [];
+          lista.forEach((texto, idx) => {
+            const limpio = String(texto || '').trim();
+            if (limpio) {
+              nuevosFactores.push({
+                ciclo_id: activeCicloId,
+                cuadrante: cuad,
+                codigo_factor: `${prefijos[cuad]}${idx + 1}`,
+                descripcion_consolidada: limpio.charAt(0).toUpperCase() + limpio.slice(1),
+                generado_con_ia: true,
+                aprobado: true
+              });
+            }
+          });
+        });
+
+        if (nuevosFactores.length > 0) {
+          await sb.from('matriz_foda').insert(nuevosFactores);
+        }
+
+        const resumenTexto = (analisisIA.resumen_came || '').trim();
+        await sb.from('foda_analisis_ejecutivo').upsert({
+          ciclo_id: activeCicloId,
+          resumen_situacional: resumenTexto,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'ciclo_id' });
+
+        await loadFoda();
+      } catch (err) {
+        alert('Error al generar síntesis FODA / CAME con IA: ' + err.message);
+      }
     });
 
     document.getElementById('btn-generar-informe').addEventListener('click', async () => {

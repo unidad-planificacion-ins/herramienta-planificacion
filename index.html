@@ -4685,6 +4685,24 @@
       renderIconsSafe();
     }
 
+function renderizarFodaEnPantalla(factoresLista, resumenTexto) {
+      ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(c => {
+        const items = (factoresLista || []).filter(x => x.cuadrante === c);
+        const ul = document.getElementById(`foda-list-${c}`);
+        if (!ul) return;
+        ul.innerHTML = items.length
+          ? items.map(i => `<li><b>${escapeHtml(i.codigo_factor)}:</b> ${escapeHtml(i.descripcion_consolidada)}</li>`).join('')
+          : `<li class="text-slate-400 italic">Sin factores consolidados</li>`;
+      });
+
+      const elResumen = document.getElementById('foda-resumen-ejecutivo');
+      if (elResumen) {
+        elResumen.textContent = resumenTexto
+          ? resumenTexto
+          : 'Aún no se ha generado la síntesis ejecutiva. Ingresa aportes y presiona "Sintetizar Aportes y Generar Análisis CAME (IA)".';
+      }
+    }
+
     document.getElementById('btn-sintetizar-foda').addEventListener('click', async () => {
       const { data: aportes } = await sb.from('foda_aportes_participantes').select('*, unidades_ins(siglas)').eq('ciclo_id', activeCicloId);
       if (!aportes || aportes.length === 0) {
@@ -4705,15 +4723,28 @@
           borrador: JSON.stringify(agrupados, null, 2)
         }, 'btn-sintetizar-foda');
 
-        const jsonLimpio = respuestaRaw.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+        // Extracción robusta del bloque JSON aunque venga con texto adicional
+        const sinMarkdown = respuestaRaw.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
+        const inicioJson = sinMarkdown.indexOf('{');
+        const finJson = sinMarkdown.lastIndexOf('}');
+        const jsonLimpio = (inicioJson !== -1 && finJson !== -1)
+          ? sinMarkdown.slice(inicioJson, finJson + 1)
+          : sinMarkdown;
+
         const analisisIA = JSON.parse(jsonLimpio);
 
         const prefijos = { fortaleza: 'F', oportunidad: 'O', debilidad: 'D', amenaza: 'A' };
-        await sb.from('matriz_foda').delete().eq('ciclo_id', activeCicloId);
+        const clavesAlternas = {
+          fortaleza: ['fortaleza', 'fortalezas', 'Fortalezas'],
+          oportunidad: ['oportunidad', 'oportunidades', 'Oportunidades'],
+          debilidad: ['debilidad', 'debilidades', 'Debilidades'],
+          amenaza: ['amenaza', 'amenazas', 'Amenazas']
+        };
 
         const nuevosFactores = [];
         ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(cuad => {
-          const lista = Array.isArray(analisisIA[cuad]) ? analisisIA[cuad] : [];
+          const claveEncontrada = clavesAlternas[cuad].find(k => Array.isArray(analisisIA[k]));
+          const lista = claveEncontrada ? analisisIA[claveEncontrada] : [];
           lista.forEach((texto, idx) => {
             const limpio = String(texto || '').trim();
             if (limpio) {
@@ -4721,26 +4752,57 @@
                 ciclo_id: activeCicloId,
                 cuadrante: cuad,
                 codigo_factor: `${prefijos[cuad]}${idx + 1}`,
-                descripcion_consolidada: limpio.charAt(0).toUpperCase() + limpio.slice(1),
-                generado_con_ia: true,
-                aprobado: true
+                descripcion_consolidada: limpio.charAt(0).toUpperCase() + limpio.slice(1)
               });
             }
           });
         });
 
+        const resumenTexto = String(
+          analisisIA.resumen_came || analisisIA.analisis_came || analisisIA.resumen_situacional || analisisIA.came || ''
+        ).trim();
+
+        // 1. Pintar de inmediato en pantalla para visualización instantánea
+        renderizarFodaEnPantalla(nuevosFactores, resumenTexto);
+
+        // 2. Persistir en matriz_foda con validación explícita de errores
+        const erroresBd = [];
+        const { error: errDel } = await sb.from('matriz_foda').delete().eq('ciclo_id', activeCicloId);
+        if (errDel) erroresBd.push('matriz_foda (delete): ' + errDel.message);
+
         if (nuevosFactores.length > 0) {
-          await sb.from('matriz_foda').insert(nuevosFactores);
+          const { error: errIns } = await sb.from('matriz_foda').insert(nuevosFactores);
+          if (errIns) erroresBd.push('matriz_foda (insert): ' + errIns.message);
         }
 
-        const resumenTexto = (analisisIA.resumen_came || '').trim();
-        await sb.from('foda_analisis_ejecutivo').upsert({
-          ciclo_id: activeCicloId,
-          resumen_situacional: resumenTexto,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'ciclo_id' });
+        // 3. Persistir resumen CAME en foda_analisis_ejecutivo (select + update/insert seguro)
+        const { data: existenteEj, error: errSelEj } = await sb
+          .from('foda_analisis_ejecutivo')
+          .select('id')
+          .eq('ciclo_id', activeCicloId)
+          .maybeSingle();
 
-        await loadFoda();
+        if (errSelEj) {
+          erroresBd.push('foda_analisis_ejecutivo (select): ' + errSelEj.message);
+        } else if (existenteEj?.id) {
+          const { error: errUpdEj } = await sb
+            .from('foda_analisis_ejecutivo')
+            .update({ resumen_situacional: resumenTexto })
+            .eq('id', existenteEj.id);
+          if (errUpdEj) erroresBd.push('foda_analisis_ejecutivo (update): ' + errUpdEj.message);
+        } else {
+          const { error: errInsEj } = await sb
+            .from('foda_analisis_ejecutivo')
+            .insert({ ciclo_id: activeCicloId, resumen_situacional: resumenTexto });
+          if (errInsEj) erroresBd.push('foda_analisis_ejecutivo (insert): ' + errInsEj.message);
+        }
+
+        if (erroresBd.length > 0) {
+          console.warn('Advertencia al persistir FODA-CAME en Supabase:', erroresBd);
+          alert('El análisis FODA-CAME se generó en pantalla, pero Supabase reportó:\n\n• ' + erroresBd.join('\n• '));
+        } else {
+          await loadFoda();
+        }
       } catch (err) {
         alert('Error al generar síntesis FODA / CAME con IA: ' + err.message);
       }

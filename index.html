@@ -2627,9 +2627,11 @@
     // =========================================================================
     // TAB 3: MATRIZ OPERATIVA PAO (CRUD COMPLETO + EXCEL 25 COLUMNAS + IMPRESIÓN)
     // =========================================================================
-    async function loadActividadesPOA() {
+async function loadActividadesPOA() {
       if (!activeCicloId) return;
-      const { data, error } = await sb
+
+      // 1. Consulta principal con relaciones
+      let { data, error } = await sb
         .from('actividades_poa')
         .select(`
           *,
@@ -2640,10 +2642,23 @@
         .eq('ciclo_id', activeCicloId)
         .order('created_at', { ascending: true });
 
+      // 2. Respaldo automático si falla alguna relación anidada en PostgREST
       if (error) {
-        console.error(error);
-        return;
+        console.warn('Reintentando consulta plana de actividades_poa por error en relación:', error.message);
+        const fallback = await sb
+          .from('actividades_poa')
+          .select('*')
+          .eq('ciclo_id', activeCicloId)
+          .order('created_at', { ascending: true });
+
+        if (fallback.error) {
+          console.error('Error crítico cargando actividades_poa:', fallback.error);
+          alert('Error leyendo actividades de Supabase: ' + fallback.error.message);
+          return;
+        }
+        data = fallback.data || [];
       }
+
       actividadesCache = data || [];
 
       const existingSet = new Set(referentesList.map(r => r.nombre.toLowerCase()));

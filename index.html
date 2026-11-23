@@ -5031,8 +5031,13 @@ Se recomienda mantener el monitoreo mensual de los productos estratégicos de in
         });
       }
 
-      // 5. Sintetizador FODA-CAME blindado con safeJsonParseIA
-      const { data: aportes } = await sb
+// 5. Sintetizador FODA-CAME blindado con safeJsonParseIA
+      const btnSintetizarFoda = document.getElementById('btn-sintetizar-foda');
+      if (btnSintetizarFoda) {
+        btnSintetizarFoda.addEventListener('click', async () => {
+          if (!activeCicloId) return alert('No hay un ciclo PAO activo seleccionado.');
+
+          const { data: aportes } = await sb
             .from('foda_aportes_participantes')
             .select('*')
             .eq('ciclo_id', activeCicloId);

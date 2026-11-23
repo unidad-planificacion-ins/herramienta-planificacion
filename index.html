@@ -5032,15 +5032,9 @@ Se recomienda mantener el monitoreo mensual de los productos estratégicos de in
       }
 
       // 5. Sintetizador FODA-CAME blindado con safeJsonParseIA
-      const btnSint = document.getElementById('btn-sintetizar-foda');
-      if (btnSint) {
-        const nuevoBtnSint = btnSint.cloneNode(true);
-        btnSint.parentNode.replaceChild(nuevoBtnSint, btnSint);
-
-        nuevoBtnSint.addEventListener('click', async () => {
-          const { data: aportes } = await sb
+      const { data: aportes } = await sb
             .from('foda_aportes_participantes')
-            .select('*, unidades_ins(siglas)')
+            .select('*')
             .eq('ciclo_id', activeCicloId);
 
           if (!aportes || aportes.length === 0) {
@@ -5050,8 +5044,7 @@ Se recomienda mantener el monitoreo mensual de los productos estratégicos de in
           const agrupados = { fortaleza: [], oportunidad: [], debilidad: [], amenaza: [] };
           aportes.forEach(a => {
             if (agrupados[a.cuadrante]) {
-              const etiquetaUnidad = a.unidades_ins?.siglas ? ` (${a.unidades_ins.siglas})` : '';
-              agrupados[a.cuadrante].push(`${a.idea_bruta.trim()}${etiquetaUnidad}`);
+              agrupados[a.cuadrante].push(a.idea_bruta.trim());
             }
           });
 
@@ -5172,5 +5165,6 @@ Se recomienda mantener el monitoreo mensual de los productos estratégicos de in
 </html>
 
   
+
 
 

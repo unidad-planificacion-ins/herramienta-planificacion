@@ -4772,11 +4772,6 @@ function escapeHtml(str) {
           borrador: JSON.stringify(payloadFodaConInstruccion, null, 2)
         }, 'btn-sintetizar-foda');
 
-        const respuestaRaw = await llamarAsistenteIA({
-          tipo: 'foda_came',
-          borrador: JSON.stringify(payloadFodaConInstruccion, null, 2)
-        }, 'btn-sintetizar-foda');
-
         // Extracción robusta del bloque JSON aunque venga con texto adicional
         const sinMarkdown = respuestaRaw.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
         const inicioJson = sinMarkdown.indexOf('{');

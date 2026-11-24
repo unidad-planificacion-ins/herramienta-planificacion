@@ -24,78 +24,6 @@
     .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
   </style>
   
- <style>
-@media print {
-  /* Base legible en blanco y negro para toda la impresión */
-  html,
-  body {
-    color: #000000 !important;
-    background: #ffffff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Texto y bordes oscuros en elementos visibles */
-  *,
-  *::before,
-  *::after {
-    color: #000000 !important;
-    border-color: #1e293b !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-    opacity: 1 !important;
-    -webkit-text-fill-color: #000000 !important;
-  }
-
-  /* Conserva cursiva en elementos que ya son cursivos por naturaleza */
-  em,
-  i,
-  cite,
-  .italic {
-    font-style: italic !important;
-    color: #111827 !important;
-    -webkit-text-fill-color: #111827 !important;
-  }
-
-  /* Metadatos y textos que en pantalla/PDF están atenuados: texto oscuro en cursiva */
-  small,
-  figcaption,
-  time,
-  [data-meta],
-  .meta,
-  .metadata,
-  .text-muted,
-  [class*="muted"],
-  [class*="slate-400"],
-  [class*="slate-500"],
-  [class*="gray-400"],
-  [class*="gray-500"],
-  [class*="zinc-400"],
-  [class*="zinc-500"],
-  [class*="neutral-400"],
-  [class*="neutral-500"] {
-    color: #111827 !important;
-    -webkit-text-fill-color: #111827 !important;
-    font-style: italic !important;
-    opacity: 1 !important;
-  }
-
-  /* Tablas y encabezados con bordes bien definidos para impresora B/N */
-  table,
-  th,
-  td {
-    border-color: #111827 !important;
-  }
-
-  th {
-    background-color: #f1f5f9 !important;
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-    font-weight: 700 !important;
-  }
-}
-</style>
-  
  </head>
 <body class="min-h-screen flex flex-col">
 
@@ -4624,7 +4552,7 @@
       }
     };
 
-    window.imprimirExportarFoda = function() {
+   window.imprimirExportarFoda = function() {
       const cicloObj = ciclosList.find(c => c.id === activeCicloId);
       const anio = cicloObj?.anio || new Date().getFullYear();
       const fHtml = document.getElementById('foda-list-fortaleza').innerHTML;
@@ -4641,31 +4569,120 @@
           <meta charset="UTF-8" />
           <title>Análisis FODA y Estrategias CAME - INS ${anio}</title>
           <style>
-            body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; margin: 28px; font-size: 12px; }
-            .header { border-bottom: 2px solid #0369a1; padding-bottom: 10px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-end; }
-            .header h1 { font-size: 16px; margin: 0; color: #0f172a; }
-            .header p { font-size: 11px; margin: 3px 0 0; color: #475569; }
-            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
-            .box { border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; page-break-inside: avoid; }
-            .box h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; }
-            .f { background: #ecfdf5; border-color: #a7f3d0; } .f h3 { color: #065f46; }
-            .o { background: #f0f9ff; border-color: #bae6fd; } .o h3 { color: #075985; }
-            .d { background: #fffbeb; border-color: #fde68a; } .d h3 { color: #92400e; }
-            .a { background: #fff1f2; border-color: #fecdd3; } .a h3 { color: #9f1239; }
-            ul { margin: 0; padding-left: 18px; line-height: 1.5; }
-            li { margin-bottom: 4px; }
-            .came { border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 8px; padding: 14px; white-space: pre-line; line-height: 1.55; }
-            .came-title { font-size: 13px; font-weight: bold; color: #0f172a; margin-bottom: 8px; }
-            @media print { body { margin: 14mm; } }
+            * {
+              box-sizing: border-box;
+              color: #000000 !important;
+              -webkit-text-fill-color: #000000 !important;
+            }
+            body {
+              font-family: 'Segoe UI', Arial, sans-serif;
+              color: #000000;
+              background: #ffffff;
+              margin: 24px;
+              font-size: 12px;
+            }
+            .header {
+              border-bottom: 2px solid #000000;
+              padding-bottom: 10px;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-end;
+              gap: 12px;
+            }
+            .header h1 {
+              font-size: 16px;
+              margin: 0;
+              color: #000000;
+              font-weight: 700;
+            }
+            .meta {
+              font-size: 11px;
+              color: #111827;
+              font-style: italic;
+            }
+            .header .meta {
+              margin: 4px 0 0;
+            }
+            .grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 12px;
+              margin-bottom: 18px;
+            }
+            .box {
+              border: 1.5px solid #111827;
+              border-radius: 6px;
+              padding: 12px;
+              background: #ffffff;
+              page-break-inside: avoid;
+            }
+            .box h3 {
+              margin: 0 0 8px;
+              padding-bottom: 4px;
+              border-bottom: 1px solid #111827;
+              font-size: 12px;
+              text-transform: uppercase;
+              color: #000000;
+              font-weight: 700;
+            }
+            ul {
+              margin: 0;
+              padding-left: 18px;
+              line-height: 1.5;
+            }
+            li {
+              margin-bottom: 4px;
+              color: #000000;
+            }
+            li.italic,
+            .italic,
+            em,
+            i,
+            small {
+              font-style: italic !important;
+              color: #111827 !important;
+              -webkit-text-fill-color: #111827 !important;
+            }
+            .came-title {
+              font-size: 13px;
+              font-weight: 700;
+              color: #000000;
+              margin-bottom: 8px;
+              text-transform: uppercase;
+            }
+            .came {
+              border: 1.5px solid #111827;
+              background: #ffffff;
+              border-radius: 6px;
+              padding: 14px;
+              white-space: pre-line;
+              line-height: 1.55;
+              color: #000000;
+            }
+            @media print {
+              body {
+                margin: 12mm;
+                background: #ffffff !important;
+              }
+              .box,
+              .came {
+                border-color: #000000 !important;
+                background: #ffffff !important;
+              }
+              .header {
+                border-bottom: 2px solid #000000 !important;
+              }
+            }
           </style>
         </head>
         <body>
           <div class="header">
             <div>
               <h1>INSTITUTO NACIONAL DE SALUD (INS) - MINSAL EL SALVADOR</h1>
-              <p>Diagnóstico Situacional FODA Consolidado y Matriz Estratégica CAME — Ciclo ${anio}</p>
+              <p class="meta">Diagnóstico Situacional FODA Consolidado y Matriz Estratégica CAME — Ciclo ${anio}</p>
             </div>
-            <div style="font-size:10px;color:#64748b;">Generado: ${new Date().toLocaleDateString('es-SV')}</div>
+            <div class="meta">Generado: ${new Date().toLocaleDateString('es-SV')}</div>
           </div>
           <div class="grid">
             <div class="box f"><h3>Fortalezas Consolidadas (F)</h3><ul>${fHtml}</ul></div>

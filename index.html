@@ -4695,38 +4695,54 @@ function escapeHtml(str) {
     }
 
     function formatearCameATexto(rawCame) {
-      if (!rawCame) return '';
-      if (typeof rawCame === 'string') return rawCame.trim();
-      if (typeof rawCame === 'object') {
-        const etiquetas = {
-          resumen: 'DIAGNÓSTICO SITUACIONAL',
-          diagnostico: 'DIAGNÓSTICO SITUACIONAL',
-          sintesis: 'DIAGNÓSTICO SITUACIONAL',
-          fo: 'ESTRATEGIAS OFENSIVAS (FO - Potenciar Fortalezas + Oportunidades)',
-          ofensivas: 'ESTRATEGIAS OFENSIVAS (FO)',
-          do: 'ESTRATEGIAS DE REORIENTACIÓN (DO - Superar Debilidades + Oportunidades)',
-          reorientacion: 'ESTRATEGIAS DE REORIENTACIÓN (DO)',
-          fa: 'ESTRATEGIAS DEFENSIVAS (FA - Afrontar Amenazas con Fortalezas)',
-          defensivas: 'ESTRATEGIAS DEFENSIVAS (FA)',
-          da: 'ESTRATEGIAS DE SUPERVIVENCIA (DA - Minimizar Debilidades y Amenazas)',
-          supervivencia: 'ESTRATEGIAS DE SUPERVIVENCIA (DA)'
-        };
-        const bloques = [];
-        for (const [clave, valor] of Object.entries(rawCame)) {
-          if (!valor) continue;
-          const titulo = etiquetas[clave.toLowerCase()] || clave.replace(/_/g, ' ').toUpperCase();
-          if (Array.isArray(valor)) {
-            bloques.push(`${titulo}:\n` + valor.map(v => `• ${typeof v === 'object' ? JSON.stringify(v) : String(v).trim()}`).join('\n'));
-          } else if (typeof valor === 'object') {
-            bloques.push(`${titulo}:\n` + formatearCameATexto(valor));
-          } else {
-            bloques.push(`${titulo}:\n${String(valor).trim()}`);
-          }
-        }
-        return bloques.join('\n\n').trim();
+  if (!rawCame) return '';
+  if (typeof rawCame === 'string') return rawCame.trim();
+
+  if (Array.isArray(rawCame)) {
+    return rawCame
+      .map(item => (typeof item === 'string' ? item.trim() : JSON.stringify(item)))
+      .filter(Boolean)
+      .join('\n');
+  }
+
+  if (typeof rawCame === 'object') {
+    const cruces = [
+      { keys: ['FO', 'fo', 'estrategias_fo', 'ofensivas', 'Ofensivas'], titulo: 'Estrategias Ofensivas (FO)' },
+      { keys: ['DO', 'do', 'estrategias_do', 'reorientacion', 'Reorientación', 'Reorientacion'], titulo: 'Estrategias de Reorientación (DO)' },
+      { keys: ['FA', 'fa', 'estrategias_fa', 'defensivas', 'Defensivas'], titulo: 'Estrategias Defensivas (FA)' },
+      { keys: ['DA', 'da', 'estrategias_da', 'supervivencia', 'Supervivencia'], titulo: 'Estrategias de Supervivencia (DA)' }
+    ];
+
+    const secciones = [];
+    cruces.forEach(({ keys, titulo }) => {
+      const clave = keys.find(k => rawCame[k] !== undefined && rawCame[k] !== null);
+      if (!clave) return;
+
+      const valor = rawCame[clave];
+      const lineas = Array.isArray(valor)
+        ? valor.map(v => String(v || '').trim()).filter(Boolean)
+        : String(valor || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
+
+      if (lineas.length > 0) {
+        secciones.push(
+          `${titulo}:\n` + lineas.map((l, idx) => `  ${idx + 1}. ${l.replace(/^[-•*\d.)]+\s*/, '')}`).join('\n')
+        );
       }
-      return String(rawCame).trim();
-    }
+    });
+
+    if (secciones.length > 0) return secciones.join('\n\n');
+
+    // Si viene con otras claves dentro del objeto CAME
+    return Object.entries(rawCame)
+      .map(([k, v]) => {
+        const valStr = Array.isArray(v) ? v.join('\n  - ') : String(v ?? '');
+        return `${k}:\n  - ${valStr}`;
+      })
+      .join('\n\n');
+  }
+
+  return String(rawCame).trim();
+}
 
     function renderizarFodaEnPantalla(factoresLista, resumenTexto) {
       ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(c => {

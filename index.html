@@ -23,7 +23,77 @@
     .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
     .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
   </style>
-  
+  <style>
+@media print {
+  /* Base legible en blanco y negro para toda la impresión */
+  html,
+  body {
+    color: #000000 !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Texto y bordes oscuros en elementos visibles */
+  *,
+  *::before,
+  *::after {
+    color: #000000 !important;
+    border-color: #1e293b !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: #000000 !important;
+  }
+
+  /* Conserva cursiva en elementos que ya son cursivos por naturaleza */
+  em,
+  i,
+  cite,
+  .italic {
+    font-style: italic !important;
+    color: #111827 !important;
+    -webkit-text-fill-color: #111827 !important;
+  }
+
+  /* Metadatos y textos que en pantalla/PDF están atenuados: texto oscuro en cursiva */
+  small,
+  figcaption,
+  time,
+  [data-meta],
+  .meta,
+  .metadata,
+  .text-muted,
+  [class*="muted"],
+  [class*="slate-400"],
+  [class*="slate-500"],
+  [class*="gray-400"],
+  [class*="gray-500"],
+  [class*="zinc-400"],
+  [class*="zinc-500"],
+  [class*="neutral-400"],
+  [class*="neutral-500"] {
+    color: #111827 !important;
+    -webkit-text-fill-color: #111827 !important;
+    font-style: italic !important;
+    opacity: 1 !important;
+  }
+
+  /* Tablas y encabezados con bordes bien definidos para impresora B/N */
+  table,
+  th,
+  td {
+    border-color: #111827 !important;
+  }
+
+  th {
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    font-weight: 700 !important;
+  }
+}
+</style>
  </head>
 <body class="min-h-screen flex flex-col">
 

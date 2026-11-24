@@ -4607,7 +4607,7 @@
               display: grid;
               grid-template-columns: 1fr 1fr;
               gap: 12px;
-              margin-bottom: 18px;
+              margin-bottom: 12px;
             }
             .box {
               border: 1.5px solid #111827;
@@ -4643,6 +4643,10 @@
               color: #111827 !important;
               -webkit-text-fill-color: #111827 !important;
             }
+            .salto-pagina {
+              break-before: page;
+              page-break-before: always;
+            }
             .came-title {
               font-size: 13px;
               font-weight: 700;
@@ -4663,6 +4667,13 @@
               body {
                 margin: 12mm;
                 background: #ffffff !important;
+              }
+              .grid {
+                margin-bottom: 12px !important;
+              }
+              .salto-pagina {
+                break-before: page !important;
+                page-break-before: always !important;
               }
               .box,
               .came {
@@ -4689,7 +4700,7 @@
             <div class="box d"><h3>Debilidades Consolidadas (D)</h3><ul>${dHtml}</ul></div>
             <div class="box a"><h3>Amenazas Consolidadas (A)</h3><ul>${aHtml}</ul></div>
           </div>
-          <div class="came-title">Síntesis Analítica y Estrategias Cruzadas (CAME)</div>
+          <div class="came-title salto-pagina">Síntesis Analítica y Estrategias Cruzadas (CAME)</div>
           <div class="came">${cameTexto.replace(/</g, '&lt;')}</div>
           <script>window.onload = function() { window.print(); };<\/script>
         </body>

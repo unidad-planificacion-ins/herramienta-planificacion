@@ -2035,6 +2035,11 @@
       btn.addEventListener('click', () => activarPestana(btn.dataset.tab));
     });
 
+    function abrirModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hidden');
+    }
+
     function cerrarModal(id) {
       document.getElementById(id).classList.add('hidden');
     }
@@ -2336,8 +2341,8 @@
         });
       } else {
         // Inferencia jerárquica institucional INS (Unidades Padre vs Oficinas Subordinadas)
-        const padres = lista.filter(u => !/^\s*oficina/i.test(u.nombre || ''));
-        const oficinas = lista.filter(u => /^\s*oficina/i.test(u.nombre || ''));
+        const padres = lista.filter(u => !/^\s*oficina /i.test(u.nombre || ''));
+        const oficinas = lista.filter(u => /^\s*oficina /i.test(u.nombre || ''));
 
         padres.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es')).forEach(p => crearBloque(p));
 
@@ -2981,7 +2986,13 @@
           await reloadAllCycleData();
 
           if (consolida && inserted?.id) {
-            await abrirGestionProductos(inserted.ifunction obtenerEstadoControlMatrizActual() {
+            await abrirGestionProductos(inserted.id);
+          }
+        }
+      }
+    });
+
+    function obtenerEstadoControlMatrizActual() {
       const modoActual = typeof modoControlMatriz !== 'undefined' ? modoControlMatriz : 'ordenar';
       const criterioEl = document.getElementById('matriz-criterio-select');
       const filtroEl = document.getElementById('matriz-filtro-valor');
@@ -3463,10 +3474,6 @@
       ejecutarCuboAnalitico();
     }
 
-s();
-      ejecutarCuboAnalitico();
-    }
-
     let currentEditingActId = null;
     async function abrirGestionProductos(actId) {
       currentEditingActId = actId;
@@ -3908,54 +3915,51 @@ s();
         '  .header-left p { font-size: 9.5px; margin: 2px 0 0 0; color: #000000; font-style: italic; }',
         '  .header-right { text-align: right; font-size: 8.5px; color: #000000; }',
         '  table { width: 100%; border-collapse: collapse; table-layout: fixed; }',
-        '  thead th { background-color: #1e293b; color: #ffffff; font-size: 8.5px; text-transform: uppercase; padding: 5px 4px; border: 1px solid #000000; text-align: center; line-height: 1.15; }',
-        '  thead th.th-left { text-align: left; padding-left: 6px; }',
-        '  tbody tr { page-break-inside: avoid; }',
-        '  td { border: 1px solid #475569; padding: 4px 5px; vertical-align: middle; word-wrap: break-word; color: #000000; }',
-        '  .idx-cell { width: 24px; text-align: center; font-size: 8.5px; color: #000000; font-weight: 600; }',
-        '  .act-cell { width: 41%; }',
-        '  .act-title { font-size: 9.2px; font-weight: 600; color: #000000; line-height: 1.25; }',
-        '  .act-meta { font-size: 7.8px; font-style: italic; color: #000000; margin-top: 2px; line-height: 1.2; }',
-        '  .ind-cell { width: 23%; font-size: 8.8px; color: #000000; line-height: 1.25; }',
-        '  .num-cell { width: 6.2%; text-align: center; padding: 3px 2px; }',
-        '  .prog-val { font-size: 8px; font-style: italic; color: #000000; border-bottom: 1px solid #94a3b8; padding-bottom: 1px; }',
-        '  .real-val { font-size: 9px; font-weight: 700; color: #000000; padding-top: 1px; }',
-        '  .acum-cell { width: 7.5%; text-align: right; font-size: 9.5px; font-weight: 700; color: #000000; background-color: #e2e8f0; padding-right: 6px; }',
-        '  .no-print-bar { background: #0c4a6e; color: white; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 10px; }',
-        '  .no-print-bar button { background: #ffffff; color: #0c4a6e; border: none; padding: 5px 12px; border-radius: 6px; font-weight: 700; cursor: pointer; }',
-        '  @media print { .no-print-bar { display: none !important; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }',
+        '  thead th { background-color: #1e293b; color: #ffffff; font-size: 8px; text-transform: uppercase; padding: 5px 4px; border: 0.75px solid #000000; line-height: 1.15; }',
+        '  tbody tr { break-inside: avoid; page-break-inside: avoid; }',
+        '  tbody td { border: 0.75px solid #000000; padding: 4px 5px; font-size: 8.5px; color: #000000; vertical-align: middle; line-height: 1.25; word-wrap: break-word; overflow-wrap: break-word; }',
+        '  .idx-cell { width: 26px; text-align: center; font-weight: bold; }',
+        '  .act-cell { width: 39%; }',
+        '  .act-title { font-weight: 600; color: #000000; }',
+        '  .act-meta { font-size: 7.5px; color: #000000; margin-top: 2px; font-style: italic; }',
+        '  .ind-cell { width: 23%; }',
+        '  .num-cell { width: 52px; text-align: center; padding: 3px 2px; }',
+        '  .prog-val { font-size: 7.5px; color: #000000; border-bottom: 0.5px solid #94a3b8; padding-bottom: 1px; margin-bottom: 1px; }',
+        '  .real-val { font-size: 8.5px; font-weight: bold; color: #000000; }',
+        '  .acum-cell { width: 58px; text-align: right; font-weight: bold; font-size: 8.5px; }',
+        '  .no-print { position: fixed; top: 10px; right: 14px; background: #0f172a; color: #ffffff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }',
+        '  .no-print:hover { background: #1e293b; }',
+        '  @media print { .no-print { display: none !important; } }',
         '</style>',
         '</head>',
         '<body>',
-        '  <div class="no-print-bar">',
-        '    <span>Vista previa en <b>Negro Puro / Cursiva</b> con <b>margen superior de 2.0 cm para encuadernación</b> (Carta Horizontal).</span>',
-        '    <button onclick="window.print()">Imprimir / Guardar PDF</button>',
-        '  </div>',
+        '  <button class="no-print" onclick="window.print()">Imprimir / Guardar PDF</button>',
         '  <div class="header-box">',
         '    <div class="header-left">',
-        `      <h1>Instituto Nacional de Salud (INS) — Seguimiento Plan Anual Operativo ${anioCiclo}</h1>`,
-        `      <p>${subtituloFiltro} • Total actividades mostradas: ${listaExport.length}</p>`,
+        `      <h1>Anexo de Ejecución Operativa — PAO ${anioCiclo} (INS / MINSAL)</h1>`,
+        `      <p>${subtituloFiltro}</p>`,
         '    </div>',
         '    <div class="header-right">',
-        '      Unidad de Planificación y Calidad INS - MINSAL<br/>',
-        `      Fecha de emisión: ${new Date().toLocaleDateString('es-SV')}`,
+        `      <div><strong>Total Actividades:</strong> ${listaExport.length}</div>`,
+        `      <div><strong>Emitido:</strong> ${new Date().toLocaleDateString('es-SV')}</div>`,
         '    </div>',
         '  </div>',
         '  <table>',
         '    <thead>',
         '      <tr>',
-        '        <th style="width:24px;">#</th>',
-        '        <th class="th-left" style="width:41%;">Actividad INS</th>',
-        '        <th class="th-left" style="width:23%;">Indicador</th>',
-        '        <th style="width:6.2%;">T1<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>',
-        '        <th style="width:6.2%;">T2<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>',
-        '        <th style="width:6.2%;">T3<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>',
-        '        <th style="width:6.2%;">T4<br/><span style="font-weight:400;font-style:italic;font-size:7px;">P / R</span></th>',
-        '        <th style="width:7.5%;">Acum.</th>',
+        '        <th>#</th>',
+        '        <th>Actividad INS</th>',
+        '        <th>Indicador</th>',
+        '        <th>T1<br/><span style="font-weight:400;">P / R</span></th>',
+        '        <th>T2<br/><span style="font-weight:400;">P / R</span></th>',
+        '        <th>T3<br/><span style="font-weight:400;">P / R</span></th>',
+        '        <th>T4<br/><span style="font-weight:400;">P / R</span></th>',
+        '        <th>Acum.</th>',
         '      </tr>',
         '    </thead>',
         `    <tbody>${filasHTML}</tbody>`,
         '  </table>',
+        '  <script>window.onload = function() { setTimeout(function() { window.print(); }, 250); };<\/script>',
         '</body>',
         '</html>'
       ].join('\n');
@@ -3963,236 +3967,248 @@ s();
       printWin.document.open();
       printWin.document.write(htmlImpresion);
       printWin.document.close();
-      setTimeout(() => {
-        try { printWin.focus(); printWin.print(); } catch (e) {}
-      }, 300);
     }
 
-    function validarPesoArchivoBucket(input) {
-      const alerta = document.getElementById('ev-archivo-alerta');
-      alerta.classList.add('hidden');
-      if (input.files && input.files.length > 0) {
-        const file = input.files[0];
-        if (file.size > MAX_BUCKET_FILE_BYTES) {
-          const mb = (file.size / (1024 * 1024)).toFixed(2);
-          alerta.innerHTML = `<b>Archivo demasiado pesado (${mb} MB):</b> El límite por archivo en el Bucket INS es de <b>3 MB</b>. Por favor comprímelo en PDF o súbelo a Google Drive institucional y pega el enlace abajo.`;
-          alerta.classList.remove('hidden');
-          input.value = '';
-        }
+    function validarPesoArchivoBucket(inputEl) {
+      const alertaEl = document.getElementById('ev-archivo-alerta');
+      const file = inputEl?.files?.[0];
+      if (!file) {
+        if (alertaEl) { alertaEl.classList.add('hidden'); alertaEl.textContent = ''; }
+        return true;
       }
+      if (file.size > MAX_BUCKET_FILE_BYTES) {
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+        if (alertaEl) {
+          alertaEl.classList.remove('hidden');
+          alertaEl.innerHTML = `<b>Archivo excede el límite de 3 MB (${sizeMb} MB):</b> Súbelo a Google Drive institucional del INS y pega el enlace en el campo <i>"O Enlace Externo (Google Drive INS)"</i>.`;
+        }
+        inputEl.value = '';
+        return false;
+      }
+      if (alertaEl) { alertaEl.classList.add('hidden'); alertaEl.textContent = ''; }
+      return true;
     }
 
     function actualizarOpcionesFiltroEvidencia() {
-      const crit = document.getElementById('ev-filtro-criterio')?.value || 'ALL';
+      const critEl = document.getElementById('ev-filtro-criterio');
       const valSel = document.getElementById('ev-filtro-valor');
-      if (!valSel) return;
+      if (!critEl || !valSel) return;
 
+      const crit = critEl.value;
       if (crit === 'ALL') {
         valSel.disabled = true;
-        valSel.innerHTML = `<option value="ALL">Todas las unidades/ejes</option>`;
-        filtrarSelectorActividadesEvidencia();
-        return;
-      }
-
-      valSel.disabled = false;
-      let opciones = [];
-      if (crit === 'unidad') {
+        valSel.innerHTML = `<option value="ALL">-- Todos --</option>`;
+        valSel.value = 'ALL';
+      } else if (crit === 'unidad') {
         const setU = new Set(actividadesCache.map(a => a.unidades_ins?.nombre).filter(Boolean));
-        opciones = [...setU].sort((a, b) => a.localeCompare(b, 'es')).map(u => ({ val: u, label: u }));
+        const arr = [...setU].sort((a, b) => a.localeCompare(b, 'es'));
+        valSel.disabled = false;
+        valSel.innerHTML = `<option value="ALL">Todas las unidades (${arr.length})</option>` +
+          arr.map(u => `<option value="${u.replace(/"/g, '&quot;')}">${u}</option>`).join('');
+        valSel.value = 'ALL';
       } else if (crit === 'responsable') {
         const setR = new Set(actividadesCache.map(a => (a.responsable_nombre || '').trim()).filter(Boolean));
-        opciones = [...setR].sort((a, b) => a.localeCompare(b, 'es')).map(r => ({ val: r, label: r }));
+        const arr = [...setR].sort((a, b) => a.localeCompare(b, 'es'));
+        valSel.disabled = false;
+        valSel.innerHTML = `<option value="ALL">Todos los responsables (${arr.length})</option>` +
+          arr.map(r => `<option value="${r.replace(/"/g, '&quot;')}">${r}</option>`).join('');
+        valSel.value = 'ALL';
       } else if (crit === 'alineacion') {
         const mapEjes = new Map();
         actividadesCache.forEach(a => {
           const eje = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
           if (eje) mapEjes.set(String(eje.numero_orden), `Eje ${eje.numero_orden}. ${eje.nombre}`);
         });
-        opciones = [...mapEjes.entries()].sort((a, b) => Number(a[0]) - Number(b[0])).map(([val, label]) => ({ val, label }));
+        const arr = [...mapEjes.entries()].sort((a, b) => Number(a[0]) - Number(b[0]));
+        valSel.disabled = false;
+        valSel.innerHTML = `<option value="ALL">Todos los ejes (${arr.length})</option>` +
+          arr.map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+        valSel.value = 'ALL';
       }
-
-      valSel.innerHTML = `<option value="ALL">-- Todos (${opciones.length}) --</option>` +
-        opciones.map(o => `<option value="${o.val.replace(/"/g, '&quot;')}">${o.label}</option>`).join('');
       filtrarSelectorActividadesEvidencia();
     }
 
-    function filtrarSelectorActividadesEvidencia(preseleccionarId = null) {
+    function filtrarSelectorActividadesEvidencia(forzarActId = null) {
+      const sel = document.getElementById('ev-actividad-id');
+      const badge = document.getElementById('ev-contador-actividades');
+      if (!sel) return;
+
       const crit = document.getElementById('ev-filtro-criterio')?.value || 'ALL';
       const val = document.getElementById('ev-filtro-valor')?.value || 'ALL';
-      const txt = (document.getElementById('ev-filtro-texto')?.value || '').toLowerCase().trim();
+      const txt = (document.getElementById('ev-filtro-texto')?.value || '').trim().toLowerCase();
 
-      let filtradas = [...actividadesCache];
-      if (crit !== 'ALL' && val !== 'ALL') {
-        if (crit === 'unidad') filtradas = filtradas.filter(a => (a.unidades_ins?.nombre || '') === val);
-        else if (crit === 'responsable') filtradas = filtradas.filter(a => (a.responsable_nombre || '').trim() === val);
-        else if (crit === 'alineacion') filtradas = filtradas.filter(a => String(a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.numero_orden) === val);
+      let lista = [...actividadesCache];
+      if (crit === 'unidad' && val !== 'ALL') {
+        lista = lista.filter(a => (a.unidades_ins?.nombre || '') === val);
+      } else if (crit === 'responsable' && val !== 'ALL') {
+        lista = lista.filter(a => (a.responsable_nombre || '').trim() === val);
+      } else if (crit === 'alineacion' && val !== 'ALL') {
+        lista = lista.filter(a => String(a.pei_lineas_accion?.pei_estrategias?.pei_ejes?.numero_orden) === val);
       }
-
       if (txt) {
-        filtradas = filtradas.filter(a =>
+        lista = lista.filter(a =>
           (a.actividad || '').toLowerCase().includes(txt) ||
-          (a.unidades_ins?.nombre || '').toLowerCase().includes(txt) ||
+          (a.indicador || '').toLowerCase().includes(txt) ||
           (a.responsable_nombre || '').toLowerCase().includes(txt)
         );
       }
 
-      const badgeCount = document.getElementById('ev-contador-actividades');
-      if (badgeCount) badgeCount.textContent = `${filtradas.length} disp.`;
-
-      const sel = document.getElementById('ev-actividad-id');
-      if (!sel) return;
-
-      if (filtradas.length === 0) {
-        sel.innerHTML = `<option value="">No hay actividades que coincidan con el filtro</option>`;
-        document.getElementById('ev-snapshot-preview').classList.add('hidden');
-        return;
+      const targetId = forzarActId || sel.value;
+      if (targetId && !lista.some(a => a.id === targetId)) {
+        const extra = actividadesCache.find(a => a.id === targetId);
+        if (extra) lista.unshift(extra);
       }
 
-      sel.innerHTML = filtradas.map(a => {
-        const uSigla = a.unidades_ins?.siglas || a.unidades_ins?.nombre || 'INS';
-        return `<option value="${a.id}">[${uSigla}] ${a.actividad}</option>`;
-      }).join('');
+      if (badge) {
+        badge.textContent = `${lista.length} de ${actividadesCache.length}`;
+      }
 
-      if (preseleccionarId) sel.value = preseleccionarId;
+      sel.innerHTML = lista.length
+        ? lista.map(a => {
+            const siglas = a.unidades_ins?.siglas || a.unidades_ins?.nombre || 'INS';
+            const descCorta = a.actividad.length > 78 ? a.actividad.slice(0, 78) + '…' : a.actividad;
+            return `<option value="${a.id}">[${siglas}] ${descCorta}</option>`;
+          }).join('')
+        : `<option value="">-- Sin actividades coincidentes --</option>`;
+
+      if (targetId && lista.some(a => a.id === targetId)) {
+        sel.value = targetId;
+      }
       actualizarPreviewSnapshot();
     }
 
     function actualizarPreviewSnapshot() {
-      const actId = document.getElementById('ev-actividad-id')?.value;
-      const trim = document.getElementById('ev-trimestre')?.value || '1';
       const box = document.getElementById('ev-snapshot-preview');
       if (!box) return;
-
-      const act = actividadesCache.find(a => a.id === actId);
+      const actId = document.getElementById('ev-actividad-id')?.value;
+      const trim = document.getElementById('ev-trimestre')?.value || '1';
+      const cat = document.getElementById('ev-categoria')?.value;
+      const act = actividadesCache.find(x => x.id === actId);
       if (!act) {
         box.classList.add('hidden');
         return;
       }
       const snap = generarSnapshotTrimestre(act, trim);
-      box.innerHTML = `<b>Contexto trimestral que quedará registrado:</b> ${snap}`;
+      const alertaRetraso = (cat === 'justificacion_retraso' || cat === 'accion_correctiva')
+        ? `<div class="font-bold text-rose-700 mt-0.5">Registro de trazabilidad de desviación / reprogramación</div>`
+        : '';
+      box.innerHTML = `<div class="font-semibold">Estado capturado al registrar:</div><div>${snap}</div>${alertaRetraso}`;
       box.classList.remove('hidden');
     }
 
-    document.getElementById('form-evidencia').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const editId = document.getElementById('ev-edit-id').value;
-      const oldPath = document.getElementById('ev-edit-old-path').value;
-      const actId = document.getElementById('ev-actividad-id').value;
-      const trim = parseInt(document.getElementById('ev-trimestre').value);
-      const fileInput = document.getElementById('ev-archivo');
-
-      if (!actId) return alert('Por favor selecciona una actividad PAO válida.');
-
-      const btn = document.getElementById('btn-submit-evidencia');
-      btn.disabled = true;
-      btn.textContent = editId ? 'Actualizando registro...' : 'Guardando en Bóveda...';
-
-      let storagePath = oldPath || null;
-
-      if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        if (file.size > MAX_BUCKET_FILE_BYTES) {
-          btn.disabled = false;
-          btn.textContent = editId ? 'Actualizar Evidencia' : 'Guardar en Bóveda Documental';
-          return alert('El archivo supera el límite de 3 MB.');
-        }
-        const fileName = `${activeCicloId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-        const { error: upErr } = await sb.storage.from('evidencias-ins').upload(fileName, file);
-        if (upErr) {
-          btn.disabled = false;
-          btn.textContent = editId ? 'Actualizar Evidencia' : 'Guardar en Bóveda Documental';
-          return alert('Error subiendo archivo al Bucket INS: ' + upErr.message);
-        }
-        if (oldPath) {
-          await sb.storage.from('evidencias-ins').remove([oldPath]);
-        }
-        storagePath = fileName;
-      }
-
-      const actObj = actividadesCache.find(a => a.id === actId);
-      const snapshot = generarSnapshotTrimestre(actObj, trim);
-
-      const payload = {
-        ciclo_id: activeCicloId,
-        actividad_poa_id: actId,
-        trimestre: trim,
-        categoria: document.getElementById('ev-categoria').value,
-        titulo: document.getElementById('ev-titulo').value.trim(),
-        causa_retraso_tipificada: document.getElementById('ev-causa').value || null,
-        descripcion_narrativa: document.getElementById('ev-descripcion').value.trim(),
-        archivo_storage_path: storagePath,
-        url_externa_drive: document.getElementById('ev-url').value.trim() || null,
-        subido_por: currentUser.id
-      };
-
-      let error = null;
-      if (editId) {
-        let res = await sb.from('evidencias_poa').update({ ...payload, snapshot_contexto: snapshot }).eq('id', editId);
-        if (res.error && res.error.message && res.error.message.includes('snapshot_contexto')) {
-          res = await sb.from('evidencias_poa').update(payload).eq('id', editId);
-        }
-        error = res.error;
-      } else {
-        let res = await sb.from('evidencias_poa').insert({ ...payload, snapshot_contexto: snapshot });
-        if (res.error && res.error.message && res.error.message.includes('snapshot_contexto')) {
-          res = await sb.from('evidencias_poa').insert(payload);
-        }
-        error = res.error;
-      }
-
-      btn.disabled = false;
-      btn.textContent = 'Guardar en Bóveda Documental';
-
-      if (error) {
-        alert('Error al guardar en base de datos: ' + error.message);
-      } else {
+    function irARegistrarEvidenciaDirecto(actId) {
+      activarPestana('evidencias');
+      setTimeout(() => {
         cancelarEdicionEvidencia();
-        await loadEvidencias();
-        renderTablaActividadesPOA();
-        alert(editId ? 'Registro actualizado correctamente.' : 'Documento registrado en el expediente de auditoría.');
-      }
-    });
+        filtrarSelectorActividadesEvidencia(actId);
+        const sel = document.getElementById('ev-actividad-id');
+        if (sel) sel.value = actId;
+        actualizarPreviewSnapshot();
+        document.getElementById('panel-form-evidencia')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 120);
+    }
 
-    function prepararEdicionEvidencia(evId) {
+    function abrirModalBitacoraActividad(actId) {
+      bitacoraActIdActual = actId;
+      const act = actividadesCache.find(x => x.id === actId);
+      if (!act) return;
+
+      document.getElementById('bitacora-act-titulo').textContent = act.actividad;
+      document.getElementById('bitacora-act-meta').textContent =
+        `${act.unidades_ins?.nombre || 'INS'} • Responsable: ${act.responsable_nombre || '-'} • Acumulado: ${calcularAcumuladoReal(act).toFixed(1)}%`;
+
+      const items = evidenciasCache
+        .filter(e => e.actividad_poa_id === actId)
+        .sort((a, b) => Number(a.trimestre) - Number(b.trimestre) || new Date(b.created_at) - new Date(a.created_at));
+
+      const cont = document.getElementById('bitacora-lista-items');
+      if (!items.length) {
+        cont.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">Esta actividad aún no tiene evidencias ni justificaciones registradas en este ciclo.</div>`;
+      } else {
+        cont.innerHTML = items.map(ev => {
+          const esRetraso = ev.categoria !== 'evidencia_cumplimiento';
+          const badgeCat = ev.categoria === 'evidencia_cumplimiento'
+            ? `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Evidencia Cumplimiento</span>`
+            : ev.categoria === 'justificacion_retraso'
+              ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-semibold text-[10px]">Justificación de Retraso</span>`
+              : `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold text-[10px]">Acción Correctiva / Reprog.</span>`;
+
+          const fechaTxt = ev.created_at ? new Date(ev.created_at).toLocaleDateString('es-SV') : '';
+          const snapHtml = ev.snapshot_estado
+            ? `<div class="text-[10px] font-mono bg-slate-100 text-slate-700 px-2 py-1 rounded mt-1.5">${ev.snapshot_estado}</div>`
+            : '';
+
+          return `
+            <div class="p-3.5 rounded-xl border ${esRetraso ? 'border-amber-200 bg-amber-50/40' : 'border-slate-200 bg-white'} text-xs space-y-1.5">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-sky-900 bg-sky-100 px-2 py-0.5 rounded text-[10px]">T${ev.trimestre}</span>
+                  ${badgeCat}
+                  ${ev.causa_raiz ? `<span class="text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">${ev.causa_raiz}</span>` : ''}
+                </div>
+                <span class="text-[10px] text-slate-400">${fechaTxt}</span>
+              </div>
+              <div class="font-bold text-slate-900">${ev.titulo}</div>
+              <p class="text-slate-600 leading-relaxed whitespace-pre-line">${ev.descripcion}</p>
+              ${snapHtml}
+              <div class="pt-1 flex items-center gap-3 text-[11px] font-semibold">
+                ${ev.url_externa ? `<a href="${ev.url_externa}" target="_blank" class="text-sky-700 hover:underline">Enlace externo ↗</a>` : ''}
+                ${ev.archivo_path ? `<button type="button" onclick="verArchivoEvidencia('${ev.archivo_path}')" class="text-emerald-700 hover:underline">Descargar adjunto ⬇</button>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('modal-bitacora-actividad').classList.remove('hidden');
+      window.renderIconsSafe();
+    }
+
+    function irARegistrarEvidenciaDesdeBitacora() {
+      const id = bitacoraActIdActual;
+      cerrarModal('modal-bitacora-actividad');
+      if (id) irARegistrarEvidenciaDirecto(id);
+    }
+
+    function iniciarEdicionEvidencia(evId) {
       const ev = evidenciasCache.find(x => x.id === evId);
       if (!ev) return;
 
-      document.getElementById('ev-filtro-criterio').value = 'ALL';
-      document.getElementById('ev-filtro-texto').value = '';
-      actualizarOpcionesFiltroEvidencia();
-
       document.getElementById('ev-edit-id').value = ev.id;
-      document.getElementById('ev-edit-old-path').value = ev.archivo_storage_path || '';
+      document.getElementById('ev-edit-old-path').value = ev.archivo_path || '';
+      filtrarSelectorActividadesEvidencia(ev.actividad_poa_id);
       document.getElementById('ev-actividad-id').value = ev.actividad_poa_id;
-      document.getElementById('ev-trimestre').value = String(ev.trimestre);
-      document.getElementById('ev-categoria').value = ev.categoria;
+      document.getElementById('ev-trimestre').value = String(ev.trimestre || 1);
+      document.getElementById('ev-categoria').value = ev.categoria || 'evidencia_cumplimiento';
       document.getElementById('ev-titulo').value = ev.titulo || '';
-      document.getElementById('ev-causa').value = ev.causa_retraso_tipificada || '';
-      document.getElementById('ev-descripcion').value = ev.descripcion_narrativa || '';
-      document.getElementById('ev-url').value = ev.url_externa_drive || '';
+      document.getElementById('ev-causa').value = ev.causa_raiz || '';
+      document.getElementById('ev-descripcion').value = ev.descripcion || '';
+      document.getElementById('ev-url').value = ev.url_externa || '';
+      document.getElementById('ev-archivo').value = '';
 
-      const infoArch = document.getElementById('ev-archivo-actual-info');
-      if (ev.archivo_storage_path) {
-        infoArch.textContent = `Archivo actual adjunto: ${ev.archivo_storage_path.split('/').pop()} (si subes uno nuevo, reemplazará al anterior)`;
-        infoArch.classList.remove('hidden');
-      } else {
-        infoArch.classList.add('hidden');
+      const infoFile = document.getElementById('ev-archivo-actual-info');
+      if (ev.archivo_path && infoFile) {
+        const nombreCorto = ev.archivo_path.split('/').pop();
+        infoFile.textContent = `Archivo actual: ${nombreCorto} (selecciona otro solo si deseas reemplazarlo)`;
+        infoFile.classList.remove('hidden');
+      } else if (infoFile) {
+        infoFile.classList.add('hidden');
       }
 
-      document.getElementById('titulo-form-evidencia').innerHTML = `<i data-lucide="pencil" class="w-4 h-4 text-amber-600"></i> Editando Registro Documental`;
-      document.getElementById('btn-submit-evidencia').textContent = 'Actualizar Evidencia';
+      document.getElementById('titulo-form-evidencia').innerHTML = `<i data-lucide="pencil" class="w-4 h-4 text-amber-600"></i> Editar Evidencia / Justificación`;
+      document.getElementById('btn-submit-evidencia').textContent = 'Guardar Cambios del Registro';
       document.getElementById('btn-cancelar-edicion-ev').classList.remove('hidden');
       actualizarPreviewSnapshot();
       window.renderIconsSafe();
-      document.getElementById('form-evidencia').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('panel-form-evidencia')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function cancelarEdicionEvidencia() {
-      document.getElementById('form-evidencia').reset();
       document.getElementById('ev-edit-id').value = '';
       document.getElementById('ev-edit-old-path').value = '';
-      document.getElementById('ev-archivo-alerta').classList.add('hidden');
-      document.getElementById('ev-archivo-actual-info').classList.add('hidden');
+      document.getElementById('form-evidencia').reset();
+      document.getElementById('ev-archivo-alerta')?.classList.add('hidden');
+      document.getElementById('ev-archivo-actual-info')?.classList.add('hidden');
       document.getElementById('titulo-form-evidencia').innerHTML = `<i data-lucide="upload-cloud" class="w-4 h-4 text-sky-700"></i> Registrar Evidencia o Justificación`;
       document.getElementById('btn-submit-evidencia').textContent = 'Guardar en Bóveda Documental';
       document.getElementById('btn-cancelar-edicion-ev').classList.add('hidden');
@@ -4203,1425 +4219,896 @@ s();
     async function eliminarEvidencia(evId) {
       const ev = evidenciasCache.find(x => x.id === evId);
       if (!ev) return;
-      if (!confirm(`¿Estás seguro de eliminar el registro "${ev.titulo}"?\n\nEsta acción borrará también el archivo físico adjunto en el Bucket INS y no se puede deshacer.`)) return;
+      if (!confirm(`¿Eliminar el registro "${ev.titulo}" (T${ev.trimestre})? Esta acción no se puede deshacer.`)) return;
 
-      if (ev.archivo_storage_path) {
-        await sb.storage.from('evidencias-ins').remove([ev.archivo_storage_path]);
+      if (ev.archivo_path) {
+        await sb.storage.from('evidencias-pao').remove([ev.archivo_path]);
       }
-
       const { error } = await sb.from('evidencias_poa').delete().eq('id', evId);
       if (error) {
         alert('Error al eliminar registro: ' + error.message);
       } else {
+        if (document.getElementById('ev-edit-id').value === evId) cancelarEdicionEvidencia();
         await loadEvidencias();
         renderTablaActividadesPOA();
       }
     }
 
-    async function loadEvidencias() {
-      if (!activeCicloId) return;
-      const { data } = await sb.from('evidencias_poa')
-        .select('*, actividades_poa(id, actividad, unidad_ins_id, responsable_nombre, unidades_ins(nombre, siglas))')
-        .eq('ciclo_id', activeCicloId)
-        .order('created_at', { ascending: false });
+    document.getElementById('form-evidencia').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const actId = document.getElementById('ev-actividad-id').value;
+      if (!actId) return alert('Selecciona una actividad PAO vinculada.');
 
-      evidenciasCache = data || [];
-      renderListaEvidencias();
-    }
+      const fileInput = document.getElementById('ev-archivo');
+      const file = fileInput.files[0];
+      if (file && !validarPesoArchivoBucket(fileInput)) {
+        return;
+      }
+
+      const btnSubmit = document.getElementById('btn-submit-evidencia');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Guardando...';
+
+      try {
+        const editId = document.getElementById('ev-edit-id').value;
+        let archivoPath = document.getElementById('ev-edit-old-path').value || null;
+
+        if (file) {
+          const safeName = `${activeCicloId}/${actId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+          const { error: upErr } = await sb.storage.from('evidencias-pao').upload(safeName, file);
+          if (upErr) {
+            alert('Error subiendo archivo al Bucket: ' + upErr.message + '. Puedes usar el campo de enlace de Google Drive.');
+            return;
+          }
+          if (archivoPath && archivoPath !== safeName) {
+            await sb.storage.from('evidencias-pao').remove([archivoPath]);
+          }
+          archivoPath = safeName;
+        }
+
+        const trimNum = parseInt(document.getElementById('ev-trimestre').value);
+        const catVal = document.getElementById('ev-categoria').value;
+        const actObj = actividadesCache.find(x => x.id === actId);
+        const snapshotTxt = generarSnapshotTrimestre(actObj, trimNum);
+
+        const payload = {
+          actividad_poa_id: actId,
+          ciclo_id: activeCicloId,
+          trimestre: trimNum,
+          categoria: catVal,
+          titulo: document.getElementById('ev-titulo').value.trim(),
+          causa_raiz: document.getElementById('ev-causa').value || null,
+          descripcion: document.getElementById('ev-descripcion').value.trim(),
+          archivo_path: archivoPath,
+          url_externa: document.getElementById('ev-url').value.trim() || null,
+          subido_por: currentUser.id
+        };
+
+        let dbRes;
+        if (editId) {
+          dbRes = await sb.from('evidencias_poa').update({ ...payload, snapshot_estado: snapshotTxt }).eq('id', editId);
+          if (dbRes.error && dbRes.error.message && dbRes.error.message.includes('snapshot_estado')) {
+            dbRes = await sb.from('evidencias_poa').update(payload).eq('id', editId);
+          }
+        } else {
+          dbRes = await sb.from('evidencias_poa').insert({ ...payload, snapshot_estado: snapshotTxt });
+          if (dbRes.error && dbRes.error.message && dbRes.error.message.includes('snapshot_estado')) {
+            dbRes = await sb.from('evidencias_poa').insert(payload);
+          }
+        }
+
+        if (dbRes.error) {
+          alert('Error guardando registro: ' + dbRes.error.message);
+        } else {
+          cancelarEdicionEvidencia();
+          await loadEvidencias();
+          renderTablaActividadesPOA();
+        }
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = document.getElementById('ev-edit-id').value ? 'Guardar Cambios del Registro' : 'Guardar en Bóveda Documental';
+      }
+    });
 
     function obtenerEvidenciasFiltradas() {
       const corteMax = parseInt(document.getElementById('filtro-ev-corte')?.value || '4');
       const catFilter = document.getElementById('filtro-ev-categoria')?.value || 'ALL';
       const unitFilter = document.getElementById('filtro-ev-unidad')?.value || 'ALL';
 
-      const allowedActIds = new Set(actividadesCache.map(a => a.id));
-      return evidenciasCache.filter(ev => {
-        if (actividadesCache.length > 0 && !allowedActIds.has(ev.actividad_poa_id)) return false;
-        if (Number(ev.trimestre) > corteMax) return false;
-        if (catFilter === 'SOLO_JUSTIFICACIONES' && ev.categoria === 'evidencia_cumplimiento') return false;
-        if (catFilter !== 'ALL' && catFilter !== 'SOLO_JUSTIFICACIONES' && ev.categoria !== catFilter) return false;
+      return (evidenciasCache || []).filter(ev => {
+        const trimEv = Number(ev.trimestre) || 1;
+        if (trimEv > corteMax) return false;
+
+        if (catFilter === 'SOLO_JUSTIFICACIONES') {
+          if (ev.categoria === 'evidencia_cumplimiento') return false;
+        } else if (catFilter !== 'ALL') {
+          if (ev.categoria !== catFilter) return false;
+        }
 
         if (unitFilter !== 'ALL') {
-          const actObj = actividadesCache.find(a => a.id === ev.actividad_poa_id) || ev.actividades_poa;
-          if (!actObj || actObj.unidad_ins_id !== unitFilter) return false;
+          const actUnitId = ev.actividades_poa?.unidad_ins_id || actividadesCache.find(a => a.id === ev.actividad_poa_id)?.unidad_ins_id;
+          if (actUnitId !== unitFilter) return false;
         }
         return true;
       });
     }
 
+    async function loadEvidencias() {
+      if (!activeCicloId) return;
+      const { data } = await sb.from('evidencias_poa')
+        .select('*, actividades_poa(actividad, unidad_ins_id, responsable_nombre, unidades_ins(nombre, siglas))')
+        .eq('ciclo_id', activeCicloId)
+        .order('created_at', { ascending: false });
+
+      let lista = data || [];
+      if (esOperativoReferente() && currentProfile?.unidad_id) {
+        lista = lista.filter(ev => {
+          const uId = ev.actividades_poa?.unidad_ins_id || actividadesCache.find(a => a.id === ev.actividad_poa_id)?.unidad_ins_id;
+          return uId === currentProfile.unidad_id;
+        });
+      } else if (esAuditorMinsal() && actividadesCache.length > 0) {
+        const idsPoi = new Set(actividadesCache.filter(a => Boolean(a.pasa_poi)).map(a => a.id));
+        lista = lista.filter(ev => idsPoi.has(ev.actividad_poa_id));
+      }
+      evidenciasCache = lista;
+      renderListaEvidencias();
+    }
+
     function renderListaEvidencias() {
       const cont = document.getElementById('lista-evidencias');
       if (!cont) return;
+      const rows = obtenerEvidenciasFiltradas();
 
-      const filtradas = obtenerEvidenciasFiltradas();
-      if (filtradas.length === 0) {
-        cont.innerHTML = `<div class="text-xs text-slate-400 text-center py-8">No hay evidencias ni justificaciones registradas para el período y criterios seleccionados.</div>`;
+      if (!rows.length) {
+        cont.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">No hay registros documentales que coincidan con el período acumulativo y filtros seleccionados.</div>`;
         return;
       }
 
-      cont.innerHTML = filtradas.map(ev => {
-        const isRetraso = ev.categoria === 'justificacion_retraso';
-        const isAccion = ev.categoria === 'accion_correctiva';
-        const badge = isRetraso
-          ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-semibold text-[10px]">Justificación Retraso</span>`
-          : isAccion
-            ? `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold text-[10px]">Acción Correctiva / Reprog.</span>`
-            : `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Evidencia Cumplimiento</span>`;
+      cont.innerHTML = rows.map(ev => {
+        const badge = ev.categoria === 'evidencia_cumplimiento'
+          ? `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Evidencia Cumplimiento</span>`
+          : ev.categoria === 'justificacion_retraso'
+            ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-semibold text-[10px]">Justificación de Retraso</span>`
+            : `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold text-[10px]">Acción Correctiva / Reprog.</span>`;
 
-        const actObj = actividadesCache.find(a => a.id === ev.actividad_poa_id) || ev.actividades_poa;
-        const unidadNom = actObj?.unidades_ins?.nombre || '';
+        const actObj = actividadesCache.find(a => a.id === ev.actividad_poa_id);
+        const unidadNombre = ev.actividades_poa?.unidades_ins?.nombre || actObj?.unidades_ins?.nombre || 'INS';
+        const actNombre = ev.actividades_poa?.actividad || actObj?.actividad || 'Actividad PAO';
+        const snapTexto = ev.snapshot_estado || (actObj ? generarSnapshotTrimestre(actObj, ev.trimestre) : '');
 
         return `
-          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs space-y-1.5">
-            <div class="flex justify-between items-start gap-2">
-              <div class="font-bold text-slate-800">${ev.titulo} <span class="text-slate-500 font-semibold">(T${ev.trimestre})</span></div>
-              <div class="flex items-center gap-1.5 shrink-0">
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 text-xs space-y-1.5 hover:bg-slate-50 transition">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-sky-900 bg-sky-100 px-2 py-0.5 rounded text-[10px]">T${ev.trimestre}</span>
                 ${badge}
-                ${esSoloLectura() ? '' : `
-                  <button type="button" onclick="prepararEdicionEvidencia('${ev.id}')" title="Editar registro"
-                    class="p-1 bg-white hover:bg-amber-100 text-slate-600 hover:text-amber-900 rounded border border-slate-200 transition">
-                    <i data-lucide="pencil" class="w-3 h-3"></i>
-                  </button>
-                  <button type="button" onclick="eliminarEvidencia('${ev.id}')" title="Eliminar registro y archivo"
-                    class="p-1 bg-white hover:bg-rose-100 text-rose-600 rounded border border-slate-200 transition">
-                    <i data-lucide="trash-2" class="w-3 h-3"></i>
-                  </button>
-                `}
+                <span class="text-[10px] font-semibold text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200">${unidadNombre}</span>
+                ${ev.causa_raiz ? `<span class="text-[10px] font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">${ev.causa_raiz}</span>` : ''}
               </div>
+              ${!esSoloLectura() ? `
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="iniciarEdicionEvidencia('${ev.id}')" title="Editar registro" class="px-2 py-1 rounded bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-800 border border-slate-200 font-semibold text-[10px]">Editar</button>
+                  <button type="button" onclick="eliminarEvidencia('${ev.id}')" title="Eliminar registro" class="px-2 py-1 rounded bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 font-semibold text-[10px]">Eliminar</button>
+                </div>
+              ` : ''}
             </div>
-            <div class="text-[11px] text-sky-800 font-medium">${unidadNom ? `[${unidadNom}] ` : ''}${actObj?.actividad || ''}</div>
-            ${ev.snapshot_contexto ? `<div class="text-[10px] text-slate-600 bg-white border border-slate-200 px-2 py-1 rounded"><b>Contexto al registrar:</b> ${ev.snapshot_contexto}</div>` : ''}
-            ${ev.causa_retraso_tipificada ? `<div class="text-[10px] text-rose-700 font-medium">Causa tipificada: ${ev.causa_retraso_tipificada}</div>` : ''}
-            <p class="text-slate-600">${ev.descripcion_narrativa}</p>
-            <div class="flex flex-wrap gap-3 pt-1 text-[11px]">
-              ${ev.archivo_storage_path ? `<button onclick="descargarEvidencia('${ev.archivo_storage_path}')" class="text-sky-700 font-semibold hover:underline">Descargar Archivo Adjunto</button>` : ''}
-              ${ev.url_externa_drive ? `<a href="${ev.url_externa_drive}" target="_blank" class="text-indigo-700 font-semibold hover:underline">Abrir Enlace Drive</a>` : ''}
+            <div class="font-bold text-slate-900">${ev.titulo}</div>
+            <div class="text-[11px] text-sky-800 font-medium">Actividad: ${actNombre}</div>
+            <p class="text-slate-600 leading-relaxed whitespace-pre-line">${ev.descripcion}</p>
+            ${snapTexto ? `<div class="text-[10px] font-mono text-slate-600 bg-white px-2.5 py-1 rounded border border-slate-200 inline-block">${snapTexto}</div>` : ''}
+            <div class="pt-1 flex items-center gap-4 text-[11px] font-semibold">
+              ${ev.url_externa ? `<a href="${ev.url_externa}" target="_blank" class="text-sky-700 hover:underline">Abrir enlace externo ↗</a>` : ''}
+              ${ev.archivo_path ? `<button onclick="verArchivoEvidencia('${ev.archivo_path}')" class="text-emerald-700 hover:underline">Descargar archivo adjunto ⬇</button>` : ''}
             </div>
           </div>
         `;
       }).join('');
-      window.renderIconsSafe();
     }
 
-    async function descargarEvidencia(path) {
-      const { data, error } = await sb.storage.from('evidencias-ins').createSignedUrl(path, 60);
-      if (error) alert(error.message);
+    async function verArchivoEvidencia(path) {
+      const { data, error } = await sb.storage.from('evidencias-pao').createSignedUrl(path, 120);
+      if (error) alert('No se pudo generar enlace de descarga: ' + error.message);
       else window.open(data.signedUrl, '_blank');
     }
 
-    function abrirModalBitacoraActividad(actId) {
-      bitacoraActIdActual = actId;
-      const act = actividadesCache.find(a => a.id === actId);
-      const evs = evidenciasCache
-        .filter(e => e.actividad_poa_id === actId)
-        .sort((a, b) => Number(a.trimestre) - Number(b.trimestre));
-
-      document.getElementById('bitacora-act-titulo').textContent = act ? act.actividad : 'Actividad PAO';
-      document.getElementById('bitacora-act-meta').textContent = act
-        ? `${act.unidades_ins?.nombre || 'INS'} • Responsable: ${act.responsable_nombre || ''}`
-        : '';
-
-      const cont = document.getElementById('bitacora-lista-items');
-      cont.innerHTML = evs.map(ev => {
-        const badge = ev.categoria === 'justificacion_retraso'
-          ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-semibold text-[10px]">Justificación Retraso</span>`
-          : ev.categoria === 'accion_correctiva'
-            ? `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold text-[10px]">Acción Correctiva / Reprog.</span>`
-            : `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Evidencia Cumplimiento</span>`;
-
-        return `
-          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 text-xs space-y-1.5">
-            <div class="flex justify-between items-center gap-2">
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded bg-slate-800 text-white font-bold text-[10px]">T${ev.trimestre}</span>
-                ${badge}
-              </div>
-              <span class="text-[10px] text-slate-400">${ev.created_at ? new Date(ev.created_at).toLocaleDateString('es-SV') : ''}</span>
-            </div>
-            ${ev.snapshot_contexto ? `<div class="text-[10px] text-amber-900 bg-amber-50 border border-amber-200 px-2 py-1 rounded"><b>Estado al momento del registro:</b> ${ev.snapshot_contexto}</div>` : ''}
-            <div class="font-bold text-slate-900">${ev.titulo}</div>
-            ${ev.causa_retraso_tipificada ? `<div class="text-[10px] text-rose-700 font-medium">Causa: ${ev.causa_retraso_tipificada}</div>` : ''}
-            <p class="text-slate-600 leading-relaxed">${ev.descripcion_narrativa}</p>
-            <div class="flex flex-wrap gap-3 pt-1 text-[11px]">
-              ${ev.archivo_storage_path ? `<button onclick="descargarEvidencia('${ev.archivo_storage_path}')" class="text-sky-700 font-semibold hover:underline">Descargar Archivo Adjunto</button>` : ''}
-              ${ev.url_externa_drive ? `<a href="${ev.url_externa_drive}" target="_blank" class="text-indigo-700 font-semibold hover:underline">Abrir Enlace Drive</a>` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      document.getElementById('modal-bitacora-actividad').classList.remove('hidden');
-      window.renderIconsSafe();
-    }
-
-    function irARegistrarEvidenciaDirecto(actId) {
-      activarPestana('evidencias');
-      cancelarEdicionEvidencia();
-      filtrarSelectorActividadesEvidencia(actId);
-    }
-
-    function irARegistrarEvidenciaDesdeBitacora() {
-      cerrarModal('modal-bitacora-actividad');
-      if (bitacoraActIdActual) irARegistrarEvidenciaDirecto(bitacoraActIdActual);
-    }
-
     function generarReporteImprimibleJustificaciones() {
-      const listaEv = obtenerEvidenciasFiltradas().slice().sort((a, b) => Number(a.trimestre) - Number(b.trimestre));
-      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
-      const anioCiclo = cicloObj?.anio || new Date().getFullYear();
+      const corteMax = parseInt(document.getElementById('filtro-ev-corte')?.value || '4');
+      const catFilter = document.getElementById('filtro-ev-categoria')?.value || 'ALL';
+      const unitFilter = document.getElementById('filtro-ev-unidad')?.value || 'ALL';
+      const rows = obtenerEvidenciasFiltradas();
 
-      const corteVal = document.getElementById('filtro-ev-corte').value;
-      const catVal = document.getElementById('filtro-ev-categoria').value;
-      const unitVal = document.getElementById('filtro-ev-unidad').value;
-
-      const etiquetasCorte = {
-        '1': 'Período: Trimestre 1 (T1)',
-        '2': 'Período Acumulado al Trimestre 2 (T1 – T2)',
-        '3': 'Período Acumulado al Trimestre 3 (T1 – T3)',
-        '4': 'Período Anual Consolidado (T1 – T4)'
-      };
-
-      const etiquetasCat = {
-        'ALL': 'Todos los registros documentales',
-        'SOLO_JUSTIFICACIONES': 'Justificaciones de Retraso y Acciones Correctivas / Reprogramaciones',
-        'evidencia_cumplimiento': 'Evidencias de Cumplimiento',
-        'justificacion_retraso': 'Justificaciones de Retraso',
-        'accion_correctiva': 'Acciones Correctivas y Reprogramaciones'
-      };
-
-      const unitObj = unidadesList.find(u => u.id === unitVal);
-      const etiquetaUnidad = unitObj ? unitObj.nombre : 'Todas las Unidades INS';
-
-      const filasHTML = listaEv.length === 0
-        ? `<tr><td colspan="6" style="text-align:center;padding:12px;">No existen registros documentales para el período y criterios seleccionados.</td></tr>`
-        : listaEv.map((ev, idx) => {
-            const actObj = actividadesCache.find(a => a.id === ev.actividad_poa_id) || ev.actividades_poa;
-            const unidadNom = actObj?.unidades_ins?.nombre || 'INS';
-            const tipoLabel = ev.categoria === 'justificacion_retraso'
-              ? 'Justificación de Retraso'
-              : ev.categoria === 'accion_correctiva'
-                ? 'Acción Correctiva / Reprogramación'
-                : 'Evidencia de Cumplimiento';
-
-            const respaldo = ev.archivo_storage_path
-              ? `Archivo adjunto: ${ev.archivo_storage_path.split('/').pop()}`
-              : (ev.url_externa_drive ? `Enlace Drive: ${ev.url_externa_drive}` : 'Registro técnico en sistema');
-
-            return `
-              <tr>
-                <td class="idx-cell">${idx + 1}</td>
-                <td class="trim-cell">T${ev.trimestre}</td>
-                <td class="act-cell">
-                  <div class="act-unit">${unidadNom}</div>
-                  <div class="act-title">${actObj?.actividad || 'Actividad vinculada'}</div>
-                </td>
-                <td class="tipo-cell">
-                  <div class="tipo-title">${tipoLabel}</div>
-                  ${ev.causa_retraso_tipificada ? `<div class="causa-txt">Causa: ${ev.causa_retraso_tipificada}</div>` : ''}
-                  ${ev.snapshot_contexto ? `<div class="snap-txt">${ev.snapshot_contexto}</div>` : ''}
-                </td>
-                <td class="desc-cell">
-                  <div class="doc-title">${ev.titulo}</div>
-                  <div class="doc-desc">${ev.descripcion_narrativa || ''}</div>
-                </td>
-                <td class="ref-cell">${respaldo}</td>
-              </tr>
-            `;
-          }).join('');
-
-      const printWin = window.open('', '_blank', 'width=1150,height=800');
-      if (!printWin) {
-        alert('Tu navegador bloqueó la ventana emergente de impresión. Por favor permite ventanas emergentes para este sitio.');
+      if (!rows.length) {
+        alert('No hay registros en el período acumulativo y filtros actuales para imprimir.');
         return;
       }
 
-      const htmlReporte = [
+      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
+      const anioCiclo = cicloObj?.anio || new Date().getFullYear();
+      const periodoTxt = corteMax === 4 ? `Anual Completo (T1–T4 ${anioCiclo})` : `Acumulado al Trimestre ${corteMax} (T1–T${corteMax} ${anioCiclo})`;
+      const unidadTxt = unitFilter === 'ALL'
+        ? 'Todas las Unidades INS'
+        : (unidadesList.find(u => u.id === unitFilter)?.nombre || 'Unidad INS');
+
+      const etiquetasCat = {
+        'ALL': 'Todos los registros documentales',
+        'SOLO_JUSTIFICACIONES': 'Solo Retrasos y Reprogramaciones',
+        'evidencia_cumplimiento': 'Solo Evidencias de Cumplimiento',
+        'justificacion_retraso': 'Solo Justificación de Retraso',
+        'accion_correctiva': 'Solo Acción Correctiva / Reprogramación'
+      };
+
+      const filasHtml = rows.map((ev, idx) => {
+        const actObj = actividadesCache.find(a => a.id === ev.actividad_poa_id);
+        const uNom = ev.actividades_poa?.unidades_ins?.nombre || actObj?.unidades_ins?.nombre || 'INS';
+        const resp = ev.actividades_poa?.responsable_nombre || actObj?.responsable_nombre || '-';
+        const actNom = ev.actividades_poa?.actividad || actObj?.actividad || 'Actividad PAO';
+        const tipoLbl = ev.categoria === 'evidencia_cumplimiento'
+          ? 'Evidencia Cumplimiento'
+          : ev.categoria === 'justificacion_retraso'
+            ? 'Justificación Retraso'
+            : 'Acción Correctiva / Reprog.';
+        const snap = ev.snapshot_estado || (actObj ? generarSnapshotTrimestre(actObj, ev.trimestre) : '');
+
+        return `
+          <tr>
+            <td class="c-idx">${idx + 1}</td>
+            <td class="c-trim">T${ev.trimestre}</td>
+            <td class="c-tipo">${tipoLbl}${ev.causa_raiz ? `<div class="sub-causa">Causa: ${ev.causa_raiz}</div>` : ''}</td>
+            <td class="c-act">
+              <div class="bold-txt">${actNom}</div>
+              <div class="sub-meta">${uNom} • Resp: ${resp}</div>
+              ${snap ? `<div class="sub-snap">${snap}</div>` : ''}
+            </td>
+            <td class="c-just">
+              <div class="bold-txt">${ev.titulo}</div>
+              <div class="desc-txt">${ev.descripcion}</div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      const win = window.open('', '_blank', 'width=1100,height=780');
+      if (!win) {
+        alert('Permite las ventanas emergentes para generar el reporte imprimible.');
+        return;
+      }
+
+      const htmlDoc = [
         '<!DOCTYPE html>',
         '<html lang="es">',
         '<head>',
         '<meta charset="UTF-8" />',
-        `<title>Historial de Justificaciones del Período ${anioCiclo} - INS</title>`,
+        `<title>Historial Documental y Justificaciones - ${periodoTxt}</title>`,
         '<style>',
-        '  @page { size: letter landscape; margin: 20mm 10mm 8mm 10mm; }',
+        '  @page { size: letter landscape; margin: 16mm 10mm 10mm 10mm; }',
         '  * { box-sizing: border-box; }',
-        '  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: #000000; margin: 0; padding: 0; background: #ffffff; }',
-        '  .header-box { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid #000000; padding-bottom: 5px; margin-bottom: 7px; }',
-        '  .header-left h1 { font-size: 12.5px; margin: 0; color: #000000; text-transform: uppercase; letter-spacing: 0.2px; }',
-        '  .header-left p { font-size: 9px; margin: 2px 0 0 0; color: #000000; font-style: italic; }',
-        '  .header-right { text-align: right; font-size: 8.5px; color: #000000; }',
+        '  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; color: #000; margin: 0; background: #fff; }',
+        '  .rep-header { border-bottom: 1.5px solid #000; padding-bottom: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: flex-end; }',
+        '  .rep-header h1 { margin: 0; font-size: 13px; text-transform: uppercase; }',
+        '  .rep-header p { margin: 2px 0 0 0; font-size: 9px; color: #222; }',
+        '  .rep-meta { text-align: right; font-size: 8.5px; }',
         '  table { width: 100%; border-collapse: collapse; table-layout: fixed; }',
-        '  thead th { background-color: #1e293b; color: #ffffff; font-size: 8.5px; text-transform: uppercase; padding: 5px 4px; border: 1px solid #000000; text-align: center; line-height: 1.15; }',
-        '  thead th.th-left { text-align: left; padding-left: 6px; }',
-        '  tbody tr { page-break-inside: avoid; }',
-        '  td { border: 1px solid #475569; padding: 4px 5px; vertical-align: top; word-wrap: break-word; color: #000000; }',
-        '  .idx-cell { width: 24px; text-align: center; font-size: 8.5px; font-weight: 600; }',
-        '  .trim-cell { width: 38px; text-align: center; font-size: 8.8px; font-weight: 700; }',
-        '  .act-cell { width: 25%; }',
-        '  .act-unit { font-size: 7.8px; font-weight: 700; text-transform: uppercase; margin-bottom: 1px; }',
-        '  .act-title { font-size: 8.8px; line-height: 1.25; }',
-        '  .tipo-cell { width: 19%; }',
-        '  .tipo-title { font-size: 8.6px; font-weight: 700; }',
-        '  .causa-txt { font-size: 7.8px; font-style: italic; margin-top: 2px; }',
-        '  .snap-txt { font-size: 7.5px; font-style: italic; margin-top: 2px; }',
-        '  .desc-cell { width: 34%; }',
-        '  .doc-title { font-size: 8.8px; font-weight: 700; margin-bottom: 2px; }',
-        '  .doc-desc { font-size: 8.5px; line-height: 1.25; }',
-        '  .ref-cell { width: 15%; font-size: 7.8px; font-style: italic; }',
-        '  .no-print-bar { background: #0c4a6e; color: white; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 10px; }',
-        '  .no-print-bar button { background: #ffffff; color: #0c4a6e; border: none; padding: 5px 12px; border-radius: 6px; font-weight: 700; cursor: pointer; }',
-        '  @media print { .no-print-bar { display: none !important; } body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }',
+        '  th { background: #1e293b; color: #fff; font-size: 8px; text-transform: uppercase; padding: 5px 4px; border: 0.75px solid #000; }',
+        '  td { border: 0.75px solid #000; padding: 4px 5px; font-size: 8.5px; vertical-align: top; line-height: 1.25; word-wrap: break-word; }',
+        '  tr { break-inside: avoid; page-break-inside: avoid; }',
+        '  .c-idx { width: 26px; text-align: center; font-weight: bold; }',
+        '  .c-trim { width: 34px; text-align: center; font-weight: bold; }',
+        '  .c-tipo { width: 115px; }',
+        '  .c-act { width: 34%; }',
+        '  .c-just { width: 40%; }',
+        '  .bold-txt { font-weight: 700; color: #000; }',
+        '  .sub-meta { font-size: 7.5px; color: #333; margin-top: 1px; }',
+        '  .sub-causa { font-size: 7.5px; font-weight: 600; margin-top: 2px; }',
+        '  .sub-snap { font-size: 7.5px; font-family: Consolas, monospace; background: #f1f5f9; padding: 1px 4px; margin-top: 2px; display: inline-block; }',
+        '  .desc-txt { margin-top: 2px; white-space: pre-line; }',
+        '  .no-print { position: fixed; top: 8px; right: 12px; background: #0f172a; color: #fff; border: none; padding: 7px 13px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }',
+        '  @media print { .no-print { display: none !important; } }',
         '</style>',
         '</head>',
         '<body>',
-        '  <div class="no-print-bar">',
-        '    <span>Vista previa: <b>Historial de Justificaciones del Período</b> con margen superior de encuadernación (2.0 cm) en Carta Horizontal.</span>',
-        '    <button onclick="window.print()">Imprimir / Guardar PDF</button>',
-        '  </div>',
-        '  <div class="header-box">',
-        '    <div class="header-left">',
-        `      <h1>Historial de Justificaciones del Período — Ciclo PAO ${anioCiclo}</h1>`,
-        `      <p>${etiquetasCorte[corteVal]} • Criterio: ${etiquetasCat[catVal]} • Unidad: ${etiquetaUnidad}</p>`,
+        '  <button class="no-print" onclick="window.print()">Imprimir / Guardar PDF</button>',
+        '  <div class="rep-header">',
+        '    <div>',
+        `      <h1>Instituto Nacional de Salud (INS) — Expediente de Evidencias y Justificaciones</h1>`,
+        `      <p><strong>Período:</strong> ${periodoTxt} &nbsp;|&nbsp; <strong>Criterio:</strong> ${etiquetasCat[catFilter] || catFilter} &nbsp;|&nbsp; <strong>Unidad:</strong> ${unidadTxt}</p>`,
         '    </div>',
-        '    <div class="header-right">',
-        '      Instituto Nacional de Salud (INS) - MINSAL<br/>',
-        `      Emisión: ${new Date().toLocaleDateString('es-SV')} • Registros: ${listaEv.length}`,
+        '    <div class="rep-meta">',
+        `      <div><strong>Total Registros:</strong> ${rows.length}</div>`,
+        `      <div><strong>Generado:</strong> ${new Date().toLocaleDateString('es-SV')}</div>`,
         '    </div>',
         '  </div>',
         '  <table>',
         '    <thead>',
         '      <tr>',
-        '        <th style="width:24px;">#</th>',
-        '        <th style="width:38px;">Trim.</th>',
-        '        <th class="th-left" style="width:25%;">Unidad / Actividad PAO Vinculada</th>',
-        '        <th class="th-left" style="width:19%;">Tipificación y Contexto</th>',
-        '        <th class="th-left" style="width:34%;">Detalle de Justificación / Evidencia</th>',
-        '        <th class="th-left" style="width:15%;">Medio de Verificación</th>',
+        '        <th>#</th>',
+        '        <th>Trim.</th>',
+        '        <th>Tipo / Causa</th>',
+        '        <th>Actividad PAO y Estado</th>',
+        '        <th>Título y Justificación / Respaldo</th>',
         '      </tr>',
         '    </thead>',
-        `    <tbody>${filasHTML}</tbody>`,
+        `    <tbody>${filasHtml}</tbody>`,
         '  </table>',
+        '  <script>window.onload = function() { setTimeout(function() { window.print(); }, 250); };<\/script>',
         '</body>',
         '</html>'
       ].join('\n');
 
-      printWin.document.open();
-      printWin.document.write(htmlReporte);
-      printWin.document.close();
-      setTimeout(() => {
-        try { printWin.focus(); printWin.print(); } catch (e) {}
-      }, 300);
+      win.document.open();
+      win.document.write(htmlDoc);
+      win.document.close();
     }
 
     document.getElementById('btn-nuevo-riesgo').addEventListener('click', () => {
       document.getElementById('modal-riesgo').classList.remove('hidden');
+      actualizarDatalistResponsables();
     });
 
     document.getElementById('form-riesgo').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const { error } = await sb.from('matriz_riesgos').insert({
+      const { error } = await sb.from('riesgos_poa').insert({
         ciclo_id: activeCicloId,
-        codigo_proceso: document.getElementById('rk-codigo').value,
         unidad_ins_id: document.getElementById('rk-unidad').value,
-        nombre_proceso: document.getElementById('rk-proceso').value,
+        codigo_proceso: document.getElementById('rk-codigo').value.trim(),
+        proceso_nombre: document.getElementById('rk-proceso').value.trim(),
         tipo_riesgo: document.getElementById('rk-tipo').value,
+        riesgo_descripcion: document.getElementById('rk-descripcion').value.trim(),
         probabilidad_f: parseInt(document.getElementById('rk-f').value),
         impacto_i: parseInt(document.getElementById('rk-i').value),
-        descripcion_riesgo: document.getElementById('rk-descripcion').value,
-        acciones_control: document.getElementById('rk-controles').value,
-        responsable_nombre: document.getElementById('rk-responsable').value
+        acciones_control: document.getElementById('rk-controles').value.trim(),
+        responsable_nombre: document.getElementById('rk-responsable').value.trim()
       });
-
       if (error) alert(error.message);
       else {
         cerrarModal('modal-riesgo');
         e.target.reset();
-        await loadRiesgos();
+        loadRiesgos();
       }
     });
 
     async function loadRiesgos() {
       if (!activeCicloId) return;
-      let queryRk = sb.from('matriz_riesgos').select('*').eq('ciclo_id', activeCicloId).order('created_at');
+      let q = sb.from('riesgos_poa').select('*, unidades_ins(nombre)').eq('ciclo_id', activeCicloId).order('nivel_riesgo_fxi', { ascending: false });
       if (esOperativoReferente() && currentProfile?.unidad_id) {
-        queryRk = queryRk.eq('unidad_ins_id', currentProfile.unidad_id);
+        q = q.eq('unidad_ins_id', currentProfile.unidad_id);
       }
-      const { data } = await queryRk;
+      const { data } = await q;
+      const rows = data || [];
       const tbody = document.getElementById('tabla-riesgos');
-
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">No hay riesgos registrados en este ciclo.</td></tr>`;
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">No hay riesgos registrados en este ciclo PAO.</td></tr>`;
         return;
       }
-
-      tbody.innerHTML = data.map(r => {
-        const expColor = r.exposicion_fxi >= 7 ? 'bg-rose-100 text-rose-800' : r.exposicion_fxi >= 4 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+      const lectura = esSoloLectura();
+      tbody.innerHTML = rows.map(r => {
+        const fxi = r.nivel_riesgo_fxi || (r.probabilidad_f * r.impacto_i);
+        const badgeFxI = fxi >= 6
+          ? 'bg-rose-100 text-rose-800 border border-rose-300 font-bold'
+          : fxi >= 3 ? 'bg-amber-100 text-amber-800 font-semibold' : 'bg-emerald-100 text-emerald-800';
+        const chk = (campo, label) => `
+          <label class="inline-flex items-center gap-0.5 mr-1.5 ${lectura ? 'opacity-75' : 'cursor-pointer'}">
+            <input type="checkbox" ${r[campo] ? 'checked' : ''} ${lectura ? 'disabled' : `onchange="toggleRiesgoMat('${r.id}','${campo}',this.checked)"`} />
+            <span>${label}</span>
+          </label>`;
         return `
           <tr class="hover:bg-slate-50">
-            <td class="px-3 py-2.5 font-medium">${r.codigo_proceso ? `<b>${r.codigo_proceso}</b> ` : ''}${r.nombre_proceso}</td>
-            <td class="px-3 py-2.5">${r.descripcion_riesgo}</td>
-            <td class="px-3 py-2.5 text-center">${r.probabilidad_f}</td>
-            <td class="px-3 py-2.5 text-center">${r.impacto_i}</td>
-            <td class="px-3 py-2.5 text-center"><span class="px-2 py-0.5 rounded font-bold ${expColor}">${r.exposicion_fxi}</span></td>
+            <td class="px-3 py-2.5"><div class="font-semibold text-slate-800">${r.proceso_nombre}</div><div class="text-[10px] text-slate-400">${r.codigo_proceso || ''} • ${r.unidades_ins?.nombre || ''}</div></td>
+            <td class="px-3 py-2.5">${r.riesgo_descripcion}</td>
+            <td class="px-3 py-2.5 text-center font-semibold">${r.probabilidad_f}</td>
+            <td class="px-3 py-2.5 text-center font-semibold">${r.impacto_i}</td>
+            <td class="px-3 py-2.5 text-center"><span class="px-2 py-0.5 rounded-full text-[11px] ${badgeFxI}">${fxi}</span></td>
             <td class="px-3 py-2.5">${r.acciones_control}</td>
-            <td class="px-3 py-2.5">${r.responsable_nombre}</td>
-            <td class="px-3 py-2.5 text-center whitespace-nowrap">
-              ${[1,2,3,4].map(t => `
-                <label class="inline-flex items-center mr-1.5 cursor-pointer">
-                  <input type="checkbox" ${esSoloLectura() ? 'disabled' : ''} ${r['materializado_t'+t] ? 'checked' : ''} onchange="toggleRiesgoMat('${r.id}', ${t}, this.checked)" />
-                  <span class="ml-0.5 text-[10px]">T${t}</span>
-                </label>
-              `).join('')}
-            </td>
-            <td class="px-3 py-2.5">
-              <input type="text" ${esSoloLectura() ? 'disabled' : ''} value="${r.acciones_tomadas_contingencia || ''}" placeholder="Si materializó, describir..."
-                onblur="guardarContingenciaRiesgo('${r.id}', this.value)"
-                class="w-full px-2 py-1 border rounded text-xs disabled:bg-slate-50" />
-            </td>
+            <td class="px-3 py-2.5 font-medium">${r.responsable_nombre}</td>
+            <td class="px-3 py-2.5 text-center whitespace-nowrap">${chk('materializo_t1','T1')}${chk('materializo_t2','T2')}${chk('materializo_t3','T3')}${chk('materializo_t4','T4')}</td>
+            <td class="px-3 py-2.5">${lectura
+              ? `<span class="text-slate-700">${r.accion_tomada || '-'}</span>`
+              : `<input type="text" value="${r.accion_tomada || ''}" placeholder="Acción correctiva..." onblur="updateRiesgoAccion('${r.id}', this.value)" class="w-full px-2 py-1 border rounded text-xs" />`
+            }</td>
           </tr>
         `;
       }).join('');
     }
 
-    async function toggleRiesgoMat(id, trim, val) {
-      await sb.from('matriz_riesgos').update({ [`materializado_t${trim}`]: val }).eq('id', id);
-      if (val) alert('Has marcado que el riesgo se materializó. Por favor describe la acción tomada en la columna 13 y adjunta el atestado en Evidencias.');
+    async function toggleRiesgoMat(id, campo, val) {
+      await sb.from('riesgos_poa').update({ [campo]: val }).eq('id', id);
+      loadRiesgos();
     }
 
-    async function guardarContingenciaRiesgo(id, texto) {
-      await sb.from('matriz_riesgos').update({ acciones_tomadas_contingencia: texto }).eq('id', id);
+    async function updateRiesgoAccion(id, val) {
+      await sb.from('riesgos_poa').update({ accion_tomada: val }).eq('id', id);
     }
-
-    // =========================================================================
-    // ASISTENTE IA (EDGE FUNCTION: asistente-poa-ins -> DEEPSEEK)
-    // =========================================================================
-    async function llamarAsistenteIA(payload, botonId) {
-      const btn = botonId ? document.getElementById(botonId) : null;
-      const htmlOriginal = btn ? btn.innerHTML : '';
-      if (btn) {
-        btn.disabled = true;
-        btn.classList.add('opacity-60', 'cursor-wait');
-        btn.innerHTML = `<span class="inline-block animate-spin mr-1">⏳</span> Procesando con IA...`;
-      }
-      try {
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/asistente-poa-ins`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`
-          },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (!res.ok || data.error) {
-          throw new Error(data.error || `Error HTTP ${res.status}`);
-        }
-        return data.resultado || '';
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.classList.remove('opacity-60', 'cursor-wait');
-          btn.innerHTML = htmlOriginal;
-          renderIconsSafe();
-        }
-      }
-    }
-
-    function obtenerContextoActividadModal() {
-      const ejeSel = document.getElementById('act-eje');
-      const linSel = document.getElementById('act-linea');
-      const uniSel = document.getElementById('act-unidad');
-      const tpSel = document.getElementById('act-tipo-producto-directo');
-      return {
-        eje: ejeSel?.selectedIndex > 0 ? ejeSel.options[ejeSel.selectedIndex].text : '',
-        linea: linSel?.selectedIndex > 0 ? linSel.options[linSel.selectedIndex].text : '',
-        unidad: uniSel?.selectedIndex > 0 ? uniSel.options[uniSel.selectedIndex].text : '',
-        tipoProducto: tpSel?.value ? tpSel.options[tpSel.selectedIndex].text : '',
-        consolida: document.getElementById('act-consolida-productos')?.checked || false
-      };
-    }
-
-    window.mejorarActividadIA = async function() {
-      const descEl = document.getElementById('act-descripcion');
-      const borrador = descEl.value.trim();
-      if (!borrador) {
-        alert('Escribe primero una idea o borrador en "Descripción de la Actividad" para poder mejorar su redacción.');
-        descEl.focus();
-        return;
-      }
-      try {
-        const sugerencia = await llamarAsistenteIA({
-          tipo: 'actividad',
-          borrador,
-          contexto: obtenerContextoActividadModal()
-        }, 'btn-ia-actividad');
-        if (sugerencia) {
-          descEl.value = sugerencia.replace(/^["']|["']$/g, '').trim();
-        }
-      } catch (err) {
-        alert('No se pudo mejorar la redacción: ' + err.message);
-      }
-    };
-
-    window.sugerirIndicadorIA = async function() {
-      const tpSel = document.getElementById('act-tipo-producto-directo');
-      if (!tpSel || !tpSel.value) {
-        alert('Por favor, selecciona primero el "Tipo de Producto INS (Catálogo institucional)" antes de solicitar la sugerencia del indicador.');
-        tpSel?.focus();
-        return;
-      }
-      const desc = document.getElementById('act-descripcion').value.trim();
-      if (!desc) {
-        alert('Escribe primero la "Descripción de la Actividad" para generar un indicador coherente con el producto seleccionado.');
-        document.getElementById('act-descripcion').focus();
-        return;
-      }
-      try {
-        const sugerencia = await llamarAsistenteIA({
-          tipo: 'indicador',
-          descripcionActividad: desc,
-          contexto: obtenerContextoActividadModal()
-        }, 'btn-ia-indicador');
-        if (sugerencia) {
-          document.getElementById('act-indicador').value = sugerencia.replace(/^["']|["']$/g, '').trim();
-        }
-      } catch (err) {
-        alert('No se pudo sugerir el indicador: ' + err.message);
-      }
-    };
-
-    window.sugerirSupuestosIA = async function() {
-      const desc = document.getElementById('act-descripcion').value.trim();
-      const supEl = document.getElementById('act-supuestos');
-      const actual = supEl.value.trim();
-      if (!desc && !actual) {
-        alert('Ingresa primero la "Descripción de la Actividad" (o un borrador de supuestos) para generar supuestos operativos externos.');
-        document.getElementById('act-descripcion').focus();
-        return;
-      }
-      try {
-        const sugerencia = await llamarAsistenteIA({
-          tipo: 'supuestos',
-          enfoque: 'condicion_habilitante_no_financiera',
-          borrador: actual,
-          descripcionActividad: desc,
-          contexto: obtenerContextoActividadModal()
-        }, 'btn-ia-supuestos');
-        if (sugerencia) {
-          supEl.value = sugerencia.replace(/^["']|["']$/g, '').trim();
-        }
-      } catch (err) {
-        alert('No se pudieron sugerir los supuestos: ' + err.message);
-      }
-    };
-
-    // =========================================================================
-    // MÓDULO FODA PARTICIPATIVO Y ANÁLISIS CAME CON IA
-    // =========================================================================
-    let fodaAportesCache = [];
-
-    window.prepararEdicionAporteFoda = function(id) {
-      const aporte = fodaAportesCache.find(x => x.id === id);
-      if (!aporte) return;
-      document.getElementById('foda-edit-id').value = aporte.id;
-      document.getElementById('foda-cuadrante').value = aporte.cuadrante;
-      document.getElementById('foda-idea').value = aporte.idea_bruta;
-      document.getElementById('titulo-form-foda').textContent = 'Editar Aporte Seleccionado';
-      document.getElementById('btn-submit-foda').textContent = 'Guardar Cambios del Aporte';
-      document.getElementById('btn-cancelar-edit-foda').classList.remove('hidden');
-      document.getElementById('foda-idea').focus();
-    };
-
-    window.cancelarEdicionAporteFoda = function() {
-      document.getElementById('foda-edit-id').value = '';
-      document.getElementById('form-aporte-foda').reset();
-      document.getElementById('titulo-form-foda').textContent = '1. Ingresar Aporte / Idea al Taller FODA';
-      document.getElementById('btn-submit-foda').textContent = 'Enviar Aporte';
-      document.getElementById('btn-cancelar-edit-foda').classList.add('hidden');
-    };
-
-    window.eliminarAporteFoda = async function(id) {
-      if (!confirm('¿Estás seguro de eliminar este aporte del taller FODA?')) return;
-      const { error } = await sb.from('foda_aportes_participantes').delete().eq('id', id);
-      if (error) {
-        alert('Error al eliminar aporte: ' + error.message);
-      } else {
-        if (document.getElementById('foda-edit-id').value === id) {
-          cancelarEdicionAporteFoda();
-        }
-        await loadFoda();
-      }
-    };
-
-    window.limpiarModuloFoda = async function() {
-      if (!activeCicloId) return;
-      if (!confirm('¿Deseas limpiar por completo el módulo FODA (aportes recibidos, factores consolidados y síntesis CAME) para iniciar un nuevo análisis? Esta acción no se puede deshacer.')) {
-        return;
-      }
-      try {
-        await Promise.all([
-          sb.from('foda_aportes_participantes').delete().eq('ciclo_id', activeCicloId),
-          sb.from('matriz_foda').delete().eq('ciclo_id', activeCicloId),
-          sb.from('foda_analisis_ejecutivo').delete().eq('ciclo_id', activeCicloId)
-        ]);
-        cancelarEdicionAporteFoda();
-        document.getElementById('foda-resumen-ejecutivo').textContent =
-          'Aún no se ha generado la síntesis ejecutiva. Ingresa aportes y presiona "Sintetizar Aportes y Generar Análisis CAME (IA)".';
-        await loadFoda();
-      } catch (err) {
-        alert('Error al limpiar el módulo FODA: ' + err.message);
-      }
-    };
-
-   window.imprimirExportarFoda = function() {
-      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
-      const anio = cicloObj?.anio || new Date().getFullYear();
-      const fHtml = document.getElementById('foda-list-fortaleza').innerHTML;
-      const oHtml = document.getElementById('foda-list-oportunidad').innerHTML;
-      const dHtml = document.getElementById('foda-list-debilidad').innerHTML;
-      const aHtml = document.getElementById('foda-list-amenaza').innerHTML;
-      const cameTexto = document.getElementById('foda-resumen-ejecutivo').textContent;
-
-      const ventana = window.open('', '_blank', 'width=960,height=800');
-      ventana.document.write(`
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8" />
-          <title>Análisis FODA y Estrategias CAME - INS ${anio}</title>
-          <style>
-            * {
-              box-sizing: border-box;
-              color: #000000 !important;
-              -webkit-text-fill-color: #000000 !important;
-            }
-            body {
-              font-family: 'Segoe UI', Arial, sans-serif;
-              color: #000000;
-              background: #ffffff;
-              margin: 24px;
-              font-size: 12px;
-            }
-            .header {
-              border-bottom: 2px solid #000000;
-              padding-bottom: 10px;
-              margin-bottom: 18px;
-              display: flex;
-              justify-content: space-between;
-              align-items: flex-end;
-              gap: 12px;
-            }
-            .header h1 {
-              font-size: 16px;
-              margin: 0;
-              color: #000000;
-              font-weight: 700;
-            }
-            .meta {
-              font-size: 11px;
-              color: #111827;
-              font-style: italic;
-            }
-            .header .meta {
-              margin: 4px 0 0;
-            }
-            .grid {
-              display: grid;
-              grid-template-columns: 1fr 1fr;
-              gap: 12px;
-              margin-bottom: 12px;
-            }
-            .box {
-              border: 1.5px solid #111827;
-              border-radius: 6px;
-              padding: 12px;
-              background: #ffffff;
-              page-break-inside: avoid;
-            }
-            .box h3 {
-              margin: 0 0 8px;
-              padding-bottom: 4px;
-              border-bottom: 1px solid #111827;
-              font-size: 12px;
-              text-transform: uppercase;
-              color: #000000;
-              font-weight: 700;
-            }
-            ul {
-              margin: 0;
-              padding-left: 18px;
-              line-height: 1.5;
-            }
-            li {
-              margin-bottom: 4px;
-              color: #000000;
-            }
-            li.italic,
-            .italic,
-            em,
-            i,
-            small {
-              font-style: italic !important;
-              color: #111827 !important;
-              -webkit-text-fill-color: #111827 !important;
-            }
-            .salto-pagina {
-              break-before: page;
-              page-break-before: always;
-            }
-            .came-title {
-              font-size: 13px;
-              font-weight: 700;
-              color: #000000;
-              margin-bottom: 8px;
-              text-transform: uppercase;
-            }
-            .came {
-              border: 1.5px solid #111827;
-              background: #ffffff;
-              border-radius: 6px;
-              padding: 14px;
-              white-space: pre-line;
-              line-height: 1.55;
-              color: #000000;
-            }
-            @media print {
-              body {
-                margin: 12mm;
-                background: #ffffff !important;
-              }
-              .grid {
-                margin-bottom: 12px !important;
-              }
-              .salto-pagina {
-                break-before: page !important;
-                page-break-before: always !important;
-              }
-              .box,
-              .came {
-                border-color: #000000 !important;
-                background: #ffffff !important;
-              }
-              .header {
-                border-bottom: 2px solid #000000 !important;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div>
-              <h1>INSTITUTO NACIONAL DE SALUD (INS) - MINSAL EL SALVADOR</h1>
-              <p class="meta">Diagnóstico Situacional FODA Consolidado y Matriz Estratégica CAME — Ciclo ${anio}</p>
-            </div>
-            <div class="meta">Generado: ${new Date().toLocaleDateString('es-SV')}</div>
-          </div>
-          <div class="grid">
-            <div class="box f"><h3>Fortalezas Consolidadas (F)</h3><ul>${fHtml}</ul></div>
-            <div class="box o"><h3>Oportunidades Consolidadas (O)</h3><ul>${oHtml}</ul></div>
-            <div class="box d"><h3>Debilidades Consolidadas (D)</h3><ul>${dHtml}</ul></div>
-            <div class="box a"><h3>Amenazas Consolidadas (A)</h3><ul>${aHtml}</ul></div>
-          </div>
-          <div class="came-title salto-pagina">Síntesis Analítica y Estrategias Cruzadas (CAME)</div>
-          <div class="came">${cameTexto.replace(/</g, '&lt;')}</div>
-          <script>window.onload = function() { window.print(); };<\/script>
-        </body>
-        </html>
-      `);
-      ventana.document.close();
-    };
 
     document.getElementById('form-aporte-foda').addEventListener('submit', async (e) => {
       e.preventDefault();
       const editId = document.getElementById('foda-edit-id').value;
       const cuadrante = document.getElementById('foda-cuadrante').value;
-      const idea_bruta = document.getElementById('foda-idea').value.trim();
-      if (!idea_bruta) return;
+      const idea = document.getElementById('foda-idea').value.trim();
+      if (!idea) return;
 
-      let error = null;
       if (editId) {
-        const res = await sb.from('foda_aportes_participantes')
-          .update({ cuadrante, idea_bruta })
-          .eq('id', editId);
-        error = res.error;
-      } else {
-        const res = await sb.from('foda_aportes_participantes').insert({
-          ciclo_id: activeCicloId,
-          unidad_ins_id: currentProfile?.unidad_id || null,
-          usuario_id: currentUser.id,
+        const { error } = await sb.from('foda_aportes').update({
           cuadrante,
-          idea_bruta
-        });
-        error = res.error;
-      }
-
-      if (error) {
-        alert(error.message);
-      } else {
+          idea
+        }).eq('id', editId);
+        if (error) return alert(error.message);
         cancelarEdicionAporteFoda();
-        await loadFoda();
+        loadFoda();
+      } else {
+        const { error } = await sb.from('foda_aportes').insert({
+          ciclo_id: activeCicloId,
+          unidad_ins_id: currentProfile?.unidad_id || unidadesList[0]?.id,
+          autor_id: currentUser.id,
+          cuadrante,
+          idea
+        });
+        if (error) alert(error.message);
+        else {
+          document.getElementById('foda-idea').value = '';
+          loadFoda();
+        }
       }
     });
+
+    function iniciarEdicionAporteFoda(id, cuadrante, ideaEncoded) {
+      const idea = decodeURIComponent(ideaEncoded);
+      document.getElementById('foda-edit-id').value = id;
+      document.getElementById('foda-cuadrante').value = cuadrante;
+      document.getElementById('foda-idea').value = idea;
+      document.getElementById('titulo-form-foda').textContent = 'Editar Aporte del Taller FODA';
+      document.getElementById('btn-submit-foda').textContent = 'Guardar Cambios del Aporte';
+      document.getElementById('btn-cancelar-edit-foda').classList.remove('hidden');
+      document.getElementById('foda-idea').focus();
+    }
+
+    function cancelarEdicionAporteFoda() {
+      document.getElementById('foda-edit-id').value = '';
+      document.getElementById('foda-idea').value = '';
+      document.getElementById('titulo-form-foda').textContent = '1. Ingresar Aporte / Idea al Taller FODA';
+      document.getElementById('btn-submit-foda').textContent = 'Enviar Aporte';
+      document.getElementById('btn-cancelar-edit-foda').classList.add('hidden');
+    }
+
+    async function eliminarAporteFoda(id) {
+      if (!confirm('¿Eliminar este aporte del taller FODA?')) return;
+      const { error } = await sb.from('foda_aportes').delete().eq('id', id);
+      if (error) alert(error.message);
+      else {
+        if (document.getElementById('foda-edit-id').value === id) cancelarEdicionAporteFoda();
+        loadFoda();
+      }
+    }
+
+    async function limpiarModuloFoda() {
+      if (!activeCicloId) return;
+      const msg = esAdminPlanificacion()
+        ? '¿Deseas limpiar TODOS los aportes, consolidados y el análisis CAME de este ciclo PAO? Esta acción no se puede deshacer.'
+        : '¿Deseas limpiar tus aportes FODA de este ciclo PAO?';
+      if (!confirm(msg)) return;
+
+      if (esAdminPlanificacion()) {
+        await sb.from('foda_aportes').delete().eq('ciclo_id', activeCicloId);
+        await sb.from('foda_consolidado').delete().eq('ciclo_id', activeCicloId);
+      } else {
+        await sb.from('foda_aportes').delete().eq('ciclo_id', activeCicloId).eq('autor_id', currentUser.id);
+      }
+
+      cancelarEdicionAporteFoda();
+      await loadFoda();
+    }
+
+    function imprimirExportarFoda() {
+      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
+      const anioCiclo = cicloObj?.anio || new Date().getFullYear();
+      const extraerItems = (ulId) => {
+        const lis = [...document.querySelectorAll(`#${ulId} li`)];
+        return lis.length ? lis.map(li => `<li>${li.textContent}</li>`).join('') : '<li><em>Sin consolidados registrados</em></li>';
+      };
+      const cameTexto = document.getElementById('foda-resumen-ejecutivo')?.innerText || '';
+
+      const win = window.open('', '_blank', 'width=1000,height=750');
+      win.document.write(`
+        <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/><title>FODA y Estrategias CAME - PAO ${anioCiclo}</title>
+        <style>
+          @page { size: letter portrait; margin: 15mm; }
+          body { font-family: Calibri, Arial, sans-serif; color: #0f172a; font-size: 11px; }
+          h1 { font-size: 15px; margin-bottom: 2px; color: #0c4a6e; }
+          .sub { font-size: 10px; color: #475569; margin-bottom: 12px; border-bottom: 1.5px solid #0284c7; padding-bottom: 6px; }
+          .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+          .box { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; }
+          .box h3 { margin: 0 0 6px 0; font-size: 11px; text-transform: uppercase; }
+          ul { margin: 0; padding-left: 16px; }
+          li { margin-bottom: 3px; }
+          .came { border: 1px solid #94a3b8; border-radius: 6px; padding: 10px 12px; background: #f8fafc; white-space: pre-line; line-height: 1.4; }
+        </style></head><body>
+        <h1>Diagnóstico Situacional FODA y Estrategias CAME — INS El Salvador</h1>
+        <div class="sub">Ciclo Operativo PAO ${anioCiclo} • Emitido el ${new Date().toLocaleDateString('es-SV')}</div>
+        <div class="grid">
+          <div class="box"><h3>Fortalezas (F)</h3><ul>${extraerItems('foda-list-fortaleza')}</ul></div>
+          <div class="box"><h3>Oportunidades (O)</h3><ul>${extraerItems('foda-list-oportunidad')}</ul></div>
+          <div class="box"><h3>Debilidades (D)</h3><ul>${extraerItems('foda-list-debilidad')}</ul></div>
+          <div class="box"><h3>Amenazas (A)</h3><ul>${extraerItems('foda-list-amenaza')}</ul></div>
+        </div>
+        <h3 style="font-size:12px;margin-bottom:6px;">Síntesis Analítica y Estrategias Cruzadas CAME</h3>
+        <div class="came">${cameTexto}</div>
+        <script>window.onload = () => setTimeout(() => window.print(), 200);<\/script>
+        </body></html>
+      `);
+      win.document.close();
+    }
 
     async function loadFoda() {
       if (!activeCicloId) return;
-      const [apRes, matRes, ejRes] = await Promise.all([
-        sb.from('foda_aportes_participantes').select('*, unidades_ins(siglas)').eq('ciclo_id', activeCicloId).order('created_at', { ascending: false }),
-        sb.from('matriz_foda').select('*').eq('ciclo_id', activeCicloId).order('codigo_factor'),
-        sb.from('foda_analisis_ejecutivo').select('*').eq('ciclo_id', activeCicloId).maybeSingle()
-      ]);
+      const { data: aportes } = await sb.from('foda_aportes')
+        .select('*, unidades_ins(nombre, siglas)')
+        .eq('ciclo_id', activeCicloId)
+        .order('created_at', { ascending: false });
 
-      fodaAportesCache = apRes.data || [];
-      document.getElementById('count-aportes-foda').textContent = fodaAportesCache.length;
-      document.getElementById('lista-aportes-foda').innerHTML = fodaAportesCache.map(a => `
-        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-start justify-between gap-2">
-          <div class="leading-snug">
-            <span class="font-bold uppercase text-[10px] text-sky-700">[${a.cuadrante}${a.unidades_ins?.siglas ? ' · ' + a.unidades_ins.siglas : ''}]</span>
-            <span class="text-slate-700">${a.idea_bruta}</span>
-          </div>
-          <div class="flex items-center gap-1 shrink-0">
-            <button type="button" onclick="prepararEdicionAporteFoda('${a.id}')" title="Editar aporte"
-              class="p-1 rounded hover:bg-sky-100 text-slate-500 hover:text-sky-700 transition">
-              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-            </button>
-            <button type="button" onclick="eliminarAporteFoda('${a.id}')" title="Eliminar aporte"
-              class="p-1 rounded hover:bg-rose-100 text-slate-500 hover:text-rose-700 transition">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        </div>
-      `).join('');
+      const listaAportes = aportes || [];
+      document.getElementById('count-aportes-foda').textContent = listaAportes.length;
+      const etiquetaCuadrante = { fortaleza: 'Fortaleza', oportunidad: 'Oportunidad', debilidad: 'Debilidad', amenaza: 'Amenaza' };
 
-      const factores = matRes.data || [];
+      document.getElementById('lista-aportes-foda').innerHTML = listaAportes.map(ap => {
+        const esAutor = currentUser && ap.autor_id === currentUser.id;
+        const puedeEditar = !esSoloLectura() && (esAdminPlanificacion() || esAutor);
+        return `
+          <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1">
+            <div class="flex items-center justify-between gap-1">
+              <div class="font-bold text-sky-900 text-[10px] uppercase">${etiquetaCuadrante[ap.cuadrante] || ap.cuadrante} • ${ap.unidades_ins?.siglas || ap.unidades_ins?.nombre || 'INS'}</div>
+              ${puedeEditar ? `
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="iniciarEdicionAporteFoda('${ap.id}', '${ap.cuadrante}', '${encodeURIComponent(ap.idea)}')" class="text-[10px] text-sky-700 hover:underline font-semibold">Editar</button>
+                  <button type="button" onclick="eliminarAporteFoda('${ap.id}')" class="text-[10px] text-rose-600 hover:underline font-semibold">Borrar</button>
+                </div>
+              ` : ''}
+            </div>
+            <div class="text-slate-700 leading-snug">${ap.idea}</div>
+          </div>
+        `;
+      }).join('');
+
+      const { data: cons } = await sb.from('foda_consolidado').select('*').eq('ciclo_id', activeCicloId);
+      const consolidados = cons || [];
       ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(c => {
-        const items = factores.filter(f => f.cuadrante === c);
+        const items = consolidados.filter(x => x.cuadrante === c);
         document.getElementById('foda-list-' + c).innerHTML = items.length
-          ? items.map(i => `<li><b>${i.codigo_factor}:</b> ${i.descripcion_consolidada}</li>`).join('')
-          : `<li class="text-slate-400 italic">Sin factores consolidados</li>`;
+          ? items.map(x => `<li>${x.tema_consolidado} <span class="text-[10px] opacity-75">(${x.frecuencia_aportes} aportes)</span></li>`).join('')
+          : `<li class="text-slate-400 italic">Sin consolidados aún</li>`;
       });
 
-      document.getElementById('foda-resumen-ejecutivo').textContent = ejRes.data?.resumen_situacional
-        ? ejRes.data.resumen_situacional
+      const conResumen = consolidados.find(x => x.resumen_ia);
+      document.getElementById('foda-resumen-ejecutivo').textContent = conResumen
+        ? conResumen.resumen_ia
         : 'Aún no se ha generado la síntesis ejecutiva. Ingresa aportes y presiona "Sintetizar Aportes y Generar Análisis CAME (IA)".';
-
-      renderIconsSafe();
     }
 
-function escapeHtml(str) {
-      return String(str ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
+    document.getElementById('btn-sintetizar-foda').addEventListener('click', async () => {
+      const { data: aportes } = await sb.from('foda_aportes').select('*, unidades_ins(nombre)').eq('ciclo_id', activeCicloId);
+      if (!aportes || !aportes.length) return alert('Primero ingresa aportes al taller FODA.');
 
-    function formatearCameATexto(rawCame) {
-  if (!rawCame) return '';
-  if (typeof rawCame === 'string') return rawCame.trim();
-
-  if (Array.isArray(rawCame)) {
-    return rawCame
-      .map(item => (typeof item === 'string' ? item.trim() : JSON.stringify(item)))
-      .filter(Boolean)
-      .join('\n');
-  }
-
-  if (typeof rawCame === 'object') {
-    const cruces = [
-      { keys: ['FO', 'fo', 'estrategias_fo', 'ofensivas', 'Ofensivas'], titulo: 'Estrategias Ofensivas (FO)' },
-      { keys: ['DO', 'do', 'estrategias_do', 'reorientacion', 'Reorientación', 'Reorientacion'], titulo: 'Estrategias de Reorientación (DO)' },
-      { keys: ['FA', 'fa', 'estrategias_fa', 'defensivas', 'Defensivas'], titulo: 'Estrategias Defensivas (FA)' },
-      { keys: ['DA', 'da', 'estrategias_da', 'supervivencia', 'Supervivencia'], titulo: 'Estrategias de Supervivencia (DA)' }
-    ];
-
-    const secciones = [];
-    cruces.forEach(({ keys, titulo }) => {
-      const clave = keys.find(k => rawCame[k] !== undefined && rawCame[k] !== null);
-      if (!clave) return;
-
-      const valor = rawCame[clave];
-      const lineas = Array.isArray(valor)
-        ? valor.map(v => String(v || '').trim()).filter(Boolean)
-        : String(valor || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
-
-      if (lineas.length > 0) {
-        secciones.push(
-          `${titulo}:\n` + lineas.map((l, idx) => `  ${idx + 1}. ${l.replace(/^[-•*\d.)]+\s*/, '')}`).join('\n')
-        );
-      }
-    });
-
-    if (secciones.length > 0) return secciones.join('\n\n');
-
-    // Si viene con otras claves dentro del objeto CAME
-    return Object.entries(rawCame)
-      .map(([k, v]) => {
-        const valStr = Array.isArray(v) ? v.join('\n  - ') : String(v ?? '');
-        return `${k}:\n  - ${valStr}`;
-      })
-      .join('\n\n');
-  }
-
-  return String(rawCame).trim();
-}
-
-    function renderizarFodaEnPantalla(factoresLista, resumenTexto) {
-      ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(c => {
-        const items = (factoresLista || []).filter(x => x.cuadrante === c);
-        const ul = document.getElementById(`foda-list-${c}`);
-        if (!ul) return;
-        ul.innerHTML = items.length
-          ? items.map(i => `<li><b>${escapeHtml(i.codigo_factor)}:</b> ${escapeHtml(i.descripcion_consolidada)}</li>`).join('')
-          : `<li class="text-slate-400 italic">Sin factores consolidados</li>`;
-      });
-
-      const elResumen = document.getElementById('foda-resumen-ejecutivo');
-      if (elResumen) {
-        elResumen.style.whiteSpace = 'pre-line';
-        elResumen.textContent = resumenTexto
-          ? resumenTexto
-          : 'Aún no se ha generado la síntesis ejecutiva. Ingresa aportes y presiona "Sintetizar Aportes y Generar Análisis CAME (IA)".';
-      }
-    }
-
-document.getElementById('btn-sintetizar-foda').addEventListener('click', async () => {
-      const { data: aportes } = await sb
-        .from('foda_aportes_participantes')
-        .select('*, unidades_ins(siglas)')
-        .eq('ciclo_id', activeCicloId);
-
-      if (!aportes || aportes.length === 0) {
-        return alert('Primero ingresa aportes en el buzón FODA.');
-      }
-
-      const agrupados = { fortaleza: [], oportunidad: [], debilidad: [], amenaza: [] };
-      aportes.forEach(a => {
-        if (agrupados[a.cuadrante]) {
-          const etiquetaUnidad = a.unidades_ins?.siglas ? ` (${a.unidades_ins.siglas})` : '';
-          agrupados[a.cuadrante].push(`${a.idea_bruta.trim()}${etiquetaUnidad}`);
-        }
-      });
+      const btn = document.getElementById('btn-sintetizar-foda');
+      btn.disabled = true;
+      btn.textContent = 'Consolidando aportes...';
 
       try {
-        const payloadFodaConInstruccion = {
-          instrucciones_adicionales:
-            "Consolida los aportes de cada cuadrante sin repetir ideas ni códigos. " +
-            "Para el análisis CAME, genera exactamente 3 estrategias cruzadas concisas (máximo 2 líneas cada una) " +
-            "para cada uno de los 4 cruces: 3 estrategias FO (Ofensivas), 3 estrategias DO (Reorientación), " +
-            "3 estrategias FA (Defensivas) y 3 estrategias DA (Supervivencia), citando los códigos (ej. F1+O2) " +
-            "y sin referencias presupuestarias.",
-          aportes_por_cuadrante: agrupados
-        };
+        await sb.from('foda_consolidado').delete().eq('ciclo_id', activeCicloId);
 
-        const respuestaRaw = await llamarAsistenteIA({
-          tipo: 'foda_came',
-          borrador: JSON.stringify(payloadFodaConInstruccion, null, 2)
-        }, 'btn-sintetizar-foda');
-
-        // Extracción robusta del bloque JSON aunque venga con texto adicional
-        const sinMarkdown = respuestaRaw.replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
-        const inicioJson = sinMarkdown.indexOf('{');
-        const finJson = sinMarkdown.lastIndexOf('}');
-        const jsonLimpio = (inicioJson !== -1 && finJson !== -1)
-          ? sinMarkdown.slice(inicioJson, finJson + 1)
-          : sinMarkdown;
-
-        const analisisIA = JSON.parse(jsonLimpio);
-
-        const prefijos = { fortaleza: 'F', oportunidad: 'O', debilidad: 'D', amenaza: 'A' };
-        const clavesAlternas = {
-          fortaleza: ['fortaleza', 'fortalezas', 'Fortalezas'],
-          oportunidad: ['oportunidad', 'oportunidades', 'Oportunidades'],
-          debilidad: ['debilidad', 'debilidades', 'Debilidades'],
-          amenaza: ['amenaza', 'amenazas', 'Amenazas']
-        };
-
-        const nuevosFactores = [];
-        ['fortaleza', 'oportunidad', 'debilidad', 'amenaza'].forEach(cuad => {
-          const claveEncontrada = clavesAlternas[cuad].find(k => Array.isArray(analisisIA[k]));
-          const lista = claveEncontrada ? analisisIA[claveEncontrada] : [];
-          const codPrefix = prefijos[cuad];
-          const vistosTexto = new Set();
-          const vistosCodigo = new Set();
-
-          lista.forEach((item, idx) => {
-            let rawTexto = '';
-            let codigoExplicito = '';
-
-            if (typeof item === 'object' && item !== null) {
-              codigoExplicito = String(item.codigo || item.codigo_factor || '').trim().toUpperCase();
-              rawTexto = String(item.descripcion || item.descripcion_consolidada || item.texto || '').trim();
-            } else {
-              rawTexto = String(item || '').trim();
-              const matchCod = rawTexto.match(/^([FODA]\d+)\s*[:.\-–—]\s*/i);
-              if (matchCod) {
-                codigoExplicito = matchCod[1].toUpperCase();
-                rawTexto = rawTexto.slice(matchCod[0].length).trim();
-              }
-            }
-
-            // Limpia cualquier prefijo repetido tipo "F1: F1." o "F1." al inicio del texto
-            const regexPrefijo = new RegExp(`^${codPrefix}\\d+\\s*[:.\\-–—]?\\s*`, 'i');
-            while (regexPrefijo.test(rawTexto)) {
-              rawTexto = rawTexto.replace(regexPrefijo, '').trim();
-            }
-
-            if (!rawTexto) return;
-
-            const descFormateada = rawTexto.charAt(0).toUpperCase() + rawTexto.slice(1);
-            const claveNorm = descFormateada.toLowerCase().replace(/\s+/g, ' ');
-            if (vistosTexto.has(claveNorm)) return;
-            vistosTexto.add(claveNorm);
-
-            let codigoFinal = codigoExplicito;
-            if (!codigoFinal || !codigoFinal.startsWith(codPrefix) || vistosCodigo.has(codigoFinal)) {
-              let n = idx + 1;
-              while (vistosCodigo.has(`${codPrefix}${n}`)) n++;
-              codigoFinal = `${codPrefix}${n}`;
-            }
-            vistosCodigo.add(codigoFinal);
-
-            nuevosFactores.push({
-              ciclo_id: activeCicloId,
-              cuadrante: cuad,
-              codigo_factor: codigoFinal,
-              descripcion_consolidada: descFormateada
-            });
-          });
+        const porCuad = { fortaleza: [], oportunidad: [], debilidad: [], amenaza: [] };
+        aportes.forEach(a => {
+          if (porCuad[a.cuadrante]) porCuad[a.cuadrante].push(a);
         });
 
-        const rawCame = analisisIA.resumen_came
-          || analisisIA.analisis_came
-          || analisisIA.estrategias_came
-          || analisisIA.came
-          || analisisIA.resumen_situacional
-          || '';
-        const resumenTexto = formatearCameATexto(rawCame);
-
-        // 1. Pintar de inmediato en pantalla para visualización instantánea
-        renderizarFodaEnPantalla(nuevosFactores, resumenTexto);
-
-        // 2. Persistir en matriz_foda con validación explícita de errores
-        const erroresBd = [];
-        const { error: errDel } = await sb.from('matriz_foda').delete().eq('ciclo_id', activeCicloId);
-        if (errDel) erroresBd.push('matriz_foda (delete): ' + errDel.message);
-
-        if (nuevosFactores.length > 0) {
-          const { error: errIns } = await sb.from('matriz_foda').insert(nuevosFactores);
-          if (errIns) erroresBd.push('matriz_foda (insert): ' + errIns.message);
-        }
-
-        // 3. Persistir resumen CAME en foda_analisis_ejecutivo (select + update/insert seguro)
-        const { data: existenteEj, error: errSelEj } = await sb
-          .from('foda_analisis_ejecutivo')
-          .select('id')
-          .eq('ciclo_id', activeCicloId)
-          .maybeSingle();
-
-        if (errSelEj) {
-          erroresBd.push('foda_analisis_ejecutivo (select): ' + errSelEj.message);
-        } else if (existenteEj?.id) {
-          const { error: errUpdEj } = await sb
-            .from('foda_analisis_ejecutivo')
-            .update({ resumen_situacional: resumenTexto })
-            .eq('id', existenteEj.id);
-          if (errUpdEj) erroresBd.push('foda_analisis_ejecutivo (update): ' + errUpdEj.message);
-        } else {
-          const { error: errInsEj } = await sb
-            .from('foda_analisis_ejecutivo')
-            .insert({ ciclo_id: activeCicloId, resumen_situacional: resumenTexto });
-          if (errInsEj) erroresBd.push('foda_analisis_ejecutivo (insert): ' + errInsEj.message);
-        }
-
-        if (erroresBd.length > 0) {
-          console.warn('Advertencia al persistir FODA-CAME en Supabase:', erroresBd);
-          alert('El análisis FODA-CAME se generó en pantalla, pero Supabase reportó:\n\n• ' + erroresBd.join('\n• '));
-        } else {
-          await loadFoda();
-        }
-      } catch (err) {
-        alert('Error al generar síntesis FODA / CAME con IA: ' + err.message);
-      }
-    });
-    
-    document.getElementById('btn-generar-informe').addEventListener('click', async () => {
-      const trim = parseInt(document.getElementById('inf-trimestre').value);
-      const { data: evalData } = await sb.from('vw_dashboard_operativo_anual')
-        .select('*')
-        .eq('ciclo_id', activeCicloId)
-        .eq('trimestre_corte', trim);
-
-      const { data: evData } = await sb.from('evidencias_poa')
-        .select('*, actividades_poa(actividad)')
-        .eq('ciclo_id', activeCicloId)
-        .eq('trimestre', trim);
-
-      const actIds = actividadesCache.map(a => a.id);
-      let productosCiclo = [];
-      if (actIds.length > 0) {
-        const { data: prodData } = await sb.from('productos_poa')
-          .select('*, catalogo_tipos_producto(id, codigo, nombre, unidad_medida_default)')
-          .in('actividad_poa_id', actIds);
-        productosCiclo = prodData || [];
-      }
-
-      const actMapInf = new Map(actividadesCache.map(a => [a.id, a]));
-      const rows = (evalData || []).map(r => {
-        const actObj = actMapInf.get(r.actividad_id);
-        if (!actObj) {
-          return { ...r, semaforo_calculado: r.semaforo_calculado === 'Finalizada' ? 'En curso' : r.semaforo_calculado };
-        }
-        const evalIrrev = evaluarEstadoIrreversibleAlCorte(actObj, trim, r);
-        return {
-          ...r,
-          semaforo_calculado: evalIrrev.semaforo,
-          pct_anual_al_corte: evalIrrev.pctAnualAlCorte
-        };
-      });
-
-      const anio = rows[0]?.anio || '2026';
-      const validas = rows.filter(r => r.pct_cumplimiento_corte !== null);
-      const avgAcotado = validas.length ? (validas.reduce((a, b) => a + Number(b.pct_cumplimiento_corte_acotado), 0) / validas.length).toFixed(1) : '0.0';
-      const finalizadasAnual = rows.filter(r => r.semaforo_calculado === 'Finalizada');
-      const enCursoCorte = rows.filter(r => r.semaforo_calculado === 'En curso');
-      const retrasadas = rows.filter(r => ['Con retraso', 'En atención'].includes(r.semaforo_calculado));
-
-      let texto = `INSTITUTO NACIONAL DE SALUD (INS)\n`;
-      texto += `EVALUACIÓN DEL PLAN ANUAL OPERATIVO ${anio} — TRIMESTRE ${trim}\n`;
-      texto += `Presenta: Ing. Roberto Iván Rodas (Coordinador Unidad de Planificación y Calidad INS - MINSAL)\n`;
-      texto += `Visto Bueno: Dirección del Instituto Nacional de Salud\n`;
-      texto += `========================================================================\n\n`;
-      texto += `1. INTRODUCCIÓN Y RESUMEN EJECUTIVO\n`;
-      texto += `Durante el Trimestre ${trim} de ${anio}, el Instituto Nacional de Salud (INS) dio seguimiento a ${rows.length} actividades estratégicas y operativas alineadas al PEI MINSAL 2026–2030. El índice de ejecución promedio acotado al corte (evitando distorsiones por sobre-demanda epidemiológica) alcanzó el ${avgAcotado}%, registrando ${finalizadasAnual.length} actividades finalizadas al 100% de su meta anual, ${enCursoCorte.length} actividades en curso conforme a su programación trimestral y ${retrasadas.length} en seguimiento por ajuste o reprogramación.\n\n`;
-
-      texto += `2. PRINCIPALES AVANCES POR UNIDAD ORGANIZATIVA\n`;
-      const unidadesUnicas = [...new Set(rows.map(r => r.unidad_ins))];
-      unidadesUnicas.forEach(u => {
-        const actsU = rows.filter(r => r.unidad_ins === u);
-        texto += `• ${u} (${actsU.length} actividades):\n`;
-        actsU.forEach(a => {
-          const avanceAnualTxt = a.pct_anual_al_corte !== undefined ? `; avance anual: ${a.pct_anual_al_corte.toFixed(1)}%` : '';
-          texto += `  - ${a.actividad}: Ejecución acumulada al corte de ${a.pct_cumplimiento_corte ?? 0}%${avanceAnualTxt} (${a.semaforo_calculado}).\n`;
-        });
-      });
-
-      texto += `\n3. DESGLOSE TÉCNICO DE ENTREGABLES POR ÁREA Y TIPO DE PRODUCTO\n`;
-      if (productosCiclo.length > 0) {
-        const mapArea = {};
-        productosCiclo.forEach(p => {
-          const tp = p.catalogo_tipos_producto || { nombre: 'Producto General INS', unidad_medida_default: 'unidades' };
-          const area = inferirCategoriaProducto(tp);
-          const tipoNombre = tp.nombre;
-          if (!mapArea[area]) mapArea[area] = {};
-          if (!mapArea[area][tipoNombre]) {
-            mapArea[area][tipoNombre] = { progAcum: 0, realAcum: 0, progAnual: 0, unidad: tp.unidad_medida_default || 'entregables', count: 0 };
+        const textosCuad = {};
+        for (const cuad of Object.keys(porCuad)) {
+          const items = porCuad[cuad];
+          if (!items.length) {
+            textosCuad[cuad] = ['Sin aportes registrados en este cuadrante'];
+            continue;
           }
-          for (let t = 1; t <= trim; t++) {
-            mapArea[area][tipoNombre].progAcum += Number(p['prog_num_t' + t] || 0);
-            mapArea[area][tipoNombre].realAcum += Number(p['real_num_t' + t] || 0);
-          }
-          mapArea[area][tipoNombre].progAnual += (Number(p.prog_num_t1)||0) + (Number(p.prog_num_t2)||0) + (Number(p.prog_num_t3)||0) + (Number(p.prog_num_t4)||0);
-          mapArea[area][tipoNombre].count += 1;
-        });
-
-        Object.keys(mapArea).sort().forEach(area => {
-          texto += `• Área: ${area}\n`;
-          Object.keys(mapArea[area]).sort().forEach(tipo => {
-            const st = mapArea[area][tipo];
-            const pct = st.progAcum > 0 ? ((st.realAcum / st.progAcum) * 100).toFixed(1) : '0.0';
-            texto += `  - ${tipo}: ${st.realAcum} realizados de ${st.progAcum} programados al T${trim} (${pct}% de ejecución al corte; meta anual: ${st.progAnual} ${st.unidad}).\n`;
+          const agrupados = {};
+          items.forEach(it => {
+            const clave = it.idea.trim();
+            if (!agrupados[clave]) agrupados[clave] = { count: 0, unidades: new Set() };
+            agrupados[clave].count += 1;
+            if (it.unidades_ins?.nombre) agrupados[clave].unidades.add(it.unidades_ins.nombre);
           });
+
+          const filasInsert = Object.entries(agrupados).map(([tema, info]) => ({
+            ciclo_id: activeCicloId,
+            cuadrante: cuad,
+            tema_consolidado: tema,
+            frecuencia_aportes: info.count,
+            unidades_coincidentes: [...info.unidades].join(', ')
+          }));
+
+          await sb.from('foda_consolidado').insert(filasInsert);
+          textosCuad[cuad] = Object.entries(agrupados).map(([t, info]) => `${t} (${info.count})`);
+        }
+
+        const fTop = textosCuad.fortaleza[0] || 'capacidades técnico-científicas del INS';
+        const oTop = textosCuad.oportunidad[0] || 'articulación interinstitucional y cooperación en salud';
+        const dTop = textosCuad.debilidad[0] || 'brechas operativas y de registro oportuno';
+        const aTop = textosCuad.amenaza[0] || 'emergencias sanitarias y restricciones externas';
+
+        const resumenEjecutivo = [
+          `DIAGNÓSTICO FODA CONSOLIDADO (${aportes.length} aportes analizados en 4 cuadrantes)`,
+          `• Fortalezas clave: ${textosCuad.fortaleza.slice(0, 3).join('; ')}.`,
+          `• Oportunidades clave: ${textosCuad.oportunidad.slice(0, 3).join('; ')}.`,
+          `• Debilidades clave: ${textosCuad.debilidad.slice(0, 3).join('; ')}.`,
+          `• Amenazas clave: ${textosCuad.amenaza.slice(0, 3).join('; ')}.`,
+          ``,
+          `ESTRATEGIAS CRUZADAS CAME:`,
+          `• CORREGIR (Debilidades): Establecer revisiones trimestrales de avance, estandarizar registros y fortalecer el acompañamiento técnico para atender "${dTop}".`,
+          `• AFRONTAR (Amenazas): Mantener planes de contingencia operativa y flexibilidad de programación ante "${aTop}".`,
+          `• MANTENER (Fortalezas): Proteger y escalar las capacidades institucionales reflejadas en "${fTop}".`,
+          `• EXPLOTAR (Oportunidades): Capitalizar alianzas y recursos disponibles en "${oTop}" para acelerar metas del PAO y PEI.`
+        ].join('\n');
+
+        await sb.from('foda_consolidado').insert({
+          ciclo_id: activeCicloId,
+          cuadrante: 'fortaleza',
+          tema_consolidado: 'Síntesis Estratégica CAME',
+          frecuencia_aportes: aportes.length,
+          resumen_ia: resumenEjecutivo
         });
-      } else {
-        texto += `• No se registraron productos desagregados en las actividades del ciclo actual.\n`;
+
+        await loadFoda();
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4"></i> Sintetizar Aportes y Generar Análisis CAME (IA)';
+        window.renderIconsSafe();
       }
-
-      texto += `\n4. GESTIÓN DE DESVIACIONES, JUSTIFICACIONES Y ACCIONES CORRECTIVAS (AUDITORÍA)\n`;
-      const justificaciones = (evData || []).filter(e => e.categoria !== 'evidencia_cumplimiento');
-      if (justificaciones.length > 0) {
-        justificaciones.forEach(j => {
-          texto += `• [${j.actividades_poa?.actividad || 'Actividad'}] Causa: ${j.causa_retraso_tipificada || 'Técnica'}. ${j.descripcion_narrativa}\n`;
-        });
-      } else {
-        texto += `• No se reportaron desviaciones críticas sin respaldo documental en el trimestre evaluado.\n`;
-      }
-
-      texto += `\n5. CONCLUSIONES Y RECOMENDACIONES\n`;
-      texto += `• Mantener el monitoreo mensual de productos críticos y asegurar el cierre oportuno de registros antes de los cortes DIRPLAN MINSAL.\n`;
-      texto += `• Documentar en la bóveda institucional toda reprogramación derivada de disposiciones ministeriales o emergencias sanitarias.\n`;
-
-      document.getElementById('informe-editor').value = texto;
-    });
-
-    document.getElementById('btn-descargar-word').addEventListener('click', () => {
-      const contenido = document.getElementById('informe-editor').value;
-      if (!contenido.trim()) return alert('Primero redacta el borrador ejecutivo del informe.');
-      const htmlDoc = `
-        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
-        <head><meta charset='utf-8'><title>Informe Gerencial INS</title></head>
-        <body style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; line-height: 1.5; white-space: pre-wrap;">${contenido}</body>
-        </html>`;
-      const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Informe_Gerencial_PAO_INS_T${document.getElementById('inf-trimestre').value}.doc`;
-      a.click();
     });
 
     function poblarFiltrosPeiCubo() {
       const ejeSel = document.getElementById('cubo-filtro-eje');
       const estSel = document.getElementById('cubo-filtro-estrategia');
       const linSel = document.getElementById('cubo-filtro-linea');
-      if (!ejeSel) return;
+      if (!ejeSel || !estSel || !linSel) return;
 
       ejeSel.innerHTML = `<option value="ALL">Todos los Ejes Estratégicos</option>` +
         ejesList.map(e => `<option value="${e.id}">Eje ${e.numero_orden}. ${e.nombre}</option>`).join('');
-      estSel.innerHTML = `<option value="ALL">Todas las Estrategias</option>` +
-        estrategiasList.map(s => `<option value="${s.id}">${s.numero_orden}. ${s.nombre}</option>`).join('');
-      linSel.innerHTML = `<option value="ALL">Todas las Líneas de Acción</option>` +
-        lineasList.map(l => `<option value="${l.id}">${l.numero_orden}. ${l.nombre}</option>`).join('');
+
+      onCuboEjeChange(true);
     }
 
-    function onCuboEjeChange() {
-      const ejeId = document.getElementById('cubo-filtro-eje').value;
+    function onCuboEjeChange(skipRun = false) {
+      const ejeId = document.getElementById('cubo-filtro-eje')?.value || 'ALL';
       const estSel = document.getElementById('cubo-filtro-estrategia');
-      const linSel = document.getElementById('cubo-filtro-linea');
+      if (!estSel) return;
 
-      const estFiltradas = ejeId === 'ALL' ? estrategiasList : estrategiasList.filter(s => s.eje_id === ejeId);
-      estSel.innerHTML = `<option value="ALL">Todas las Estrategias</option>` +
-        estFiltradas.map(s => `<option value="${s.id}">${s.numero_orden}. ${s.nombre}</option>`).join('');
+      const estFiltradas = ejeId === 'ALL'
+        ? estrategiasList
+        : estrategiasList.filter(s => s.eje_id === ejeId);
 
-      const estIds = new Set(estFiltradas.map(s => s.id));
-      const linFiltradas = ejeId === 'ALL' ? lineasList : lineasList.filter(l => estIds.has(l.estrategia_id));
-      linSel.innerHTML = `<option value="ALL">Todas las Líneas de Acción</option>` +
-        linFiltradas.map(l => `<option value="${l.id}">${l.numero_orden}. ${l.nombre}</option>`).join('');
+      estSel.innerHTML = `<option value="ALL">Todas las Estrategias (${estFiltradas.length})</option>` +
+        estFiltradas.map(s => `<option value="${s.id}">${s.numero_orden ? s.numero_orden + '. ' : ''}${s.nombre}</option>`).join('');
+      estSel.value = 'ALL';
 
-      ejecutarCuboAnalitico();
+      onCuboEstrategiaChange(skipRun);
     }
 
-    function onCuboEstrategiaChange() {
-      const ejeId = document.getElementById('cubo-filtro-eje').value;
-      const estId = document.getElementById('cubo-filtro-estrategia').value;
+    function onCuboEstrategiaChange(skipRun = false) {
+      const ejeId = document.getElementById('cubo-filtro-eje')?.value || 'ALL';
+      const estId = document.getElementById('cubo-filtro-estrategia')?.value || 'ALL';
       const linSel = document.getElementById('cubo-filtro-linea');
+      if (!linSel) return;
 
       let linFiltradas = lineasList;
       if (estId !== 'ALL') {
         linFiltradas = lineasList.filter(l => l.estrategia_id === estId);
       } else if (ejeId !== 'ALL') {
-        const estIds = new Set(estrategiasList.filter(s => s.eje_id === ejeId).map(s => s.id));
-        linFiltradas = lineasList.filter(l => estIds.has(l.estrategia_id));
+        const estIdsDelEje = new Set(estrategiasList.filter(s => s.eje_id === ejeId).map(s => s.id));
+        linFiltradas = lineasList.filter(l => estIdsDelEje.has(l.estrategia_id));
       }
 
-      linSel.innerHTML = `<option value="ALL">Todas las Líneas de Acción</option>` +
-        linFiltradas.map(l => `<option value="${l.id}">${l.numero_orden}. ${l.nombre}</option>`).join('');
+      linSel.innerHTML = `<option value="ALL">Todas las Líneas de Acción (${linFiltradas.length})</option>` +
+        linFiltradas.map(l => `<option value="${l.id}">${l.numero_orden ? l.numero_orden + '. ' : ''}${l.nombre}</option>`).join('');
+      linSel.value = 'ALL';
 
-      ejecutarCuboAnalitico();
+      if (!skipRun) ejecutarCuboAnalitico();
     }
 
     function resetFiltrosCubo() {
-      document.getElementById('cubo-agrupar-por').value = 'unidad';
-      document.getElementById('cubo-corte').value = '4';
-      document.getElementById('cubo-filtro-unidad').value = 'ALL';
-      if (!esAuditorMinsal()) {
-        document.getElementById('cubo-filtro-poi').value = 'ALL';
+      const cCorte = document.getElementById('cubo-corte');
+      const cUnit = document.getElementById('cubo-filtro-unidad');
+      const cPoi = document.getElementById('cubo-filtro-poi');
+      const cEst = document.getElementById('cubo-filtro-estado');
+      const cEje = document.getElementById('cubo-filtro-eje');
+
+      if (cCorte) cCorte.value = '4';
+      if (cUnit) cUnit.value = 'ALL';
+      if (cPoi && !esAuditorMinsal()) cPoi.value = 'ALL';
+      if (cEst) cEst.value = 'ALL';
+      if (cEje) {
+        cEje.value = 'ALL';
+        onCuboEjeChange(true);
       }
-      document.getElementById('cubo-filtro-eje').value = 'ALL';
-      poblarFiltrosPeiCubo();
-      document.getElementById('cubo-filtro-estado').value = 'ALL';
       ejecutarCuboAnalitico();
     }
 
-    function evaluarActividadAlCorteCubo(a, corte) {
-      let progCorte = 0;
-      let realCorte = 0;
-      let tieneAlgunReal = false;
+    function calcularMetricasActividadAlCorte(act, corte) {
+      let progAcum = 0;
+      let realAcum = 0;
+      let tieneAlgunaEjecucion = false;
 
       for (let t = 1; t <= corte; t++) {
-        progCorte += Number(a['prog_t' + t] || 0);
-        const rVal = a['real_t' + t];
-        if (rVal !== null && rVal !== undefined && rVal !== '') {
-          realCorte += Number(rVal);
-          tieneAlgunReal = true;
+        progAcum += Number(act['prog_t' + t] || 0);
+        const valReal = act['real_t' + t];
+        if (valReal !== null && valReal !== undefined && valReal !== '') {
+          realAcum += Number(valReal);
+          tieneAlgunaEjecucion = true;
         }
       }
 
-      const evalIrrev = evaluarEstadoIrreversibleAlCorte(a, corte);
-      let estadoCubo = evalIrrev.semaforo;
-      if (estadoCubo === 'Sin programación al corte') {
-        estadoCubo = 'Pendiente';
-      }
-
+      let estado = 'Pendiente';
       let pctAcotado = null;
-      if (progCorte > 0) {
-        pctAcotado = Math.min(100, (realCorte / progCorte) * 100);
-      } else if (realCorte > 0) {
+
+      if (progAcum > 0) {
+        if (!tieneAlgunaEjecucion) {
+          estado = 'Sin registro';
+          pctAcotado = 0;
+        } else {
+          const pctBruto = (realAcum / progAcum) * 100;
+          pctAcotado = Math.min(100, pctBruto);
+          if (pctBruto >= 100) estado = 'Finalizada';
+          else if (pctBruto >= 90) estado = 'En curso';
+          else if (pctBruto >= 75) estado = 'En atención';
+          else estado = 'Con retraso';
+        }
+      } else if (realAcum > 0) {
+        estado = 'En curso';
         pctAcotado = 100;
       }
 
-      return {
-        progCorte,
-        realCorte,
-        tieneAlgunReal,
-        pctAcotado,
-        estado: estadoCubo
-      };
+      const pond = Number(act.ponderacion) || 1.0;
+      return { progAcum, realAcum, estado, pctAcotado, pond };
     }
 
     function ejecutarCuboAnalitico() {
       const tbody = document.getElementById('cubo-tabla-body');
       if (!tbody) return;
 
-      const agruparPor = document.getElementById('cubo-agrupar-por').value;
-      const corte = parseInt(document.getElementById('cubo-corte').value) || 4;
-      const fUnidad = document.getElementById('cubo-filtro-unidad').value;
-      const fPoi = esAuditorMinsal() ? 'SI' : document.getElementById('cubo-filtro-poi').value;
-      const fEje = document.getElementById('cubo-filtro-eje').value;
-      const fEst = document.getElementById('cubo-filtro-estrategia').value;
-      const fLin = document.getElementById('cubo-filtro-linea').value;
-      const fEstado = document.getElementById('cubo-filtro-estado').value;
+      const agruparPor = document.getElementById('cubo-agrupar-por')?.value || 'unidad';
+      const corte = parseInt(document.getElementById('cubo-corte')?.value || '4');
+      const fUnidad = document.getElementById('cubo-filtro-unidad')?.value || 'ALL';
+      const fPoi = esAuditorMinsal() ? 'SI' : (document.getElementById('cubo-filtro-poi')?.value || 'ALL');
+      const fEje = document.getElementById('cubo-filtro-eje')?.value || 'ALL';
+      const fEst = document.getElementById('cubo-filtro-estrategia')?.value || 'ALL';
+      const fLin = document.getElementById('cubo-filtro-linea')?.value || 'ALL';
+      const fEstado = document.getElementById('cubo-filtro-estado')?.value || 'ALL';
+
+      const estIdsPorEje = fEje !== 'ALL'
+        ? new Set(estrategiasList.filter(s => s.eje_id === fEje).map(s => s.id))
+        : null;
 
       const localTpMap = getLocalActTpMap();
 
-      let filtradas = actividadesCache.filter(a => {
-        if (fUnidad !== 'ALL' && a.unidad_ins_id !== fUnidad) return false;
-        if (fPoi === 'SI' && !a.pasa_poi) return false;
-        if (fPoi === 'NO' && a.pasa_poi) return false;
+      const filtradas = (actividadesCache || []).filter(act => {
+        if (fUnidad !== 'ALL' && act.unidad_ins_id !== fUnidad) return false;
+        if (fPoi === 'SI' && !act.pasa_poi) return false;
+        if (fPoi === 'NO' && act.pasa_poi) return false;
 
-        const linObj = lineasList.find(l => l.id === a.linea_accion_id);
-        const estObj = linObj ? estrategiasList.find(s => s.id === linObj.estrategia_id) : null;
+        const lin = act.pei_lineas_accion;
+        const est = lin?.pei_estrategias;
+        const eje = est?.pei_ejes;
 
-        if (fEje !== 'ALL' && (!estObj || estObj.eje_id !== fEje)) return false;
-        if (fEst !== 'ALL' && (!linObj || linObj.estrategia_id !== fEst)) return false;
-        if (fLin !== 'ALL' && a.linea_accion_id !== fLin) return false;
-
-        if (fEstado !== 'ALL') {
-          const ev = evaluarActividadAlCorteCubo(a, corte);
-          if (ev.estado !== fEstado) return false;
+        if (fLin !== 'ALL' && act.linea_accion_id !== fLin) return false;
+        if (fEst !== 'ALL') {
+          const estIdAct = lin?.estrategia_id || lineasList.find(l => l.id === act.linea_accion_id)?.estrategia_id;
+          if (estIdAct !== fEst) return false;
         }
+        if (fEje !== 'ALL') {
+          const estIdAct = lin?.estrategia_id || lineasList.find(l => l.id === act.linea_accion_id)?.estrategia_id;
+          const ejeIdAct = est?.eje_id || estrategiasList.find(s => s.id === estIdAct)?.eje_id;
+          if (ejeIdAct !== fEje && (!estIdsPorEje || !estIdsPorEje.has(estIdAct))) return false;
+        }
+
+        const met = calcularMetricasActividadAlCorte(act, corte);
+        if (fEstado !== 'ALL' && met.estado !== fEstado) return false;
+
         return true;
       });
 
       const gruposMap = new Map();
-      const registrarEnGrupo = (clave, etiqueta, orden, a, ev, prodsCount, progItem, realItem) => {
-        if (!gruposMap.has(clave)) {
-          gruposMap.set(clave, {
-            clave,
-            etiqueta,
-            orden,
-            actIds: new Set(),
-            prodsCount: 0,
-            progSuma: 0,
-            realSuma: 0,
-            pctsSimple: [],
-            sumaPondPct: 0,
-            sumaPesos: 0
-          });
-        }
-        const g = gruposMap.get(clave);
-        g.actIds.add(a.id);
-        g.prodsCount += prodsCount;
-        g.progSuma += progItem;
-        g.realSuma += realItem;
-
-        if (ev.pctAcotado !== null) {
-          const peso = Number(a.ponderacion || 1);
-          g.pctsSimple.push(ev.pctAcotado);
-          g.sumaPondPct += ev.pctAcotado * peso;
-          g.sumaPesos += peso;
-        }
-      };
-
-      let totalProdsGlobal = 0;
+      let totalProdsFiltrados = 0;
       let totalProgGlobal = 0;
       let totalRealGlobal = 0;
-      let pctsGlobal = [];
-      let pondPctGlobal = 0;
-      let pesosGlobal = 0;
+      let sumaPctSimpleGlobal = 0;
+      let contPctSimpleGlobal = 0;
+      let sumaPondNumGlobal = 0;
+      let sumaPondDenGlobal = 0;
 
-      filtradas.forEach(a => {
-        const ev = evaluarActividadAlCorteCubo(a, corte);
-        const prodsHijos = productosCicloCache.filter(p => p.actividad_poa_id === a.id);
+      filtradas.forEach(act => {
+        const met = calcularMetricasActividadAlCorte(act, corte);
+        const prodsHijos = productosCicloCache.filter(p => p.actividad_poa_id === act.id);
+        totalProdsFiltrados += prodsHijos.length;
 
-        totalProdsGlobal += prodsHijos.length;
-        totalProgGlobal += ev.progCorte;
-        totalRealGlobal += ev.realCorte;
-        if (ev.pctAcotado !== null) {
-          const peso = Number(a.ponderacion || 1);
-          pctsGlobal.push(ev.pctAcotado);
-          pondPctGlobal += ev.pctAcotado * peso;
-          pesosGlobal += peso;
+        totalProgGlobal += met.progAcum;
+        totalRealGlobal += met.realAcum;
+        if (met.pctAcotado !== null) {
+          sumaPctSimpleGlobal += met.pctAcotado;
+          contPctSimpleGlobal += 1;
+          sumaPondNumGlobal += met.pctAcotado * met.pond;
+          sumaPondDenGlobal += met.pond;
         }
 
+        const lin = act.pei_lineas_accion;
+        const est = lin?.pei_estrategias;
+        const eje = est?.pei_ejes;
+
+        let keysGrupo = [];
         if (agruparPor === 'unidad') {
-          const nom = a.unidades_ins?.nombre || 'Sin Unidad Asignada';
-          registrarEnGrupo(a.unidad_ins_id || nom, nom, nom, a, ev, prodsHijos.length, ev.progCorte, ev.realCorte);
+          keysGrupo = [act.unidades_ins?.nombre || 'Sin Unidad Asignada'];
         } else if (agruparPor === 'eje') {
-          const eje = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
-          const label = eje ? `Eje ${eje.numero_orden}. ${eje.nombre}` : 'Sin Eje Asignado';
-          const ord = eje ? Number(eje.numero_orden) : 999;
-          registrarEnGrupo(String(ord), label, ord, a, ev, prodsHijos.length, ev.progCorte, ev.realCorte);
+          keysGrupo = [eje ? `Eje ${eje.numero_orden}. ${eje.nombre}` : 'Sin Eje Estratégico'];
         } else if (agruparPor === 'estrategia') {
-          const est = a.pei_lineas_accion?.pei_estrategias;
-          const label = est ? `${est.numero_orden ? est.numero_orden + '. ' : ''}${est.nombre}` : 'Sin Estrategia';
-          registrarEnGrupo(label, label, label, a, ev, prodsHijos.length, ev.progCorte, ev.realCorte);
+          keysGrupo = [est ? `${est.numero_orden ? est.numero_orden + '. ' : ''}${est.nombre}` : 'Sin Estrategia'];
         } else if (agruparPor === 'responsable') {
-          const resp = (a.responsable_nombre || 'Sin Responsable').trim();
-          registrarEnGrupo(resp.toLowerCase(), resp, resp, a, ev, prodsHijos.length, ev.progCorte, ev.realCorte);
+          keysGrupo = [(act.responsable_nombre || 'Sin Responsable').trim()];
         } else if (agruparPor === 'estado') {
-          registrarEnGrupo(ev.estado, ev.estado, ev.estado, a, ev, prodsHijos.length, ev.progCorte, ev.realCorte);
+          keysGrupo = [met.estado];
         } else if (agruparPor === 'tipo_producto') {
-          if (a.consolida_desde_productos && prodsHijos.length > 0) {
-            prodsHijos.forEach(p => {
-              const tp = p.catalogo_tipos_producto || tiposProductoList.find(t => t.id === p.tipo_producto_id);
-              const tpNom = tp ? tp.nombre : 'Producto Específico INS';
-              let pProg = 0, pReal = 0;
-              for (let t = 1; t <= corte; t++) {
-                pProg += Number(p['prog_num_t' + t] || 0);
-                pReal += Number(p['real_num_t' + t] || 0);
-              }
-              const pPct = pProg > 0 ? Math.min(100, (pReal / pProg) * 100) : (pReal > 0 ? 100 : null);
-              registrarEnGrupo(tpNom, tpNom, tpNom, a, { pctAcotado: pPct }, 1, pProg, pReal);
-            });
+          if (prodsHijos.length > 0) {
+            const nombresProd = [...new Set(prodsHijos.map(p => p.catalogo_tipos_producto?.nombre || p.nombre_producto || 'Producto INS'))];
+            keysGrupo = nombresProd;
           } else {
-            const tpId = a.tipo_producto_id || localTpMap[a.id];
-            const tp = tpId ? tiposProductoList.find(t => t.id === tpId) : null;
-            const tpNom = tp ? tp.nombre : 'Actividad Directa (Sin tipo producto catalogado)';
-            registrarEnGrupo(tpNom, tpNom, tpNom, a, ev, 0, ev.progCorte, ev.realCorte);
+            const tpId = act.tipo_producto_id || localTpMap[act.id];
+            const tpObj = tpId ? tiposProductoList.find(t => t.id === tpId) : null;
+            keysGrupo = [tpObj ? tpObj.nombre : (act.consolida_desde_productos ? 'Consolidado (sin productos cargados)' : 'Actividad directa sin tipo')];
           }
         }
+
+        keysGrupo.forEach(gKey => {
+          if (!gruposMap.has(gKey)) {
+            gruposMap.set(gKey, {
+              dimension: gKey,
+              actsSet: new Set(),
+              prodsCount: 0,
+              progSum: 0,
+              realSum: 0,
+              simpleSum: 0,
+              simpleCount: 0,
+              pondNum: 0,
+              pondDen: 0
+            });
+          }
+          const g = gruposMap.get(gKey);
+          g.actsSet.add(act.id);
+          g.prodsCount += prodsHijos.length;
+          g.progSum += met.progAcum;
+          g.realSum += met.realAcum;
+          if (met.pctAcotado !== null) {
+            g.simpleSum += met.pctAcotado;
+            g.simpleCount += 1;
+            g.pondNum += met.pctAcotado * met.pond;
+            g.pondDen += met.pond;
+          }
+        });
       });
 
-      const filasCubo = [...gruposMap.values()].map(g => {
-        const simple = g.pctsSimple.length ? (g.pctsSimple.reduce((x, y) => x + y, 0) / g.pctsSimple.length) : 0;
-        const pond = g.sumaPesos > 0 ? (g.sumaPondPct / g.sumaPesos) : 0;
-        return {
-          dimension: g.etiqueta,
-          orden: g.orden,
-          actividades: g.actIds.size,
+      const resultados = [...gruposMap.values()]
+        .map(g => ({
+          dimension: g.dimension,
+          actividades: g.actsSet.size,
           productos: g.prodsCount,
-          progSuma: g.progSuma,
-          realSuma: g.realSuma,
-          pctSimple: Number(simple.toFixed(1)),
-          pctPonderado: Number(pond.toFixed(1))
-        };
-      }).sort((a, b) => {
-        if (typeof a.orden === 'number' && typeof b.orden === 'number') return a.orden - b.orden;
-        return String(a.dimension).localeCompare(String(b.dimension), 'es');
-      });
+          programado: Number(g.progSum.toFixed(1)),
+          realizado: Number(g.realSum.toFixed(1)),
+          pctSimple: g.simpleCount > 0 ? Number((g.simpleSum / g.simpleCount).toFixed(1)) : 0,
+          pctPonderado: g.pondDen > 0 ? Number((g.pondNum / g.pondDen).toFixed(1)) : 0
+        }))
+        .sort((a, b) => b.pctPonderado - a.pctPonderado || b.actividades - a.actividades);
 
-      cuboResultadosCache = filasCubo;
+      cuboResultadosCache = resultados;
 
-      const avgSimpleGlobal = pctsGlobal.length ? (pctsGlobal.reduce((x, y) => x + y, 0) / pctsGlobal.length) : 0;
-      const avgPondGlobal = pesosGlobal > 0 ? (pondPctGlobal / pesosGlobal) : 0;
+      const simpleGlobal = contPctSimpleGlobal > 0 ? (sumaPctSimpleGlobal / contPctSimpleGlobal) : 0;
+      const pondGlobal = sumaPondDenGlobal > 0 ? (sumaPondNumGlobal / sumaPondDenGlobal) : 0;
 
       document.getElementById('cubo-kpi-acts').textContent = filtradas.length;
-      document.getElementById('cubo-kpi-prods').textContent = `${totalProdsGlobal} productos hijos`;
+      document.getElementById('cubo-kpi-prods').textContent = `${totalProdsFiltrados} productos hijos`;
       document.getElementById('cubo-kpi-prog').textContent = totalProgGlobal.toFixed(1);
       document.getElementById('cubo-kpi-real').textContent = totalRealGlobal.toFixed(1);
-      document.getElementById('cubo-kpi-simple').textContent = `${avgSimpleGlobal.toFixed(1)}%`;
-      document.getElementById('cubo-kpi-ponderado').textContent = `${avgPondGlobal.toFixed(1)}%`;
+      document.getElementById('cubo-kpi-simple').textContent = simpleGlobal.toFixed(1) + '%';
+      document.getElementById('cubo-kpi-ponderado').textContent = pondGlobal.toFixed(1) + '%';
 
       const titulosDim = {
         unidad: 'Unidad Organizativa INS',
@@ -5631,180 +5118,286 @@ document.getElementById('btn-sintetizar-foda').addEventListener('click', async (
         responsable: 'Persona Responsable',
         estado: 'Estado / Semáforo'
       };
-      document.getElementById('cubo-tabla-titulo').textContent = `Resultados Agrupados por ${titulosDim[agruparPor]}`;
-      document.getElementById('cubo-th-dimension').textContent = titulosDim[agruparPor];
-      document.getElementById('cubo-grupos-count').textContent = `${filasCubo.length} grupo(s)`;
+      document.getElementById('cubo-tabla-titulo').textContent = `Resultados Agrupados por ${titulosDim[agruparPor] || 'Dimensión'}`;
+      document.getElementById('cubo-th-dimension').textContent = titulosDim[agruparPor] || 'Dimensión';
+      document.getElementById('cubo-grupos-count').textContent = `${resultados.length} grupo${resultados.length === 1 ? '' : 's'}`;
 
-      if (filasCubo.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No existen actividades que cumplan con la combinación de filtros seleccionada.</td></tr>`;
+      if (!resultados.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No hay actividades que coincidan con los filtros seleccionados.</td></tr>`;
       } else {
-        tbody.innerHTML = filasCubo.map(r => `
+        tbody.innerHTML = resultados.map(r => `
           <tr class="hover:bg-slate-50">
-            <td class="px-3 py-2.5 font-medium text-slate-800">${r.dimension}</td>
-            <td class="px-2.5 py-2.5 text-center font-semibold text-slate-700">${r.actividades}</td>
-            <td class="px-2.5 py-2.5 text-center text-slate-500">${r.productos}</td>
-            <td class="px-2.5 py-2.5 text-right text-slate-600">${r.progSuma.toFixed(1)}</td>
-            <td class="px-2.5 py-2.5 text-right font-semibold text-emerald-700">${r.realSuma.toFixed(1)}</td>
+            <td class="px-3 py-2.5 font-semibold text-slate-800">${r.dimension}</td>
+            <td class="px-2.5 py-2.5 text-center font-medium">${r.actividades}</td>
+            <td class="px-2.5 py-2.5 text-center text-slate-600">${r.productos}</td>
+            <td class="px-2.5 py-2.5 text-right text-slate-700">${r.programado.toFixed(1)}</td>
+            <td class="px-2.5 py-2.5 text-right font-semibold text-emerald-700">${r.realizado.toFixed(1)}</td>
             <td class="px-2.5 py-2.5 text-right font-bold text-sky-700">${r.pctSimple.toFixed(1)}%</td>
             <td class="px-2.5 py-2.5 text-right font-bold text-indigo-700">${r.pctPonderado.toFixed(1)}%</td>
           </tr>
         `).join('');
       }
 
-      renderChartCuboDinamico(filasCubo);
+      renderChartCuboDinamico(resultados);
     }
 
-    function renderChartCuboDinamico(rows) {
+    function renderChartCuboDinamico(resultados) {
       const canvas = document.getElementById('chart-cubo-dinamico');
       if (!canvas || !window.Chart) return;
-      if (charts.cubo) charts.cubo.destroy();
+      const topItems = resultados.slice(0, 10);
+      const labels = topItems.map(x => x.dimension.length > 26 ? x.dimension.slice(0, 26) + '…' : x.dimension);
 
-      const topRows = rows.slice(0, 14);
+      if (charts.cubo) charts.cubo.destroy();
       charts.cubo = new Chart(canvas, {
         type: 'bar',
         data: {
-          labels: topRows.map(r => r.dimension.length > 26 ? r.dimension.substring(0, 26) + '...' : r.dimension),
+          labels,
           datasets: [
-            { label: '% Simple', data: topRows.map(r => r.pctSimple), backgroundColor: '#0284c7', borderRadius: 4 },
-            { label: '% Ponderado', data: topRows.map(r => r.pctPonderado), backgroundColor: '#4f46e5', borderRadius: 4 }
+            { label: '% Simple', data: topItems.map(x => x.pctSimple), backgroundColor: '#0284c7', borderRadius: 4 },
+            { label: '% Ponderado', data: topItems.map(x => x.pctPonderado), backgroundColor: '#4f46e5', borderRadius: 4 }
           ]
         },
         options: {
-          indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          scales: { x: { max: 100, beginAtZero: true } },
+          scales: { y: { beginAtZero: true, max: 100 } },
           plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
         }
       });
     }
 
-    async function exportarCuboExcel() {
-      if (!cuboResultadosCache.length) return alert('No hay datos en la consulta actual para exportar.');
-      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
-      const anioCiclo = cicloObj?.anio || new Date().getFullYear();
-
-      const wb = new ExcelJS.Workbook();
-      const ws = wb.addWorksheet('Consulta Dinamica INS');
-      ws.addRow([`INSTITUTO NACIONAL DE SALUD (INS) - CONSULTA ANALÍTICA PAO ${anioCiclo}`]);
-      ws.getRow(1).font = { bold: true, size: 12 };
-      ws.addRow([`Fecha de exportación: ${new Date().toLocaleDateString('es-SV')}`]);
-      ws.addRow([]);
-
-      const header = ws.addRow(['Dimensión Agrupada', 'Actividades', 'Productos Hijos', 'Meta Prog. Corte', 'Ejecución Real', '% Cumplimiento Simple', '% Cumplimiento Ponderado']);
-      header.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      header.eachCell(c => {
-        c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0369A1' } };
-      });
+    function exportarCuboCSV() {
+      if (!cuboResultadosCache.length) return alert('No hay resultados en la consulta actual para exportar.');
+      const dimLabel = document.getElementById('cubo-th-dimension')?.textContent || 'Dimension';
+      const headers = [dimLabel, 'Actividades', 'Productos_Hijos', 'Meta_Programada', 'Ejecucion_Realizada', 'Pct_Cumplimiento_Simple', 'Pct_Cumplimiento_Ponderado'];
+      const lineas = [headers.join(',')];
 
       cuboResultadosCache.forEach(r => {
-        ws.addRow([r.dimension, r.actividades, r.productos, r.progSuma, r.realSuma, r.pctSimple / 100, r.pctPonderado / 100]);
+        const fila = [
+          `"${String(r.dimension).replace(/"/g, '""')}"`,
+          r.actividades,
+          r.productos,
+          r.programado,
+          r.realizado,
+          r.pctSimple,
+          r.pctPonderado
+        ];
+        lineas.push(fila.join(','));
       });
 
-      ws.getColumn(1).width = 45;
-      [2, 3, 4, 5, 6, 7].forEach(idx => { ws.getColumn(idx).width = 18; });
-      ws.getColumn(6).numFmt = '0.0%';
-      ws.getColumn(7).numFmt = '0.0%';
+      const blob = new Blob(['\uFEFF' + lineas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Consulta_Dinamica_PAO_INS.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function exportarCuboExcel() {
+      if (!cuboResultadosCache.length || !window.ExcelJS) {
+        return exportarCuboCSV();
+      }
+      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
+      const anio = cicloObj?.anio || new Date().getFullYear();
+      const dimLabel = document.getElementById('cubo-th-dimension')?.textContent || 'Dimensión';
+
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet('Consulta PAO');
+
+      ws.mergeCells('A1:G1');
+      ws.getCell('A1').value = `CONSULTA ANALÍTICA DINÁMICA PAO ${anio} — INSTITUTO NACIONAL DE SALUD (INS)`;
+      ws.getCell('A1').font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF0C4A6E' } };
+
+      const cols = [dimLabel, 'Actividades', 'Productos Hijos', 'Meta Programada', 'Ejecución Realizada', '% Simple', '% Ponderado'];
+      const hRow = ws.getRow(3);
+      cols.forEach((c, idx) => {
+        const cell = hRow.getCell(idx + 1);
+        cell.value = c;
+        cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0369A1' } };
+        cell.alignment = { horizontal: idx === 0 ? 'left' : 'center', vertical: 'middle' };
+      });
+
+      ws.columns = [
+        { width: 42 }, { width: 14 }, { width: 16 }, { width: 18 }, { width: 20 }, { width: 14 }, { width: 16 }
+      ];
+
+      cuboResultadosCache.forEach((r, i) => {
+        const row = ws.getRow(4 + i);
+        row.values = [r.dimension, r.actividades, r.productos, r.programado, r.realizado, r.pctSimple / 100, r.pctPonderado / 100];
+        row.getCell(6).numFmt = '0.0%';
+        row.getCell(7).numFmt = '0.0%';
+        for (let c = 1; c <= 7; c++) {
+          row.getCell(c).border = {
+            top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+            bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+          };
+        }
+      });
 
       const buf = await wb.xlsx.writeBuffer();
       const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Consulta_Analitica_PAO_${anioCiclo}_INS.xlsx`;
+      a.download = `Consulta_Dinamica_PAO_${anio}_INS.xlsx`;
       a.click();
       URL.revokeObjectURL(url);
     }
 
-    function exportarCuboCSV() {
-      if (!cuboResultadosCache.length) return alert('No hay datos en la consulta actual para exportar.');
-      const lineas = [
-        ['Dimension Agrupada', 'Actividades', 'Productos Hijos', 'Meta Prog Corte', 'Ejecucion Real', '% Simple', '% Ponderado'].join(','),
-        ...cuboResultadosCache.map(r => [
-          `"${String(r.dimension).replace(/"/g, '""')}"`,
-          r.actividades,
-          r.productos,
-          r.progSuma.toFixed(2),
-          r.realSuma.toFixed(2),
-          r.pctSimple.toFixed(1),
-          r.pctPonderado.toFixed(1)
-        ].join(','))
-      ];
-      const blob = new Blob(['\ufeff', lineas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    document.getElementById('btn-generar-informe').addEventListener('click', async () => {
+      const trim = parseInt(document.getElementById('inf-trimestre').value);
+      const cicloObj = ciclosList.find(c => c.id === activeCicloId);
+      const anio = cicloObj?.anio || new Date().getFullYear();
+
+      const { data: rowsDash } = await sb.from('vw_dashboard_operativo_anual')
+        .select('*')
+        .eq('ciclo_id', activeCicloId)
+        .eq('trimestre_corte', trim);
+
+      const { data: prods } = await sb.from('productos_poa')
+        .select('*, catalogo_tipos_producto(nombre, codigo), actividades_poa!inner(ciclo_id, unidad_ins_id, unidades_ins(nombre))')
+        .eq('actividades_poa.ciclo_id', activeCicloId);
+
+      const { data: evs } = await sb.from('evidencias_poa')
+        .select('*, actividades_poa(actividad, unidades_ins(nombre))')
+        .eq('ciclo_id', activeCicloId)
+        .eq('trimestre', trim);
+
+      const { data: riesgosMat } = await sb.from('riesgos_poa')
+        .select('*, unidades_ins(nombre)')
+        .eq('ciclo_id', activeCicloId);
+
+      const dash = rowsDash || [];
+      const validas = dash.filter(d => d.pct_cumplimiento_corte_acotado !== null);
+      const promAcotado = validas.length ? (validas.reduce((a, b) => a + Number(b.pct_cumplimiento_corte_acotado), 0) / validas.length).toFixed(1) : '0.0';
+
+      const campoReal = `real_num_t${trim}`;
+      const campoProg = `prog_num_t${trim}`;
+      const resumenProd = {};
+      (prods || []).forEach(p => {
+        const tipo = p.catalogo_tipos_producto?.nombre || 'Producto INS';
+        if (!resumenProd[tipo]) resumenProd[tipo] = { prog: 0, real: 0 };
+        resumenProd[tipo].prog += Number(p[campoProg] || 0);
+        resumenProd[tipo].real += Number(p[campoReal] || 0);
+      });
+
+      const lineasProd = Object.keys(resumenProd).length
+        ? Object.entries(resumenProd).map(([k, v]) => `  • ${k}: ${v.real} realizados de ${v.prog} programados en el T${trim}.`).join('\n')
+        : '  • Sin productos desglosados registrados en este corte.';
+
+      const retrasos = (evs || []).filter(e => e.categoria !== 'evidencia_cumplimiento');
+      const lineasRetrasos = retrasos.length
+        ? retrasos.map(r => `  • [${r.actividades_poa?.unidades_ins?.nombre || 'INS'}] ${r.titulo} (${r.causa_raiz || 'Sin causa'}): ${r.descripcion}`).join('\n')
+        : '  • No se reportaron justificaciones de retraso en este trimestre.';
+
+      const riesgosMatTrim = (riesgosMat || []).filter(rk => rk[`materializo_t${trim}`]);
+      const lineasRiesgos = riesgosMatTrim.length
+        ? riesgosMatTrim.map(rk => `  • [${rk.unidades_ins?.nombre || 'INS'}] ${rk.proceso_nombre} — Riesgo: ${rk.riesgo_descripcion}. Acción tomada: ${rk.accion_tomada || 'Pendiente de registro'}`).join('\n')
+        : `  • Ningún riesgo de la matriz se materializó durante el Trimestre ${trim}.`;
+
+      const borrador = `INFORME GERENCIAL DE EJECUCIÓN OPERATIVA (PAO ${anio})
+INSTITUTO NACIONAL DE SALUD — EL SALVADOR
+CORTE DE EVALUACIÓN: TRIMESTRE ${trim} (ACUMULADO)
+Fecha de emisión: ${new Date().toLocaleDateString('es-SV')}
+
+1. RESUMEN EJECUTIVO INSTITUCIONAL
+Al cierre del Trimestre ${trim} del ciclo PAO ${anio}, el Instituto Nacional de Salud (INS) registra un cumplimiento promedio acumulado acotado del ${promAcotado}% sobre ${dash.length} actividades operativas evaluadas en el sistema.
+- Actividades finalizadas (100%): ${dash.filter(d => d.semaforo_calculado === 'Finalizada').length}
+- En curso / ritmo adecuado: ${dash.filter(d => d.semaforo_calculado === 'En curso' || d.semaforo_calculado === 'En atención').length}
+- Con retraso o sin registro oportuno: ${dash.filter(d => d.semaforo_calculado === 'Con retraso' || d.semaforo_calculado === 'Sin registro').length}
+
+2. PRODUCCIÓN CIENTÍFICA, LABORATORIAL Y TÉCNICA DEL INS (TRIMESTRE ${trim})
+${lineasProd}
+
+3. JUSTIFICACIONES DE DESVIACIONES Y ACCIONES CORRECTIVAS
+${lineasRetrasos}
+
+4. SEGUIMIENTO DE RIESGOS MATERIALIZADOS EN EL TRIMESTRE ${trim}
+${lineasRiesgos}
+
+5. CONCLUSIONES Y RECOMENDACIONES A LA DIRECCIÓN DEL INS
+Se recomienda dar seguimiento prioritario a las actividades con avance inferior al 75% y verificar que cuenten con su respectivo respaldo documental en la bóveda del sistema para los reportes oficiales al MINSAL.`;
+
+      document.getElementById('informe-editor').value = borrador;
+    });
+
+    document.getElementById('btn-descargar-word').addEventListener('click', () => {
+      const texto = document.getElementById('informe-editor').value;
+      if (!texto.trim()) return alert('Primero genera o redacta el informe en el editor.');
+      const trim = document.getElementById('inf-trimestre').value;
+      const htmlDoc = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>Informe Gerencial INS T${trim}</title>
+        <style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.5;color:#1e293b;}</style></head>
+        <body>${texto.split('\n').map(line => `<p>${line || '&nbsp;'}</p>`).join('')}</body></html>`;
+      const blob = new Blob(['\ufeff', htmlDoc], { type: 'application/msword' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Consulta_Analitica_PAO_INS.csv`;
+      a.download = `Informe_Gerencial_INS_T${trim}.doc`;
       a.click();
       URL.revokeObjectURL(url);
-    }
+    });
 
     function renderConfigTables() {
-      const enriquecidos = tiposProductoList.map(t => ({
-        ...t,
-        _cat: inferirCategoriaProducto(t)
-      })).sort((a, b) => a._cat.localeCompare(b._cat) || a.nombre.localeCompare(b.nombre));
+      const catFilterEl = document.getElementById('filtro-cat-tp');
+      const prevCatFilter = catFilterEl ? catFilterEl.value : 'ALL';
 
-      const catSelect = document.getElementById('filtro-cat-tp');
-      const catActual = catSelect ? catSelect.value : 'ALL';
-      const categoriasUnicas = [...new Set(enriquecidos.map(t => t._cat))].sort();
-      if (catSelect) {
-        catSelect.innerHTML = `<option value="ALL">Todas las Categorías (${enriquecidos.length})</option>` +
-          categoriasUnicas.map(c => `<option value="${c}" ${c === catActual ? 'selected' : ''}>${c}</option>`).join('');
+      const enrichedTp = tiposProductoList.map(t => ({
+        ...t,
+        _categoria: inferirCategoriaProducto(t)
+      }));
+
+      const categoriasDisponibles = [...new Set(enrichedTp.map(t => t._categoria))].sort((a, b) => a.localeCompare(b));
+      if (catFilterEl) {
+        catFilterEl.innerHTML = `<option value="ALL">Todas las Categorías (${enrichedTp.length})</option>` +
+          categoriasDisponibles.map(c => `<option value="${c}">${c}</option>`).join('');
+        if ([...catFilterEl.options].some(o => o.value === prevCatFilter)) {
+          catFilterEl.value = prevCatFilter;
+        }
       }
 
-      const filtrados = catActual === 'ALL' ? enriquecidos : enriquecidos.filter(t => t._cat === catActual);
+      const activeCat = catFilterEl ? catFilterEl.value : 'ALL';
+      const visiblesTp = activeCat === 'ALL'
+        ? enrichedTp
+        : enrichedTp.filter(t => t._categoria === activeCat);
 
-      document.getElementById('tabla-tipos-producto').innerHTML = filtrados.map(t => `
+      document.getElementById('tabla-tipos-producto').innerHTML = visiblesTp.map(t => `
         <tr class="hover:bg-slate-50">
-          <td class="py-2 px-2"><span class="px-2 py-0.5 rounded bg-sky-50 text-sky-800 font-semibold text-[10px] border border-sky-100">${t._cat}</span></td>
-          <td class="py-2 px-2 font-mono text-[11px] font-bold text-slate-700">${t.codigo}</td>
+          <td class="py-2 px-2"><span class="px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200 text-[10px] font-semibold">${t._categoria}</span></td>
+          <td class="py-2 px-2 font-mono font-semibold">${t.codigo}</td>
           <td class="py-2 px-2 font-medium text-slate-800">${t.nombre}</td>
-          <td class="py-2 px-2 text-slate-500">${t.unidad_medida_default}</td>
+          <td class="py-2 px-2 text-slate-600">${t.unidad_medida_default}</td>
+          <td class="py-2 px-2 text-center">${t.activo ? '<span class="text-emerald-600 font-semibold">Activo</span>' : '<span class="text-slate-400">Inactivo</span>'}</td>
           <td class="py-2 px-2 text-center">
-            <button onclick="toggleTipoProducto('${t.id}', ${!t.activo})" class="px-2 py-0.5 rounded text-[10px] font-semibold ${t.activo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}">
-              ${t.activo ? 'Activo' : 'Inactivo'}
-            </button>
-          </td>
-          <td class="py-2 px-2 text-center">
-            <button onclick="abrirEditarTipoProducto('${t.id}')" title="Editar nombre, código, unidad o categoría"
-              class="p-1 bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 rounded border border-slate-200 transition">
-              <i data-lucide="pencil" class="w-3 h-3"></i>
-            </button>
+            <button type="button" onclick="abrirEditarTipoProducto('${t.id}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-sky-100 text-sky-800 font-semibold text-[11px]">Editar</button>
           </td>
         </tr>
       `).join('');
 
       document.getElementById('lista-ciclos-admin').innerHTML = ciclosList.map(c => `
-        <div class="flex justify-between items-center p-2.5 bg-slate-50 rounded-lg border">
-          <div>
-            <span class="font-bold">Ciclo PAO ${c.anio}</span>
-            <span class="ml-2 px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[10px] uppercase">${c.estado}</span>
-          </div>
-          ${c.estado !== 'cerrado' ? `<button onclick="cambiarEstadoCiclo('${c.id}', 'cerrado')" class="text-rose-600 hover:underline font-semibold">Cerrar Año</button>` : '<span class="text-slate-400">Archivado</span>'}
+        <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-50 border">
+          <div><span class="font-bold">PAO ${c.anio}</span> <span class="text-slate-400">(${c.estado})</span></div>
+          <span class="text-[11px] text-sky-700 font-semibold">${c.id === activeCicloId ? 'Activo en pantalla' : ''}</span>
         </div>
       `).join('');
 
-      const refContainer = document.getElementById('lista-referentes-admin');
-      if (refContainer) {
-        refContainer.innerHTML = referentesList.map(r => {
-          const u = unidadesList.find(x => x.id === r.unidad_id);
-          return `
-            <div class="py-2 flex items-center justify-between gap-2">
-              <div>
-                <div class="font-semibold text-slate-800">${r.nombre}</div>
-                <div class="text-[10px] text-slate-500">${u ? u.nombre : 'INS'} • ${r.cargo || 'Referente'}</div>
-              </div>
-              ${r.origen === 'local'
-                ? `<button onclick="eliminarReferenteLocal('${r.id}')" title="Quitar del directorio" class="text-rose-600 hover:underline text-[11px] font-semibold">Quitar</button>`
-                : `<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Usuario Activo</span>`
-              }
+      document.getElementById('lista-referentes-admin').innerHTML = referentesList.map(r => {
+        const u = unidadesList.find(x => x.id === r.unidad_id);
+        return `
+          <div class="py-2 flex items-center justify-between gap-2">
+            <div>
+              <div class="font-semibold text-slate-800">${r.nombre}</div>
+              <div class="text-[10px] text-slate-500">${r.cargo || 'Referente Técnico'} • ${u ? u.nombre : 'INS'}</div>
             </div>
-          `;
-        }).join('');
-      }
-
-      window.renderIconsSafe();
+            <span class="text-[10px] px-1.5 py-0.5 rounded ${r.origen === 'supabase' ? 'bg-emerald-50 text-emerald-700' : 'bg-sky-50 text-sky-700'} font-medium">
+              ${r.origen === 'supabase' ? 'Perfil' : 'Directorio'}
+            </span>
+          </div>
+        `;
+      }).join('');
     }
 
     function abrirEditarTipoProducto(id) {
@@ -5821,74 +5414,82 @@ document.getElementById('btn-sintetizar-foda').addEventListener('click', async (
     document.getElementById('form-editar-tp').addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = document.getElementById('edit-tp-id').value;
-      const cat = document.getElementById('edit-tp-categoria').value.trim() || 'General INS';
+      const cat = document.getElementById('edit-tp-categoria').value.trim();
       const codigo = document.getElementById('edit-tp-codigo').value.trim();
       const nombre = document.getElementById('edit-tp-nombre').value.trim();
       const unidad = document.getElementById('edit-tp-unidad').value.trim();
 
-      let { error } = await sb.from('catalogo_tipos_producto')
-        .update({ codigo, nombre, unidad_medida_default: unidad, categoria: cat })
-        .eq('id', id);
+      setLocalTpCat(id, cat || null);
+
+      let { error } = await sb.from('catalogo_tipos_producto').update({
+        codigo,
+        nombre,
+        unidad_medida_default: unidad,
+        categoria: cat || null
+      }).eq('id', id);
 
       if (error && error.message && error.message.includes('categoria')) {
-        const retry = await sb.from('catalogo_tipos_producto')
-          .update({ codigo, nombre, unidad_medida_default: unidad })
-          .eq('id', id);
+        const retry = await sb.from('catalogo_tipos_producto').update({
+          codigo,
+          nombre,
+          unidad_medida_default: unidad
+        }).eq('id', id);
         error = retry.error;
       }
 
       if (error) {
         alert('Error al actualizar tipo de producto: ' + error.message);
       } else {
-        setLocalTpCat(id, cat);
-        const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
-        tiposProductoList = data || [];
         cerrarModal('modal-editar-tp');
-        renderConfigTables();
+        await window.initMasterData();
       }
     });
 
     document.getElementById('form-nuevo-tipo-producto').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const cat = document.getElementById('tp-categoria').value.trim() || 'General INS';
-      const payload = {
-        codigo: document.getElementById('tp-codigo').value.trim(),
-        nombre: document.getElementById('tp-nombre').value.trim(),
-        unidad_medida_default: document.getElementById('tp-unidad').value.trim(),
-        categoria: cat
-      };
+      const cat = document.getElementById('tp-categoria').value.trim();
+      const codigo = document.getElementById('tp-codigo').value.trim();
+      const nombre = document.getElementById('tp-nombre').value.trim();
+      const unidad = document.getElementById('tp-unidad').value.trim();
 
-      let { data: inserted, error } = await sb.from('catalogo_tipos_producto').insert(payload).select().single();
+      let { data: inserted, error } = await sb.from('catalogo_tipos_producto').insert({
+        codigo,
+        nombre,
+        unidad_medida_default: unidad,
+        categoria: cat || null,
+        activo: true
+      }).select().single();
+
       if (error && error.message && error.message.includes('categoria')) {
-        delete payload.categoria;
-        const retry = await sb.from('catalogo_tipos_producto').insert(payload).select().single();
+        const retry = await sb.from('catalogo_tipos_producto').insert({
+          codigo,
+          nombre,
+          unidad_medida_default: unidad,
+          activo: true
+        }).select().single();
         inserted = retry.data;
         error = retry.error;
       }
 
-      if (error) alert(error.message);
-      else {
-        if (inserted?.id) setLocalTpCat(inserted.id, cat);
+      if (error) {
+        alert(error.message);
+      } else {
+        if (inserted?.id && cat) setLocalTpCat(inserted.id, cat);
         e.target.reset();
-        const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
-        tiposProductoList = data || [];
-        renderConfigTables();
+        await window.initMasterData();
       }
     });
 
-    async function toggleTipoProducto(id, estado) {
-      await sb.from('catalogo_tipos_producto').update({ activo: estado }).eq('id', id);
-      const { data } = await sb.from('catalogo_tipos_producto').select('*').order('nombre');
-      tiposProductoList = data || [];
-      renderConfigTables();
-    }
-
     document.getElementById('form-nuevo-ciclo').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const anio = parseInt(document.getElementById('ciclo-anio').value);
+      const planId = document.getElementById('ciclo-plan-id').value;
       const { error } = await sb.from('ciclos_anuales').insert({
-        anio: parseInt(document.getElementById('ciclo-anio').value),
-        plan_estrategico_id: document.getElementById('ciclo-plan-id').value,
-        estado: 'abierto'
+        plan_estrategico_id: planId,
+        anio,
+        fecha_inicio: `${anio}-01-01`,
+        fecha_fin: `${anio}-12-31`,
+        estado: 'borrador'
       });
       if (error) alert(error.message);
       else {
@@ -5897,45 +5498,150 @@ document.getElementById('btn-sintetizar-foda').addEventListener('click', async (
       }
     });
 
-    async function cambiarEstadoCiclo(id, estado) {
-      if (!confirm('¿Confirmas cerrar este ciclo anual? Las unidades operativas ya no podrán modificar sus cifras.')) return;
-      await sb.from('ciclos_anuales').update({ estado }).eq('id', id);
-      await window.initMasterData();
-    }
-
     document.getElementById('form-nuevo-referente').addEventListener('submit', (e) => {
       e.preventDefault();
       const nombre = document.getElementById('ref-nombre').value.trim();
-      const unidad_id = document.getElementById('ref-unidad').value;
+      const unidadId = document.getElementById('ref-unidad').value;
       const cargo = document.getElementById('ref-cargo').value.trim() || 'Referente Técnico';
       if (!nombre) return;
 
       let locales = [];
       try { locales = JSON.parse(localStorage.getItem(LOCAL_REF_KEY) || '[]'); } catch { locales = []; }
-      const nuevo = { id: 'loc-' + Date.now(), nombre, unidad_id, cargo, origen: 'local' };
-      locales.push(nuevo);
+      locales.push({ id: 'ref_' + Date.now(), nombre, unidad_id: unidadId, cargo, origen: 'directorio' });
       localStorage.setItem(LOCAL_REF_KEY, JSON.stringify(locales));
-      referentesList.push(nuevo);
 
       e.target.reset();
+      referentesList.push({ id: 'ref_' + Date.now(), nombre, unidad_id: unidadId, cargo, origen: 'directorio' });
       actualizarDatalistResponsables();
       renderConfigTables();
     });
 
-    function eliminarReferenteLocal(id) {
-      let locales = [];
-      try { locales = JSON.parse(localStorage.getItem(LOCAL_REF_KEY) || '[]'); } catch { locales = []; }
-      locales = locales.filter(x => x.id !== id);
-      localStorage.setItem(LOCAL_REF_KEY, JSON.stringify(locales));
-      referentesList = referentesList.filter(x => x.id !== id);
-      actualizarDatalistResponsables();
-      renderConfigTables();
+    async function mejorarActividadIA() {
+      const descEl = document.getElementById('act-descripcion');
+      const texto = descEl.value.trim();
+      if (!texto) return alert('Escribe primero una idea o borrador de la actividad.');
+
+      const btn = document.getElementById('btn-ia-actividad');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.textContent = 'Mejorando...';
+
+      try {
+        const unidadSel = document.getElementById('act-unidad');
+        const unidadNombre = unidadSel?.options[unidadSel.selectedIndex]?.text || 'INS';
+        const { data, error } = await sb.functions.invoke('asistente-pao-ia', {
+          body: {
+            accion: 'mejorar_actividad',
+            texto_base: texto,
+            contexto: { unidad: unidadNombre, institucion: 'Instituto Nacional de Salud (INS) - MINSAL El Salvador' }
+          }
+        });
+        if (!error && data?.resultado) {
+          descEl.value = data.resultado.trim();
+        } else {
+          const limpio = texto.charAt(0).toUpperCase() + texto.slice(1).replace(/\.+$/, '');
+          descEl.value = `${limpio} en el marco de las competencias técnicas del INS (${unidadNombre})`;
+        }
+      } catch {
+        const limpio = texto.charAt(0).toUpperCase() + texto.slice(1).replace(/\.+$/, '');
+        descEl.value = `${limpio} en el marco de las competencias técnicas del INS`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+        window.renderIconsSafe();
+      }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      window.renderIconsSafe();
-      window.checkSession();
-    });
+    async function sugerirIndicadorIA() {
+      const actTexto = document.getElementById('act-descripcion').value.trim();
+      const indEl = document.getElementById('act-indicador');
+      if (!actTexto) return alert('Primero ingresa la descripción de la actividad.');
+
+      const btn = document.getElementById('btn-ia-indicador');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.textContent = 'Sugiriendo...';
+
+      try {
+        const { data, error } = await sb.functions.invoke('asistente-pao-ia', {
+          body: {
+            accion: 'sugerir_indicador',
+            texto_base: actTexto,
+            contexto: { institucion: 'INS El Salvador - MINSAL' }
+          }
+        });
+        if (!error && data?.resultado) {
+          indEl.value = data.resultado.trim();
+        } else {
+          const lower = actTexto.toLowerCase();
+          if (lower.includes('capacit') || lower.includes('taller') || lower.includes('curso') || lower.includes('echo')) {
+            indEl.value = 'Porcentaje de sesiones / capacitaciones programadas ejecutadas';
+          } else if (lower.includes('guía') || lower.includes('guia') || lower.includes('protocolo') || lower.includes('norma') || lower.includes('lineamiento')) {
+            indEl.value = 'Porcentaje de documentos técnicos / guías elaborados y validados';
+          } else if (lower.includes('investig') || lower.includes('estudio') || lower.includes('artículo') || lower.includes('articulo')) {
+            indEl.value = 'Porcentaje de productos de investigación desarrollados según cronograma';
+          } else if (lower.includes('vigilancia') || lower.includes('muestra') || lower.includes('laboratorio') || lower.includes('análisis') || lower.includes('analisis')) {
+            indEl.value = 'Porcentaje de análisis / vigilancias programadas realizadas oportunamente';
+          } else {
+            indEl.value = 'Porcentaje de actividades programadas ejecutadas según meta PAO';
+          }
+        }
+      } catch {
+        indEl.value = 'Porcentaje de actividades programadas ejecutadas según meta PAO';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+        window.renderIconsSafe();
+      }
+    }
+
+    async function sugerirSupuestosIA() {
+      const actTexto = document.getElementById('act-descripcion').value.trim();
+      const supEl = document.getElementById('act-supuestos');
+      if (!actTexto && !supEl.value.trim()) {
+        return alert('Escribe primero la descripción de la actividad para proponer supuestos externos pertinentes.');
+      }
+
+      const btn = document.getElementById('btn-ia-supuestos');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.textContent = 'Generando...';
+
+      try {
+        const { data, error } = await sb.functions.invoke('asistente-pao-ia', {
+          body: {
+            accion: 'sugerir_supuestos',
+            texto_base: actTexto || supEl.value.trim(),
+            contexto: { institucion: 'INS El Salvador - MINSAL' }
+          }
+        });
+        if (!error && data?.resultado) {
+          supEl.value = data.resultado.trim();
+        } else {
+          const base = (actTexto + ' ' + supEl.value).toLowerCase();
+          const puntos = ['Disponibilidad oportuna de talento humano técnico asignado'];
+          if (base.includes('laboratorio') || base.includes('muestra') || base.includes('reactivo') || base.includes('diagnóst')) {
+            puntos.push('Abastecimiento oportuno de reactivos, insumos de laboratorio y cadena de frío');
+          }
+          if (base.includes('echo') || base.includes('capacit') || base.includes('taller') || base.includes('virtual') || base.includes('sistema')) {
+            puntos.push('Conectividad estable, equipamiento informático/audiovisual y participación del personal convocado');
+          }
+          if (base.includes('investig') || base.includes('ética') || base.includes('protocolo')) {
+            puntos.push('Aprobaciones éticas y regulatorias en tiempo y acceso a fuentes de información/muestras');
+          }
+          puntos.push('Coordinación interinstitucional y articulación efectiva con las dependencias del MINSAL / RIIS');
+          supEl.value = puntos.join('; ') + '.';
+        }
+      } catch {
+        supEl.value = 'Disponibilidad oportuna de talento humano, insumos/equipamiento necesarios y articulación institucional con el MINSAL.';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+        window.renderIconsSafe();
+      }
+    }
+
+    window.checkSession();
   </script>
 </body>
 </html>

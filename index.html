@@ -3069,11 +3069,6 @@
   valSel.classList.remove('hidden');
 } 
 
-      valSel.innerHTML = `<option value="ALL">Todos (${opciones.length})</option>` +
-        opciones.map(o => `<option value="${o.val.replace(/"/g, '&quot;')}">${o.label}</option>`).join('');
-      valSel.classList.remove('hidden');
-    }
-
     function obtenerActividadesProcesadas() {
       const criterio = document.getElementById('matriz-criterio-select')?.value || 'registro';
       const filtroVal = document.getElementById('matriz-filtro-valor')?.value || 'ALL';
@@ -3282,8 +3277,7 @@
   } catch (e) {
     console.warn('No se pudo restaurar el estado del control de Matriz POA:', e);
   }
-}
-    
+}    
     function renderTablaActividadesPOA() {
       const tbody = document.getElementById('tabla-actividades-poa');
       const listaProcesada = obtenerActividadesProcesadas();

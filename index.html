@@ -3361,11 +3361,9 @@
             </tr>
           `;
         }).join('');
-        window.renderIconsSafe();
       }
       window.renderIconsSafe();
-  actualizarContadorMatrizPOA(listaProcesada.length, (actividadesCache || []).length);
-}
+      actualizarContadorMatrizPOA(listaProcesada.length, (actividadesCache || []).length);
     }
 
     async function loadActividadesPOA() {

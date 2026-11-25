@@ -3124,6 +3124,39 @@
       return `Unidad: ${unidadNombre} • Resp: ${a.responsable_nombre}${prodTexto} • Pond: ${a.ponderacion}`;
     }
 
+    function escaparAtributoHtml(texto) {
+      return String(texto || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    window.abrirModalSupuestoActividad = function(actividadId) {
+      const act = actividadesCache.find(x => String(x.id) === String(actividadId));
+      if (!act) return;
+
+      const supuestoTexto = (act.supuestos_externos || '').trim();
+      document.getElementById('supuesto-modal-actividad-titulo').textContent = act.actividad || 'Actividad PAO';
+      const cuerpoEl = document.getElementById('supuesto-modal-texto');
+
+      if (supuestoTexto) {
+        cuerpoEl.textContent = supuestoTexto;
+        cuerpoEl.className = 'p-3.5 rounded-xl bg-sky-50/60 border border-sky-200 text-slate-800 leading-relaxed whitespace-pre-line';
+      } else {
+        cuerpoEl.textContent = 'Esta actividad aún no tiene un supuesto externo registrado.';
+        cuerpoEl.className = 'p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-500 italic leading-relaxed';
+      }
+
+      if (typeof abrirModal === 'function') {
+        abrirModal('modal-supuesto-actividad');
+      } else {
+        document.getElementById('modal-supuesto-actividad').classList.remove('hidden');
+      }
+      if (typeof renderIconsSafe === 'function') renderIconsSafe();
+    };
+    
     function renderTablaActividadesPOA() {
       const tbody = document.getElementById('tabla-actividades-poa');
       const listaProcesada = obtenerActividadesProcesadas();
@@ -3178,6 +3211,17 @@
                  class="inline-flex items-center px-1 py-0.5 rounded text-[10px] text-slate-400 hover:text-sky-700 hover:bg-sky-50 transition ml-1">
                  <i data-lucide="paperclip" class="w-2.5 h-2.5"></i>
                </button>`;
+          
+          const supuestoTexto = (a.supuestos_externos || '').trim();
+          const badgeSupuestos = supuestoTexto
+            ? `<button type="button" onclick="abrirModalSupuestoActividad('${a.id}')" title="${escaparAtributoHtml(supuestoTexto)}"
+                 class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold border transition ml-1 bg-sky-50 text-sky-800 border-sky-200 hover:bg-sky-100">
+                 <i data-lucide="shield-check" class="w-2.5 h-2.5"></i><span>Supuestos</span>
+               </button>`
+            : `<button type="button" onclick="abrirModalSupuestoActividad('${a.id}')" title="Sin supuesto externo registrado. Clic para consultar"
+                 class="inline-flex items-center gap-1 px-1 py-0.5 rounded text-[10px] text-slate-400 hover:text-sky-700 hover:bg-sky-50 transition ml-1">
+                 <i data-lucide="shield-check" class="w-2.5 h-2.5"></i><span>Supuestos</span>
+               </button>`;
 
           return `
             <tr class="hover:bg-slate-50/90 transition-colors">
@@ -3191,7 +3235,7 @@
               </td>
               <td class="px-2.5 py-2 align-middle">
                 <div class="font-medium text-slate-900 leading-snug break-words">${a.actividad}</div>
-                <div class="text-[11px] text-slate-400 mt-0.5 leading-snug break-words">${metadatosGris}${badgeTrazabilidad}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5 leading-snug break-words">${metadatosGris}${badgeTrazabilidad}${badgeSupuestos}</div>
               </td>
               <td class="px-2.5 py-2 text-slate-700 align-middle text-[11px] leading-snug break-words">${a.indicador || '-'}</td>
               <td class="px-1.5 py-2 text-center align-middle">${badgeModo}</td>

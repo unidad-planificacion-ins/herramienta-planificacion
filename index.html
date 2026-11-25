@@ -4481,6 +4481,7 @@
       try {
         const sugerencia = await llamarAsistenteIA({
           tipo: 'supuestos',
+          enfoque: 'condicion_habilitante_no_financiera',
           borrador: actual,
           descripcionActividad: desc,
           contexto: obtenerContextoActividadModal()

@@ -3188,6 +3188,10 @@
       }
     }
 
+    function obtenerClaveEstadoMatriz() {
+      return `${CLAVE_ESTADO_MATRIZ}_${activeCicloId || 'default'}`;
+    }
+
     function guardarEstadoControlMatriz() {
       try {
         const modoActual = typeof modoControlMatriz !== 'undefined' ? modoControlMatriz : 'ordenar';
@@ -3199,7 +3203,7 @@
           criterio: criterioEl ? criterioEl.value : 'registro',
           filtroValor: filtroEl ? filtroEl.value : 'ALL'
         };
-        localStorage.setItem(CLAVE_ESTADO_MATRIZ, JSON.stringify(estado));
+        localStorage.setItem(obtenerClaveEstadoMatriz(), JSON.stringify(estado));
       } catch (e) {
         console.warn('No se pudo guardar el estado del control de Matriz POA:', e);
       }
@@ -3207,7 +3211,7 @@
 
     function restaurarEstadoControlMatriz() {
   try {
-    const raw = localStorage.getItem(CLAVE_ESTADO_MATRIZ);
+    const raw = localStorage.getItem(obtenerClaveEstadoMatriz()) || localStorage.getItem(CLAVE_ESTADO_MATRIZ);
     if (!raw) return;
 
     const estado = JSON.parse(raw);
@@ -3389,10 +3393,11 @@
         productosCicloCache = [];
       }
 
-      if (modoControlMatriz === 'filtrar') {
+      if (typeof restaurarEstadoControlMatriz === 'function') {
+        restaurarEstadoControlMatriz();
+      } else if (modoControlMatriz === 'filtrar') {
         poblarOpcionesFiltroMatriz();
       }
-      if (typeof restaurarEstadoControlMatriz === 'function') restaurarEstadoControlMatriz();
       renderTablaActividadesPOA();
       actualizarOpcionesFiltroEvidencia();
       renderListaEvidencias();

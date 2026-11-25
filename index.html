@@ -561,9 +561,12 @@
                 <option value="responsable">Responsable (A - Z)</option>
               </select>
 
-              <select id="matriz-filtro-valor" onchange="renderTablaActividadesPOA()" class="hidden max-w-[210px] pl-2 border-l border-slate-300 bg-transparent font-semibold text-sky-800 focus:outline-none cursor-pointer">
+              <select id="matriz-filtro-valor" onchange="guardarEstadoControlMatriz(); renderTablaActividadesPOA()" class="hidden max-w-[210px] pl-2 border-l border-slate-300 bg-transparent font-semibold text-sky-800 focus:outline-none cursor-pointer">
                 <option value="ALL">Todos</option>
               </select>
+              <span id="matriz-contador-actividades"
+                class="hidden pl-2 border-l border-slate-300 text-[11px] font-semibold text-slate-600 whitespace-nowrap">
+              </span>
             </div>
 
             <!-- Botón Nueva Actividad PAO -->
@@ -2982,40 +2985,45 @@
       }
     });
 
-    function cambiarModoControlMatriz(nuevoModo) {
-      modoControlMatriz = nuevoModo;
-      const btnOrd = document.getElementById('btn-modo-ordenar');
-      const btnFil = document.getElementById('btn-modo-filtrar');
-      const critSel = document.getElementById('matriz-criterio-select');
-      const valSel = document.getElementById('matriz-filtro-valor');
+   function cambiarModoControlMatriz(nuevoModo, omitirRender = false) {
+  modoControlMatriz = nuevoModo;
+  const btnOrd = document.getElementById('btn-modo-ordenar');
+  const btnFil = document.getElementById('btn-modo-filtrar');
+  const critSel = document.getElementById('matriz-criterio-select');
+  const valSel = document.getElementById('matriz-filtro-valor');
 
-      if (nuevoModo === 'ordenar') {
-        btnOrd.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
-        btnOrd.classList.remove('text-slate-600', 'font-medium');
-        btnFil.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
-        btnFil.classList.add('text-slate-600', 'font-medium');
+  if (nuevoModo === 'ordenar') {
+    btnOrd.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+    btnOrd.classList.remove('text-slate-600', 'font-medium');
+    btnFil.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+    btnFil.classList.add('text-slate-600', 'font-medium');
 
-        critSel.options[0].text = 'Orden de registro';
-        valSel.classList.add('hidden');
-      } else {
-        btnFil.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
-        btnFil.classList.remove('text-slate-600', 'font-medium');
-        btnOrd.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
-        btnOrd.classList.add('text-slate-600', 'font-medium');
+    critSel.options[0].text = 'Orden de registro';
+    valSel.classList.add('hidden');
+  } else {
+    btnFil.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+    btnFil.classList.remove('text-slate-600', 'font-medium');
+    btnOrd.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+    btnOrd.classList.add('text-slate-600', 'font-medium');
 
-        critSel.options[0].text = 'Mostrar todas';
-        if (critSel.value === 'registro') {
-          critSel.value = 'unidad';
-        }
-        poblarOpcionesFiltroMatriz();
-      }
-      renderTablaActividadesPOA();
+    critSel.options[0].text = 'Mostrar todas';
+    if (critSel.value === 'registro') {
+      critSel.value = 'unidad';
     }
+    poblarOpcionesFiltroMatriz();
+  }
+
+  guardarEstadoControlMatriz();
+  if (!omitirRender && typeof renderTablaActividadesPOA === 'function') {
+    renderTablaActividadesPOA();
+  }
+}
 
     function alCambiarCriterioMatriz() {
       if (modoControlMatriz === 'filtrar') {
         poblarOpcionesFiltroMatriz();
       }
+      guardarEstadoControlMatriz();
       renderTablaActividadesPOA();
     }
 
@@ -3156,6 +3164,79 @@
       }
       if (typeof renderIconsSafe === 'function') renderIconsSafe();
     };
+
+    const CLAVE_ESTADO_MATRIZ = 'ins_pao_control_matriz_v1';
+
+    function actualizarContadorMatrizPOA(visiblesCount, totalCount) {
+      const badge = document.getElementById('matriz-contador-actividades');
+      if (!badge) return;
+
+      const modoActual = typeof modoControlMatriz !== 'undefined' ? modoControlMatriz : 'ordenar';
+      const filtroEl = document.getElementById('matriz-filtro-valor');
+      const filtroActivo = modoActual === 'filtrar' && filtroEl && filtroEl.value && filtroEl.value !== 'ALL';
+
+      badge.classList.remove('hidden');
+
+      if (filtroActivo) {
+        badge.textContent = `${visiblesCount} / ${totalCount}`;
+        badge.title = `Mostrando ${visiblesCount} actividades filtradas de ${totalCount} en el ciclo`;
+        badge.className = 'pl-2 border-l border-slate-300 text-[11px] font-bold text-indigo-700 whitespace-nowrap';
+      } else {
+        badge.textContent = `${visiblesCount} act.`;
+        badge.title = `Total de actividades en la vista actual: ${visiblesCount}`;
+        badge.className = 'pl-2 border-l border-slate-300 text-[11px] font-semibold text-slate-600 whitespace-nowrap';
+      }
+    }
+
+    function guardarEstadoControlMatriz() {
+      try {
+        const modoActual = typeof modoControlMatriz !== 'undefined' ? modoControlMatriz : 'ordenar';
+        const criterioEl = document.getElementById('matriz-criterio-select');
+        const filtroEl = document.getElementById('matriz-filtro-valor');
+
+        const estado = {
+          modo: modoActual,
+          criterio: criterioEl ? criterioEl.value : 'registro',
+          filtroValor: filtroEl ? filtroEl.value : 'ALL'
+        };
+        localStorage.setItem(CLAVE_ESTADO_MATRIZ, JSON.stringify(estado));
+      } catch (e) {
+        console.warn('No se pudo guardar el estado del control de Matriz POA:', e);
+      }
+    }
+
+    function restaurarEstadoControlMatriz() {
+  try {
+    const raw = localStorage.getItem(CLAVE_ESTADO_MATRIZ);
+    if (!raw) return;
+
+    const estado = JSON.parse(raw);
+    const critSel = document.getElementById('matriz-criterio-select');
+    const valSel = document.getElementById('matriz-filtro-valor');
+
+    if (estado.modo === 'filtrar' || estado.modo === 'ordenar') {
+      if (typeof cambiarModoControlMatriz === 'function') {
+        cambiarModoControlMatriz(estado.modo, true);
+      }
+    }
+
+    if (critSel && estado.criterio) {
+      const existeCriterio = Array.from(critSel.options).some(opt => opt.value === estado.criterio);
+      if (existeCriterio) critSel.value = estado.criterio;
+    }
+
+    if (modoControlMatriz === 'filtrar' && typeof poblarOpcionesFiltroMatriz === 'function') {
+      poblarOpcionesFiltroMatriz();
+    }
+
+    if (valSel && estado.filtroValor) {
+      const existeValor = Array.from(valSel.options).some(opt => opt.value === estado.filtroValor);
+      valSel.value = existeValor ? estado.filtroValor : 'ALL';
+    }
+  } catch (e) {
+    console.warn('No se pudo restaurar el estado del control de Matriz POA:', e);
+  }
+}
     
     function renderTablaActividadesPOA() {
       const tbody = document.getElementById('tabla-actividades-poa');
@@ -3282,6 +3363,9 @@
         }).join('');
         window.renderIconsSafe();
       }
+      window.renderIconsSafe();
+  actualizarContadorMatrizPOA(listaProcesada.length, (actividadesCache || []).length);
+}
     }
 
     async function loadActividadesPOA() {
@@ -3310,6 +3394,7 @@
       if (modoControlMatriz === 'filtrar') {
         poblarOpcionesFiltroMatriz();
       }
+      if (typeof restaurarEstadoControlMatriz === 'function') restaurarEstadoControlMatriz();
       renderTablaActividadesPOA();
       actualizarOpcionesFiltroEvidencia();
       renderListaEvidencias();

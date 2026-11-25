@@ -1671,6 +1671,7 @@
     let dashDataCache = [];
     let charts = {};
     let modoControlMatriz = 'ordenar';
+    let estadoControlMatrizMemoria = null;
     let bitacoraActIdActual = null;
     const MAX_BUCKET_FILE_BYTES = 3 * 1024 * 1024; // 3 MB
 
@@ -2190,6 +2191,7 @@
     }
 
     async function reloadAllCycleData() {
+      if (typeof guardarEstadoControlMatriz === 'function') guardarEstadoControlMatriz();
       await Promise.all([
         loadEvidencias(),
         loadActividadesPOA()
@@ -2979,45 +2981,62 @@
           await reloadAllCycleData();
 
           if (consolida && inserted?.id) {
-            await abrirGestionProductos(inserted.id);
+            await abrirGestionProductos(inserted.ifunction obtenerEstadoControlMatrizActual() {
+      const modoActual = typeof modoControlMatriz !== 'undefined' ? modoControlMatriz : 'ordenar';
+      const criterioEl = document.getElementById('matriz-criterio-select');
+      const filtroEl = document.getElementById('matriz-filtro-valor');
+      return {
+        modo: (modoActual === 'filtrar' || modoActual === 'ordenar') ? modoActual : 'ordenar',
+        criterio: criterioEl ? criterioEl.value : 'registro',
+        filtroValor: filtroEl ? (filtroEl.value || 'ALL') : 'ALL'
+      };
+    }
+
+    function cambiarModoControlMatriz(nuevoModo, omitirRender = false) {
+      modoControlMatriz = (nuevoModo === 'filtrar' || nuevoModo === 'ordenar') ? nuevoModo : 'ordenar';
+      const btnOrd = document.getElementById('btn-modo-ordenar');
+      const btnFil = document.getElementById('btn-modo-filtrar');
+      const critSel = document.getElementById('matriz-criterio-select');
+      const valSel = document.getElementById('matriz-filtro-valor');
+
+      if (modoControlMatriz === 'ordenar') {
+        if (btnOrd) {
+          btnOrd.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+          btnOrd.classList.remove('text-slate-600', 'font-medium');
+        }
+        if (btnFil) {
+          btnFil.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+          btnFil.classList.add('text-slate-600', 'font-medium');
+        }
+        if (critSel && critSel.options[0]) {
+          critSel.options[0].text = 'Orden de registro';
+        }
+        if (valSel) {
+          valSel.classList.add('hidden');
+        }
+      } else {
+        if (btnFil) {
+          btnFil.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+          btnFil.classList.remove('text-slate-600', 'font-medium');
+        }
+        if (btnOrd) {
+          btnOrd.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+          btnOrd.classList.add('text-slate-600', 'font-medium');
+        }
+        if (critSel && critSel.options[0]) {
+          critSel.options[0].text = 'Mostrar todas';
+          if (critSel.value === 'registro') {
+            critSel.value = 'unidad';
           }
         }
+        poblarOpcionesFiltroMatriz();
       }
-    });
 
-   function cambiarModoControlMatriz(nuevoModo, omitirRender = false) {
-  modoControlMatriz = nuevoModo;
-  const btnOrd = document.getElementById('btn-modo-ordenar');
-  const btnFil = document.getElementById('btn-modo-filtrar');
-  const critSel = document.getElementById('matriz-criterio-select');
-  const valSel = document.getElementById('matriz-filtro-valor');
-
-  if (nuevoModo === 'ordenar') {
-    btnOrd.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
-    btnOrd.classList.remove('text-slate-600', 'font-medium');
-    btnFil.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
-    btnFil.classList.add('text-slate-600', 'font-medium');
-
-    critSel.options[0].text = 'Orden de registro';
-    valSel.classList.add('hidden');
-  } else {
-    btnFil.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
-    btnFil.classList.remove('text-slate-600', 'font-medium');
-    btnOrd.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
-    btnOrd.classList.add('text-slate-600', 'font-medium');
-
-    critSel.options[0].text = 'Mostrar todas';
-    if (critSel.value === 'registro') {
-      critSel.value = 'unidad';
+      guardarEstadoControlMatriz();
+      if (!omitirRender && typeof renderTablaActividadesPOA === 'function') {
+        renderTablaActividadesPOA();
+      }
     }
-    poblarOpcionesFiltroMatriz();
-  }
-
-  guardarEstadoControlMatriz();
-  if (!omitirRender && typeof renderTablaActividadesPOA === 'function') {
-    renderTablaActividadesPOA();
-  }
-}
 
     function alCambiarCriterioMatriz() {
       if (modoControlMatriz === 'filtrar') {
@@ -3027,13 +3046,20 @@
       renderTablaActividadesPOA();
     }
 
-    function poblarOpcionesFiltroMatriz() {
-      const crit = document.getElementById('matriz-criterio-select').value;
+    function poblarOpcionesFiltroMatriz(valorPreferido = null) {
+      const critEl = document.getElementById('matriz-criterio-select');
       const valSel = document.getElementById('matriz-filtro-valor');
+      if (!critEl || !valSel) return;
+
+      const crit = critEl.value;
+      const valorActual = valorPreferido !== null && valorPreferido !== undefined
+        ? valorPreferido
+        : (estadoControlMatrizMemoria?.filtroValor || valSel.value || 'ALL');
 
       if (modoControlMatriz !== 'filtrar' || crit === 'registro') {
         valSel.classList.add('hidden');
         valSel.innerHTML = `<option value="ALL">Todas</option>`;
+        valSel.value = 'ALL';
         return;
       }
 
@@ -3061,6 +3087,9 @@
 
       valSel.innerHTML = `<option value="ALL">Todos (${opciones.length})</option>` +
         opciones.map(o => `<option value="${o.val.replace(/"/g, '&quot;')}">${o.label}</option>`).join('');
+
+      const existeValor = Array.from(valSel.options).some(opt => opt.value === valorActual);
+      valSel.value = existeValor ? valorActual : 'ALL';
       valSel.classList.remove('hidden');
     }
 
@@ -3190,15 +3219,8 @@
 
     function guardarEstadoControlMatriz() {
       try {
-        const modoActual = typeof modoControlMatriz !== 'undefined' ? modoControlMatriz : 'ordenar';
-        const criterioEl = document.getElementById('matriz-criterio-select');
-        const filtroEl = document.getElementById('matriz-filtro-valor');
-
-        const estado = {
-          modo: modoActual,
-          criterio: criterioEl ? criterioEl.value : 'registro',
-          filtroValor: filtroEl ? filtroEl.value : 'ALL'
-        };
+        const estado = obtenerEstadoControlMatrizActual();
+        estadoControlMatrizMemoria = { ...estado };
         localStorage.setItem(CLAVE_ESTADO_MATRIZ, JSON.stringify(estado));
       } catch (e) {
         console.warn('No se pudo guardar el estado del control de Matriz POA:', e);
@@ -3206,38 +3228,81 @@
     }
 
     function restaurarEstadoControlMatriz() {
-  try {
-    const raw = localStorage.getItem(CLAVE_ESTADO_MATRIZ);
-    if (!raw) return;
+      try {
+        let estado = estadoControlMatrizMemoria ? { ...estadoControlMatrizMemoria } : null;
+        if (!estado) {
+          const raw = localStorage.getItem(CLAVE_ESTADO_MATRIZ);
+          if (raw) {
+            estado = JSON.parse(raw);
+          }
+        }
+        if (!estado) {
+          estado = obtenerEstadoControlMatrizActual();
+        }
 
-    const estado = JSON.parse(raw);
-    const critSel = document.getElementById('matriz-criterio-select');
-    const valSel = document.getElementById('matriz-filtro-valor');
+        const critSel = document.getElementById('matriz-criterio-select');
+        const valSel = document.getElementById('matriz-filtro-valor');
 
-    if (estado.modo === 'filtrar' || estado.modo === 'ordenar') {
-      if (typeof cambiarModoControlMatriz === 'function') {
-        cambiarModoControlMatriz(estado.modo, true);
+        const modoObjetivo = (estado.modo === 'filtrar' || estado.modo === 'ordenar') ? estado.modo : 'ordenar';
+        modoControlMatriz = modoObjetivo;
+
+        const btnOrd = document.getElementById('btn-modo-ordenar');
+        const btnFil = document.getElementById('btn-modo-filtrar');
+
+        if (modoObjetivo === 'ordenar') {
+          if (btnOrd) {
+            btnOrd.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+            btnOrd.classList.remove('text-slate-600', 'font-medium');
+          }
+          if (btnFil) {
+            btnFil.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+            btnFil.classList.add('text-slate-600', 'font-medium');
+          }
+          if (critSel && critSel.options[0]) {
+            critSel.options[0].text = 'Orden de registro';
+          }
+          if (critSel && estado.criterio) {
+            const existeCriterio = Array.from(critSel.options).some(opt => opt.value === estado.criterio);
+            if (existeCriterio) critSel.value = estado.criterio;
+          }
+          if (valSel) {
+            valSel.classList.add('hidden');
+          }
+        } else {
+          if (btnFil) {
+            btnFil.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+            btnFil.classList.remove('text-slate-600', 'font-medium');
+          }
+          if (btnOrd) {
+            btnOrd.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+            btnOrd.classList.add('text-slate-600', 'font-medium');
+          }
+          if (critSel && critSel.options[0]) {
+            critSel.options[0].text = 'Mostrar todas';
+          }
+          if (critSel && estado.criterio) {
+            const existeCriterio = Array.from(critSel.options).some(opt => opt.value === estado.criterio);
+            if (existeCriterio) critSel.value = estado.criterio;
+          }
+          if (critSel && critSel.value === 'registro') {
+            critSel.value = 'unidad';
+          }
+
+          if (typeof poblarOpcionesFiltroMatriz === 'function') {
+            poblarOpcionesFiltroMatriz(estado.filtroValor || 'ALL');
+          } else if (valSel && estado.filtroValor) {
+            const existeValor = Array.from(valSel.options).some(opt => opt.value === estado.filtroValor);
+            valSel.value = existeValor ? estado.filtroValor : 'ALL';
+            valSel.classList.remove('hidden');
+          }
+        }
+
+        estadoControlMatrizMemoria = obtenerEstadoControlMatrizActual();
+      } catch (e) {
+        console.warn('No se pudo restaurar el estado del control de Matriz POA:', e);
       }
     }
 
-    if (critSel && estado.criterio) {
-      const existeCriterio = Array.from(critSel.options).some(opt => opt.value === estado.criterio);
-      if (existeCriterio) critSel.value = estado.criterio;
-    }
-
-    if (modoControlMatriz === 'filtrar' && typeof poblarOpcionesFiltroMatriz === 'function') {
-      poblarOpcionesFiltroMatriz();
-    }
-
-    if (valSel && estado.filtroValor) {
-      const existeValor = Array.from(valSel.options).some(opt => opt.value === estado.filtroValor);
-      valSel.value = existeValor ? estado.filtroValor : 'ALL';
-    }
-  } catch (e) {
-    console.warn('No se pudo restaurar el estado del control de Matriz POA:', e);
-  }
-}
-    
     function renderTablaActividadesPOA() {
       const tbody = document.getElementById('tabla-actividades-poa');
       const listaProcesada = obtenerActividadesProcesadas();
@@ -3368,6 +3433,8 @@
 
     async function loadActividadesPOA() {
       if (!activeCicloId) return;
+      guardarEstadoControlMatriz();
+
       const { data } = await sb.from('actividades_poa')
         .select(`
           *,
@@ -3389,13 +3456,14 @@
         productosCicloCache = [];
       }
 
-      if (modoControlMatriz === 'filtrar') {
-        poblarOpcionesFiltroMatriz();
-      }
       if (typeof restaurarEstadoControlMatriz === 'function') restaurarEstadoControlMatriz();
       renderTablaActividadesPOA();
       actualizarOpcionesFiltroEvidencia();
       renderListaEvidencias();
+      ejecutarCuboAnalitico();
+    }
+
+s();
       ejecutarCuboAnalitico();
     }
 

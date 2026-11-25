@@ -3027,37 +3027,47 @@
       renderTablaActividadesPOA();
     }
 
-    function poblarOpcionesFiltroMatriz() {
-      const crit = document.getElementById('matriz-criterio-select').value;
-      const valSel = document.getElementById('matriz-filtro-valor');
+   function poblarOpcionesFiltroMatriz() {
+  const crit = document.getElementById('matriz-criterio-select').value;
+  const valSel = document.getElementById('matriz-filtro-valor');
+  const valorPrevio = valSel.value;
 
-      if (modoControlMatriz !== 'filtrar' || crit === 'registro') {
-        valSel.classList.add('hidden');
-        valSel.innerHTML = `<option value="ALL">Todas</option>`;
-        return;
-      }
+  if (modoControlMatriz !== 'filtrar' || crit === 'registro') {
+    valSel.classList.add('hidden');
+    valSel.innerHTML = `<option value="ALL">Todas</option>`;
+    return;
+  }
 
-      let opciones = [];
-      if (crit === 'alineacion') {
-        const mapEjes = new Map();
-        actividadesCache.forEach(a => {
-          const eje = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
-          if (eje) mapEjes.set(String(eje.numero_orden), `Eje ${eje.numero_orden}. ${eje.nombre}`);
-        });
-        opciones = [...mapEjes.entries()]
-          .sort((a, b) => Number(a[0]) - Number(b[0]))
-          .map(([val, label]) => ({ val, label }));
-      } else if (crit === 'unidad') {
-        const setU = new Set(actividadesCache.map(a => a.unidades_ins?.nombre).filter(Boolean));
-        opciones = [...setU]
-          .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
-          .map(u => ({ val: u, label: u }));
-      } else if (crit === 'responsable') {
-        const setR = new Set(actividadesCache.map(a => (a.responsable_nombre || '').trim()).filter(Boolean));
-        opciones = [...setR]
-          .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
-          .map(r => ({ val: r, label: r }));
-      }
+  let opciones = [];
+  if (crit === 'alineacion') {
+    const mapEjes = new Map();
+    actividadesCache.forEach(a => {
+      const eje = a.pei_lineas_accion?.pei_estrategias?.pei_ejes;
+      if (eje) mapEjes.set(String(eje.numero_orden), `Eje ${eje.numero_orden}. ${eje.nombre}`);
+    });
+    opciones = [...mapEjes.entries()]
+      .sort((a, b) => Number(a[0]) - Number(b[0]))
+      .map(([val, label]) => ({ val, label }));
+  } else if (crit === 'unidad') {
+    const setU = new Set(actividadesCache.map(a => a.unidades_ins?.nombre).filter(Boolean));
+    opciones = [...setU]
+      .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
+      .map(u => ({ val: u, label: u }));
+  } else if (crit === 'responsable') {
+    const setR = new Set(actividadesCache.map(a => (a.responsable_nombre || '').trim()).filter(Boolean));
+    opciones = [...setR]
+      .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
+      .map(r => ({ val: r, label: r }));
+  }
+
+  valSel.innerHTML = `<option value="ALL">Todos (${opciones.length})</option>` +
+    opciones.map(o => `<option value="${o.val.replace(/"/g, '&quot;')}">${o.label}</option>`).join('');
+
+  if (valorPrevio && Array.from(valSel.options).some(opt => opt.value === valorPrevio)) {
+    valSel.value = valorPrevio;
+  }
+  valSel.classList.remove('hidden');
+} 
 
       valSel.innerHTML = `<option value="ALL">Todos (${opciones.length})</option>` +
         opciones.map(o => `<option value="${o.val.replace(/"/g, '&quot;')}">${o.label}</option>`).join('');
@@ -3217,25 +3227,57 @@
     const estado = JSON.parse(raw);
     const critSel = document.getElementById('matriz-criterio-select');
     const valSel = document.getElementById('matriz-filtro-valor');
+    const btnOrd = document.getElementById('btn-modo-ordenar');
+    const btnFil = document.getElementById('btn-modo-filtrar');
 
-    if (estado.modo === 'filtrar' || estado.modo === 'ordenar') {
-      if (typeof cambiarModoControlMatriz === 'function') {
-        cambiarModoControlMatriz(estado.modo, true);
+    const modoValido = (estado.modo === 'filtrar' || estado.modo === 'ordenar') ? estado.modo : 'ordenar';
+    modoControlMatriz = modoValido;
+
+    // 1. Restaurar criterio primero
+    if (critSel && estado.criterio) {
+      const existeCriterio = Array.from(critSel.options).some(opt => opt.value === estado.criterio);
+      if (existeCriterio) {
+        critSel.value = estado.criterio;
       }
     }
 
-    if (critSel && estado.criterio) {
-      const existeCriterio = Array.from(critSel.options).some(opt => opt.value === estado.criterio);
-      if (existeCriterio) critSel.value = estado.criterio;
-    }
+    // 2. Actualizar apariencia visual de botones/selects sin borrar el valor guardado
+    if (modoControlMatriz === 'ordenar') {
+      if (btnOrd) {
+        btnOrd.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+        btnOrd.classList.remove('text-slate-600', 'font-medium');
+      }
+      if (btnFil) {
+        btnFil.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+        btnFil.classList.add('text-slate-600', 'font-medium');
+      }
+      if (critSel && critSel.options[0]) critSel.options[0].text = 'Orden de registro';
+      if (valSel) valSel.classList.add('hidden');
+    } else {
+      if (btnFil) {
+        btnFil.classList.add('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+        btnFil.classList.remove('text-slate-600', 'font-medium');
+      }
+      if (btnOrd) {
+        btnOrd.classList.remove('bg-white', 'text-sky-900', 'font-semibold', 'shadow-2xs');
+        btnOrd.classList.add('text-slate-600', 'font-medium');
+      }
+      if (critSel) {
+        if (critSel.options[0]) critSel.options[0].text = 'Mostrar todas';
+        if (critSel.value === 'registro') {
+          critSel.value = 'unidad';
+        }
+      }
 
-    if (modoControlMatriz === 'filtrar' && typeof poblarOpcionesFiltroMatriz === 'function') {
-      poblarOpcionesFiltroMatriz();
-    }
+      if (typeof poblarOpcionesFiltroMatriz === 'function') {
+        poblarOpcionesFiltroMatriz();
+      }
 
-    if (valSel && estado.filtroValor) {
-      const existeValor = Array.from(valSel.options).some(opt => opt.value === estado.filtroValor);
-      valSel.value = existeValor ? estado.filtroValor : 'ALL';
+      // 3. Restaurar el valor del filtro después de poblar las opciones
+      if (valSel && estado.filtroValor) {
+        const existeValor = Array.from(valSel.options).some(opt => opt.value === estado.filtroValor);
+        valSel.value = existeValor ? estado.filtroValor : 'ALL';
+      }
     }
   } catch (e) {
     console.warn('No se pudo restaurar el estado del control de Matriz POA:', e);

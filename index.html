@@ -2798,11 +2798,12 @@ function esReferenteEnEjecucion() {
       const corte = parseInt(document.getElementById('dash-trimestre-corte')?.value) || 4;
       const actMap = new Map((actividadesCache || []).map(a => [a.id, a]));
       const tiposMap = new Map((tiposProductoList || []).map(t => [String(t.id), t.nombre]));
+      const localTpMap = (typeof getLocalActTpMap === 'function') ? getLocalActTpMap() : {};
       const statsPorTipo = new Map();
 
-      const acumularItem = (tipoId, tipoNombreDirecto, progCorte, realCorte, tieneReal) => {
-        const key = tipoId ? String(tipoId) : (tipoNombreDirecto || 'Sin clasificar');
-        const label = tiposMap.get(key) || tipoNombreDirecto || 'Producto / Sin tipo asignado';
+      const acumularConteo = (tipoId, tipoNombreDirecto, progCorte, realCorte, tieneReal) => {
+        const key = tipoId ? String(tipoId) : (tipoNombreDirecto || 'sin_tipo');
+        const label = tiposMap.get(key) || tipoNombreDirecto || 'Sin tipo de producto asignado';
 
         if (!statsPorTipo.has(key)) {
           statsPorTipo.set(key, {
@@ -2832,49 +2833,47 @@ function esReferenteEnEjecucion() {
         }
       };
 
+      const sumarAlCorte = (obj) => {
+        let progCorte = 0;
+        let realCorte = 0;
+        let tieneReal = false;
+        for (let t = 1; t <= corte; t++) {
+          progCorte += Number(obj['prog_t' + t] || 0);
+          const val = obj['real_t' + t];
+          if (val !== null && val !== undefined && val !== '') {
+            realCorte += Number(val);
+            tieneReal = true;
+          }
+        }
+        return { progCorte, realCorte, tieneReal };
+      };
+
       (rows || []).forEach(r => {
         const act = actMap.get(r.actividad_id);
         if (!act) return;
 
         const productosHijos = Array.isArray(act.productos_actividad_ins) ? act.productos_actividad_ins : [];
-        if (act.consolida_desde_productos && productosHijos.length > 0) {
+        const tieneHijos = productosHijos.length > 0;
+
+        if (tieneHijos) {
+          // Actividad agrupada con hijos: cuenta cada hijo por su propio tipo y avance
           productosHijos.forEach(prod => {
-            let progCorte = 0;
-            let realCorte = 0;
-            let tieneReal = false;
-            for (let t = 1; t <= corte; t++) {
-              progCorte += Number(prod['prog_t' + t] || 0);
-              const val = prod['real_t' + t];
-              if (val !== null && val !== undefined && val !== '') {
-                realCorte += Number(val);
-                tieneReal = true;
-              }
-            }
+            const { progCorte, realCorte, tieneReal } = sumarAlCorte(prod);
             const tipoId = prod.tipo_producto_id || prod.catalogo_tipos_producto?.id || null;
             const tipoNombre = prod.catalogo_tipos_producto?.nombre || null;
-            acumularItem(tipoId, tipoNombre, progCorte, realCorte, tieneReal);
+            acumularConteo(tipoId, tipoNombre, progCorte, realCorte, tieneReal);
           });
         } else {
-          let progCorte = 0;
-          let realCorte = 0;
-          let tieneReal = false;
-          for (let t = 1; t <= corte; t++) {
-            progCorte += Number(act['prog_t' + t] || 0);
-            const val = act['real_t' + t];
-            if (val !== null && val !== undefined && val !== '') {
-              realCorte += Number(val);
-              tieneReal = true;
-            }
-          }
-          const tipoId = act.tipo_producto_id || null;
+          // Producto directo: cuenta 1 por la actividad directa
+          const { progCorte, realCorte, tieneReal } = sumarAlCorte(act);
+          const tipoId = act.tipo_producto_id || act.tipo_producto_directo_id || localTpMap[act.id] || null;
           const tipoNombre = act.catalogo_tipos_producto?.nombre || null;
-          acumularItem(tipoId, tipoNombre, progCorte, realCorte, tieneReal);
+          acumularConteo(tipoId, tipoNombre, progCorte, realCorte, tieneReal);
         }
       });
 
-      const lista = Array.from(statsPorTipo.values()).sort(
-        (a, b) => (b.cumplidoEnCurso + b.enAtencionRetraso + b.sinRegistro) - (a.cumplidoEnCurso + a.enAtencionRetraso + a.sinRegistro)
-      );
+      const lista = Array.from(statsPorTipo.values())
+        .sort((a, b) => (b.cumplidoEnCurso + b.enAtencionRetraso + b.sinRegistro) - (a.cumplidoEnCurso + a.enAtencionRetraso + a.sinRegistro));
 
       if (charts.productosTipo) {
         charts.productosTipo.destroy();
@@ -2883,7 +2882,7 @@ function esReferenteEnEjecucion() {
       charts.productosTipo = new Chart(canvas, {
         type: 'bar',
         data: {
-          labels: lista.map(x => x.label.length > 34 ? x.label.substring(0, 34) + '...' : x.label),
+          labels: lista.map(x => x.label.length > 36 ? x.label.substring(0, 36) + '...' : x.label),
           datasets: [
             {
               label: 'Cumplido / En curso (≥ 90%)',
@@ -2910,7 +2909,11 @@ function esReferenteEnEjecucion() {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            x: { stacked: true, beginAtZero: true, ticks: { precision: 0 } },
+            x: {
+              stacked: true,
+              beginAtZero: true,
+              ticks: { stepSize: 1, precision: 0 }
+            },
             y: { stacked: true }
           },
           plugins: {

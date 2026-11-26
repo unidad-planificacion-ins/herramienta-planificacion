@@ -478,6 +478,17 @@
             </div>
           </div>
         </div>
+        <div class="bg-white p-5 rounded-xl card-shadow border border-slate-200 mt-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-3">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Productos Programados por Tipo de Producto y Estado al Corte</h3>
+              <p class="text-[11px] text-slate-500">Cantidad de entregables según tipo de producto y situación de avance al trimestre de corte.</p>
+            </div>
+          </div>
+          <div class="relative h-72 w-full">
+            <canvas id="chart-productos-tipo"></canvas>
+          </div>
+        </div>
       </section>
 
       <!-- =================================================================== -->
@@ -2774,6 +2785,136 @@ function esReferenteEnEjecucion() {
                 }
               }
             }
+          }
+        }
+      });
+      renderChartProductosPorTipo(rows);
+    }
+
+    function renderChartProductosPorTipo(rows) {
+      const canvas = document.getElementById('chart-productos-tipo');
+      if (!canvas || !window.Chart) return;
+
+      const corte = parseInt(document.getElementById('dash-trimestre-corte')?.value) || 4;
+      const actMap = new Map((actividadesCache || []).map(a => [a.id, a]));
+      const tiposMap = new Map((tiposProductoList || []).map(t => [String(t.id), t.nombre]));
+      const statsPorTipo = new Map();
+
+      const acumularItem = (tipoId, tipoNombreDirecto, progCorte, realCorte, tieneReal) => {
+        const key = tipoId ? String(tipoId) : (tipoNombreDirecto || 'Sin clasificar');
+        const label = tiposMap.get(key) || tipoNombreDirecto || 'Producto / Sin tipo asignado';
+
+        if (!statsPorTipo.has(key)) {
+          statsPorTipo.set(key, {
+            label,
+            cumplidoEnCurso: 0,
+            enAtencionRetraso: 0,
+            sinRegistro: 0
+          });
+        }
+
+        const item = statsPorTipo.get(key);
+        if (progCorte > 0) {
+          if (!tieneReal) {
+            item.sinRegistro += 1;
+          } else {
+            const pct = (realCorte / progCorte) * 100;
+            if (pct >= 90) {
+              item.cumplidoEnCurso += 1;
+            } else {
+              item.enAtencionRetraso += 1;
+            }
+          }
+        } else if (realCorte > 0) {
+          item.cumplidoEnCurso += 1;
+        } else {
+          item.sinRegistro += 1;
+        }
+      };
+
+      (rows || []).forEach(r => {
+        const act = actMap.get(r.actividad_id);
+        if (!act) return;
+
+        const productosHijos = Array.isArray(act.productos_actividad_ins) ? act.productos_actividad_ins : [];
+        if (act.consolida_desde_productos && productosHijos.length > 0) {
+          productosHijos.forEach(prod => {
+            let progCorte = 0;
+            let realCorte = 0;
+            let tieneReal = false;
+            for (let t = 1; t <= corte; t++) {
+              progCorte += Number(prod['prog_t' + t] || 0);
+              const val = prod['real_t' + t];
+              if (val !== null && val !== undefined && val !== '') {
+                realCorte += Number(val);
+                tieneReal = true;
+              }
+            }
+            const tipoId = prod.tipo_producto_id || prod.catalogo_tipos_producto?.id || null;
+            const tipoNombre = prod.catalogo_tipos_producto?.nombre || null;
+            acumularItem(tipoId, tipoNombre, progCorte, realCorte, tieneReal);
+          });
+        } else {
+          let progCorte = 0;
+          let realCorte = 0;
+          let tieneReal = false;
+          for (let t = 1; t <= corte; t++) {
+            progCorte += Number(act['prog_t' + t] || 0);
+            const val = act['real_t' + t];
+            if (val !== null && val !== undefined && val !== '') {
+              realCorte += Number(val);
+              tieneReal = true;
+            }
+          }
+          const tipoId = act.tipo_producto_id || null;
+          const tipoNombre = act.catalogo_tipos_producto?.nombre || null;
+          acumularItem(tipoId, tipoNombre, progCorte, realCorte, tieneReal);
+        }
+      });
+
+      const lista = Array.from(statsPorTipo.values()).sort(
+        (a, b) => (b.cumplidoEnCurso + b.enAtencionRetraso + b.sinRegistro) - (a.cumplidoEnCurso + a.enAtencionRetraso + a.sinRegistro)
+      );
+
+      if (charts.productosTipo) {
+        charts.productosTipo.destroy();
+      }
+
+      charts.productosTipo = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: lista.map(x => x.label.length > 34 ? x.label.substring(0, 34) + '...' : x.label),
+          datasets: [
+            {
+              label: 'Cumplido / En curso (≥ 90%)',
+              data: lista.map(x => x.cumplidoEnCurso),
+              backgroundColor: '#059669',
+              borderRadius: 4
+            },
+            {
+              label: 'En atención / Con retraso (< 90%)',
+              data: lista.map(x => x.enAtencionRetraso),
+              backgroundColor: '#f59e0b',
+              borderRadius: 4
+            },
+            {
+              label: 'Sin registro al corte',
+              data: lista.map(x => x.sinRegistro),
+              backgroundColor: '#94a3b8',
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { stacked: true, beginAtZero: true, ticks: { precision: 0 } },
+            y: { stacked: true }
+          },
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
           }
         }
       });

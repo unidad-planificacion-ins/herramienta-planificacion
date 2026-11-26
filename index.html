@@ -2848,6 +2848,17 @@ function esReferenteEnEjecucion() {
       document.getElementById('act-eje').value = '';
       document.getElementById('act-eje').dispatchEvent(new Event('change'));
 
+      const unidadSel = document.getElementById('act-unidad');
+      if (unidadSel) {
+        if (typeof esOperativoReferente === 'function' && esOperativoReferente() && currentProfile?.unidad_id) {
+          unidadSel.value = currentProfile.unidad_id;
+          unidadSel.disabled = true;
+        } else {
+          unidadSel.disabled = false;
+        }
+      }
+      actualizarDatalistResponsables();
+
       document.getElementById('bloque-prog-directa').classList.remove('hidden');
       document.getElementById('modal-actividad').classList.remove('hidden');
       actualizarDatalistResponsables();

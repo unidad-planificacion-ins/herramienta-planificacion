@@ -1657,6 +1657,7 @@
   <script>
     let ciclosList = [];
     let activeCicloId = null;
+    let activeCicloEstado = '';
     let unidadesList = [];
     let planesList = [];
     let ejesList = [];
@@ -1677,6 +1678,14 @@
     const LOCAL_TP_CAT_KEY = 'ins_tp_categorias_v11';
     const LOCAL_REF_KEY = 'ins_directorio_referentes_v11';
     const LOCAL_ACT_TP_KEY = 'ins_actividad_tipo_producto_v14';
+    function actualizarEstadoCicloActivo() {
+  const ciclo = ciclosList.find(c => String(c.id) === String(activeCicloId));
+  activeCicloEstado = String(ciclo?.estado || '').toLowerCase();
+}
+
+function esReferenteEnEjecucion() {
+  return currentProfile?.rol === 'operativo_referente' && activeCicloEstado === 'en_ejecucion';
+}
 
 
     function getRolActual() {
@@ -2079,10 +2088,12 @@
       cicloSel.innerHTML = ciclosList.map(c => `<option value="${c.id}">PAO ${c.anio} (${c.estado})</option>`).join('');
       if (ciclosList.length > 0) {
         activeCicloId = ciclosList[0].id;
+        actualizarEstadoCicloActivo();
       }
 
       cicloSel.addEventListener('change', (e) => {
         activeCicloId = e.target.value;
+        actualizarEstadoCicloActivo()
         reloadAllCycleData();
       });
 

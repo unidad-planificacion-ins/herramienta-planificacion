@@ -2734,7 +2734,7 @@ function esReferenteEnEjecucion() {
       // Ajustar altura dinámica del contenedor según la cantidad de unidades para evitar solapamiento
       const contUnidades = document.getElementById('chart-unidades-container');
       if (contUnidades) {
-        const alturaCalculada = Math.max(260, labelsU.length * 42);
+        const alturaCalculada = Math.max(280, labelsU.length * 48 + 40);
         contUnidades.style.height = `${alturaCalculada}px`;
       }
 

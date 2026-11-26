@@ -485,7 +485,7 @@
               <p class="text-[11px] text-slate-500">Cantidad de entregables según tipo de producto y situación de avance al trimestre de corte.</p>
             </div>
           </div>
-          <div class="relative h-80 w-full">
+          <div id="chart-productos-tipo-container" class="relative w-full min-h-[280px]">
             <canvas id="chart-productos-tipo"></canvas>
           </div>
         </div>
@@ -2745,7 +2745,7 @@ function esReferenteEnEjecucion() {
       // Ajustar altura dinámica del contenedor según la cantidad de unidades para evitar solapamiento
       const contUnidades = document.getElementById('chart-unidades-container');
       if (contUnidades) {
-        const alturaCalculada = Math.max(260, labelsU.length * 42);
+        const alturaCalculada = Math.max(320, labelsU.length * 54);
         contUnidades.style.height = `${alturaCalculada}px`;
       }
 
@@ -2874,7 +2874,12 @@ function esReferenteEnEjecucion() {
 
       const lista = Array.from(statsPorTipo.values())
         .sort((a, b) => (b.cumplidoEnCurso + b.enAtencionRetraso + b.sinRegistro) - (a.cumplidoEnCurso + a.enAtencionRetraso + a.sinRegistro));
-
+      const contProductos = document.getElementById('chart-productos-tipo-container');
+      if (contProductos) {
+        const alturaProd = Math.max(300, lista.length * 52 + 70);
+        contProductos.style.height = `${alturaProd}px`;
+      }
+      
       if (charts.productosTipo) {
         charts.productosTipo.destroy();
       }
@@ -2882,7 +2887,7 @@ function esReferenteEnEjecucion() {
       charts.productosTipo = new Chart(canvas, {
         type: 'bar',
         data: {
-          labels: lista.map(x => x.label.length > 36 ? x.label.substring(0, 36) + '...' : x.label),
+          labels: lista.map(x => x.label.length > 52 ? x.label.substring(0, 52) + '...' : x.label),
           datasets: [
             {
               label: 'Cumplido / En curso (≥ 90%)',

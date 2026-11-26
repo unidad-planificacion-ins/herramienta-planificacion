@@ -1739,6 +1739,11 @@ function esReferenteEnEjecucion() {
       if (panelResFoda) {
         panelResFoda.classList.remove('lg:col-span-3');
         panelResFoda.classList.add('lg:col-span-2');
+        if (btnNuevaAct) {
+        const bloquearNuevaAct = esReferenteEnEjecucion();
+        btnNuevaAct.classList.toggle('hidden', bloquearNuevaAct);
+        btnNuevaAct.disabled = bloquearNuevaAct;
+      }
       }
 
       if (rol === 'admin_planificacion') {
@@ -2093,7 +2098,10 @@ function esReferenteEnEjecucion() {
 
       cicloSel.addEventListener('change', (e) => {
         activeCicloId = e.target.value;
-        actualizarEstadoCicloActivo()
+        actualizarEstadoCicloActivo();
+        if (typeof window.aplicarVisibilidadPorRol === 'function' && currentProfile?.rol) {
+          window.aplicarVisibilidadPorRol(currentProfile.rol);
+        }
         reloadAllCycleData();
       });
 
